@@ -4,6 +4,7 @@ Este repositorio aloja la app de reportes de LYSI (GitHub Pages):
 https://ivanglaguna2006.github.io/LYSI---REPORTES/
 
 - `index.html`: la app (pantalla de acceso, consulta y Administración). No tiene datos.
+- `originales.json`: los dos Excel del Reporte de resultados, **cifrados**; lo escribe `cargar_gastos.py`. La app lo baja solo cuando alguien pide el Excel original.
 - `datos.json`: los reportes y los archivos fuente, **cifrados**. Nunca editarlo a mano ni reemplazarlo por otra cosa: la app deja de abrir.
 - `motor/`: el código de cálculo (reglas del Prompt Maestro v4.7). Es el mismo que la app lleva adentro.
 - `cargar_mes.py`: carga un mes desde acá, con el mismo resultado que la pantalla de Administración.
@@ -37,7 +38,9 @@ el reporte mensual (una hoja por mes, `REPORTE_MENSUAL_LYSI_...xlsx`) y el de re
 2. Copiar los dos Excel a una carpeta vacía.
 3. Control, sin publicar: `LYSI_ADMIN='<contraseña>' python3 cargar_gastos.py <carpeta>`
 4. Mostrarle a Ivo el control (el resumen de cada mes tal como figura en el Excel) y **esperar su OK**.
-5. Con su OK: repetir con `--publicar`, y después commit y push de `datos.json` a `main`.
+5. Con su OK: repetir con `--publicar`, y después commit y push de `datos.json` y `originales.json` a `main`
+   (`git add datos.json originales.json`). `originales.json` son los dos Excel cifrados con la contraseña del
+   apartado: es lo que la app ofrece como «Excel original».
    La primera vez, o para cambiar la contraseña de Resultados, agregar `LYSI_GASTOS='<contraseña de gastos>'`.
 6. Si el control avisa que hay hojas sin contenido, el Excel se guardó sin valores calculados: pedirle a Ivo
    que lo abra y lo guarde en Excel, y volver a cargarlo. No se publica así.
