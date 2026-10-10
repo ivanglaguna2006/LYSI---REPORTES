@@ -9,10 +9,11 @@ resultados del año. Se reconocen por sus hojas, no por el nombre. La aplicació
 Contraseñas, solo por variables de entorno (nunca se escriben en el repositorio):
   LYSI_ADMIN   contraseña de administración (obligatoria)
   LYSI_GASTOS  contraseña con la que se abre el Reporte de resultados. Solo hace falta la primera vez o para cambiarla.
-Después de --publicar hay que hacer commit y push de datos.json. No toca Combustible."""
+Después de --publicar hay que hacer commit y push de datos.json y originales.json. No toca Combustible."""
 import os
 import sys
 import json
+import base64
 import datetime
 
 from motor import portal as P, gastos as G
@@ -69,11 +70,21 @@ def main():
     nuevo["info"] = dict(datos.get("info", {}))
     nuevo["info"]["gastos"] = r["descripcion"]
     nuevo["info"]["gastos_fecha"] = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-3))).strftime("%d/%m/%Y %H:%M")
+    # Excel originales: van cifrados con la contraseña del apartado, en un archivo aparte que la app baja solo si alguien lo pide
+    orig = {}
+    for t, nombre in r["archivos"].items():
+        with open(os.path.join(args[0], nombre), "rb") as fh:
+            orig[t] = {"n": nombre, "c": P.cifrar(base64.b64encode(fh.read()).decode(), cg)}
+    nuevo["info"]["gastos_orig"] = sorted(orig)
+    ruta_o = os.path.join(AQUI, "originales.json")
+    with open(ruta_o + ".tmp", "w", encoding="utf-8") as fh:
+        json.dump(orig, fh)
     # se escribe aparte y se reemplaza de una: si algo se corta, datos.json no queda a medias
     with open(ruta + ".tmp", "w", encoding="utf-8") as fh:
         json.dump(nuevo, fh, ensure_ascii=False)
+    os.replace(ruta_o + ".tmp", ruta_o)
     os.replace(ruta + ".tmp", ruta)
-    print("\ndatos.json actualizado. Falta commit y push para que el sitio lo muestre.")
+    print("\ndatos.json y originales.json actualizados. Falta commit y push de los dos para que el sitio lo muestre.")
 
 
 if __name__ == "__main__":

@@ -116,7 +116,7 @@ def main():
     nuevo["info"] = {"meses": [m["nombre"] for m in r["meses"]], "ids": [m["id"] for m in r["meses"] if not m.get("importado")],
                      "generado": datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-3))).strftime("%d/%m/%Y %H:%M"),
                      "reglas": r["reglas"]}
-    for k in ("gastos", "gastos_fecha"):
+    for k in ("gastos", "gastos_fecha", "gastos_orig"):
         if (datos.get("info") or {}).get(k):
             nuevo["info"][k] = datos["info"][k]
     # se escribe aparte y se reemplaza de una: si algo se corta, datos.json no queda a medias
