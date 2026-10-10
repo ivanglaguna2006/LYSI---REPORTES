@@ -17,10 +17,10 @@ CSS_ADM = r"""
 .adm-door button{font:600 15px var(--ti);padding:10px 18px;border:1px solid var(--ink);border-radius:8px;background:var(--ink);color:#fff;cursor:pointer}
 .adm-door .msj{flex-basis:100%;margin:0}
 #previa{background:#FFF7E0;color:var(--ink);border-bottom:2px solid #E65100;padding:8px 20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:14.5px}
-#previa button,.btn{font:600 15px var(--ti);padding:8px 16px;border-radius:6px;border:1px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer}
+#previa button,.btn{font:600 15px var(--ti);padding:8px 16px;border-radius:8px;border:1px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer}
 .btn:hover{background:var(--bg2)}
-.btn.pri{background:var(--ink);color:#fff;border-color:var(--ink);font-size:16.5px;padding:10px 22px}
-.btn.pri:hover{background:#333}
+.btn.pri{background:var(--lima);color:var(--ink);border-color:var(--lima);font-size:16.5px;padding:10px 22px}
+.btn.pri:hover{background:#A9D64F}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
 .btn.mini{font-size:13.5px;padding:3px 10px}
 .adm section{padding-top:34px}
@@ -83,8 +83,14 @@ details.gd .pt{display:inline-block;width:10px;height:10px;border-radius:50%;mar
 .chips button:hover{background:var(--bg2)}
 .chips button[aria-current=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
 .lnk{font:inherit;font-weight:600;color:var(--lima2);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
-.gfig{margin:12px 0 18px;max-width:1000px}
-.gfig img{max-width:100%;height:auto;display:block;border:1px solid var(--ln);border-radius:6px}
+.gfig{margin:14px 0 20px;max-width:1180px}
+.gfig img{max-width:100%;height:auto;display:block;border:1px solid var(--ln);border-radius:10px;cursor:zoom-in}
+#zoom{position:fixed;inset:0;z-index:60;background:rgba(26,26,26,.82);display:grid;place-items:center;padding:18px;cursor:zoom-out}
+#zoom img{max-width:100%;max-height:100%;background:#fff;border-radius:8px}
+/* el gráfico de barras del Excel toma los colores de la marca */
+.gst .chart rect[fill="#2E7D32"]{fill:var(--lima)}
+.gst .gfig .le i[style*="2E7D32"]{background:var(--lima)!important}
+.gst .gfig .ley{margin-top:10px}
 .gp{max-width:100ch;margin:6px 0}
 .gst p.aviso{margin:8px 0}
 /* en pantallas anchas las 19 hojas pasan a un índice fijo a la izquierda */
@@ -133,9 +139,10 @@ HTML_CUERPO = r"""
 <p class="pie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><path d="M12 14.5v2.5"/></svg><span id="pie">Cada reporte tiene una contraseña independiente.</span></p></div>
 <footer class="fin"><span>LYSI · Plataforma de reportes</span><span id="actualizado"></span></footer></div>
 
-<div id="app" hidden><div class="cab"><div class="in"><span class="logo"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg></span><span class="donde" id="donde"></span><button id="salir" type="button">Cerrar</button></div>
+<div id="app" hidden><div class="cab"><div class="in"><span class="logo"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg></span><span class="donde" id="donde"></span><div class="imp"><button id="imp-btn" class="bt" type="button" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8.5V3.5h10v5M7 17H5a1.5 1.5 0 0 1-1.5-1.5v-5A2 2 0 0 1 5.5 8.5h13a2 2 0 0 1 2 2v5A1.5 1.5 0 0 1 19 17h-2"/><rect x="7" y="13.5" width="10" height="7" rx="1"/></svg><span>Imprimir / PDF</span></button><div id="imp-menu" hidden><button type="button" data-imp="resumen">Solo el resumen<small>La primera sección de esta pestaña</small></button><button type="button" data-imp="todo">Todo lo de esta pestaña<small>Todas las secciones, con los detalles abiertos</small></button></div></div><button id="salir" type="button">Cerrar</button></div>
 <div class="tabs" id="tabs" role="navigation" aria-label="Apartados"></div>
 <div id="previa" hidden><b>Vista previa.</b> Así va a quedar; todavía no está publicado. <button type="button" id="volver-adm">Volver a administración</button></div></div>
+<div class="imp-cab"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg><div><b>Logística y Servicios Integrales</b><span id="imp-tit"></span></div><span class="f" id="imp-fecha"></span></div>
 <main id="contenido"></main></div>
 
 <div id="adm" class="adm" hidden><div class="cab"><div class="in"><span class="logo"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg></span><span class="donde">Administración</span><button id="salir-adm" type="button">Cerrar</button></div></div>
@@ -248,9 +255,32 @@ Array.prototype.forEach.call(document.querySelectorAll("[data-caja]"),function(f
  puerta(fm.querySelector("input"),fm.querySelector(".entrar"),$("msj-"+id),function(pw){
   if(!LYSI.cajas||!LYSI.cajas[id])return Promise.reject(new Error("todavía no hay reportes publicados"));
   return abrir(LYSI.cajas[id],pw).then(function(h){verReporte(h,fm.getAttribute("data-nombre"),false);});});});
-function cerrarTodo(){cont.innerHTML="";$("tabs").innerHTML="";app.hidden=true;adm.hidden=true;acceso.hidden=false;ADM=null;RES=null;window.scrollTo(0,0);}
+function cerrarTodo(){terminarImp();menuImp(false);cont.innerHTML="";$("tabs").innerHTML="";app.hidden=true;adm.hidden=true;acceso.hidden=false;ADM=null;RES=null;window.scrollTo(0,0);}
 $("salir").addEventListener("click",function(){if(!$("previa").hidden){volverAdm();return;}cerrarTodo();});
 window.addEventListener("resize",medir);
+
+// ───────────── Imprimir o guardar en PDF ─────────────
+// Solo cambia qué se muestra en el papel; al terminar, la pantalla queda como estaba.
+var IMP=null;
+function prepararImp(modo){terminarImp();var ap=cont.querySelector(".apartado:not([hidden])");if(!ap)return false;
+ var s=ap.querySelector("section"),ds=[];if(s)s.classList.add("imp-1");
+ if(modo==="todo")Array.prototype.forEach.call(ap.querySelectorAll("details:not([open])"),function(d){d.open=true;ds.push(d);});
+ document.body.setAttribute("data-imp",modo);var h=ap.querySelector("h1"),hoy=new Date();
+ $("imp-tit").textContent=$("donde").textContent+(h?" · "+h.textContent:"")+(modo==="resumen"?" · resumen":"");
+ $("imp-fecha").textContent="Impreso el "+hoy.getDate()+" de "+MESES[hoy.getMonth()+1]+" de "+hoy.getFullYear();
+ IMP={s:s,ds:ds};return true;}
+function terminarImp(){if(!IMP)return;if(IMP.s)IMP.s.classList.remove("imp-1");IMP.ds.forEach(function(d){d.open=false;});document.body.removeAttribute("data-imp");IMP=null;}
+window.addEventListener("afterprint",terminarImp);
+function menuImp(v){$("imp-menu").hidden=!v;$("imp-btn").setAttribute("aria-expanded",v?"true":"false");}
+$("imp-btn").addEventListener("click",function(ev){ev.stopPropagation();menuImp($("imp-menu").hidden);});
+document.addEventListener("click",function(ev){var b=ev.target.closest&&ev.target.closest("[data-imp]");
+ if(b){menuImp(false);if(prepararImp(b.getAttribute("data-imp")))setTimeout(function(){window.print();},60);return;}
+ if(!$("imp-menu").hidden&&!(ev.target.closest&&ev.target.closest(".imp")))menuImp(false);});
+document.addEventListener("keydown",function(ev){if(ev.key==="Escape"){menuImp(false);var z=document.getElementById("zoom");if(z)z.remove();}});
+// Gráficos que vienen como imagen: un clic los abre a pantalla completa.
+document.addEventListener("click",function(ev){var z=document.getElementById("zoom");if(z){z.remove();return;}
+ var im=ev.target.closest&&ev.target.closest(".gfig img");if(!im)return;z=document.createElement("div");z.id="zoom";z.setAttribute("role","dialog");z.setAttribute("aria-label","Gráfico ampliado. Clic o Escape para cerrar.");
+ var c=document.createElement("img");c.src=im.src;c.alt=im.alt;z.appendChild(c);document.body.appendChild(z);});
 
 // ───────────── Administración ─────────────
 var ADM=null,RES=null,SUCIO=false,MES=null,PYO=null,GAS=[];

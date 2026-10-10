@@ -63,9 +63,29 @@ def barra_dif(dif, maxabs=12.0):
             f'<rect x="49.6" y="0" width="0.8" height="10" fill="#111"/></svg>')
 
 
-def kpi(valor, rotulo, nota=""):
+def kpi(valor, rotulo, nota="", var=""):
     nt = f'<div class="kn">{nota}</div>' if nota else ""
-    return f'<div class="kpi"><div class="kv">{valor}</div><div class="kl">{rotulo}</div>{nt}</div>'
+    return f'<div class="kpi"><div class="kv">{valor}</div><div class="kl">{rotulo}</div>{nt}{var}</div>'
+
+
+def variacion(act, ant, mes_ant, dec=0, sentido=0, pct=False, unidad=""):
+    """Diferencia contra el mes anterior, para mostrar debajo de un indicador.
+    sentido: 1 = que suba es peor, -1 = que suba es mejor, 0 = sin juicio (solo informa).
+    pct=True muestra la variación en porcentaje; si no, la diferencia absoluta con `dec` decimales."""
+    if nulo(act) or nulo(ant):
+        return ""
+    d = act - ant
+    if pct:
+        if not ant:
+            return ""
+        rel = (act / ant - 1) * 100
+        txt, cero = n(rel, 1, True) + NB + "%", abs(rel) < 0.05
+    else:
+        txt, cero = n(d, dec, True) + unidad, abs(d) < 10 ** -dec / 2
+    if cero:
+        return f'<div class="kd">= igual que {mes_ant}</div>'
+    cls = "" if not sentido else (" kd-p" if (d > 0) == (sentido > 0) else " kd-m")
+    return f'<div class="kd{cls}">{"▲" if d > 0 else "▼"} {txt} vs {mes_ant}</div>'
 
 
 def franja_estados(k):
@@ -127,6 +147,10 @@ def mes_html(R, prev=None):
     comp = ""
     if prev is not None:
         comp = f" ({prev['nombre_mes']}: {n(prev['kpis']['coef'], 2)})"
+
+    def va(clave, **kw):
+        """Variación del indicador `clave` contra el mes anterior medido; vacío si no hay mes anterior comparable."""
+        return variacion(k.get(clave), prev["kpis"].get(clave), prev["nombre_mes"], **kw) if prev is not None else ""
     resumen = f"""
 <p class="lead">{k['operativas']} unidades operativas de {k['totales']} totales, {k['sin_cargas']} sin cargas.
 {n(k['km'])} km en las ventanas de {k['n_medibles']} unidades y {n(k['gasoil_medible'], 2)} L de gasoil:
@@ -134,22 +158,22 @@ coeficiente general <strong>{n(k['coef'], 2)} L/100 km</strong>{comp}.</p>
 {franja_estados(k)}
 <h3>Actividad de la flota</h3>
 <div class="kpis">
-{kpi(n(k['km']), 'km de las ventanas', f"{k['n_medibles']} unidades medibles")}
-{kpi(n(k['gasoil_medible'], 2), 'litros de gasoil', 'de las unidades medibles')}
-{kpi(n(k['coef'], 2), 'coeficiente general', 'gasoil × 100 / km')}
-{kpi(n(k['urea'], 2), 'litros de urea', 'bidones convertidos (Regla 17)')}
-{kpi(n(k['ratio_urea'], 2) + NB + '%', 'ratio urea / gasoil', 'sobre la flota operativa')}
-{kpi(n(k['km_prom']), 'km promedio por unidad', 'por ventana medible')}
+{kpi(n(k['km']), 'km de las ventanas', f"{k['n_medibles']} unidades medibles", va('km', pct=True))}
+{kpi(n(k['gasoil_medible'], 2), 'litros de gasoil', 'de las unidades medibles', va('gasoil_medible', pct=True))}
+{kpi(n(k['coef'], 2), 'coeficiente general', 'gasoil × 100 / km', va('coef', dec=2, sentido=1))}
+{kpi(n(k['urea'], 2), 'litros de urea', 'bidones convertidos (Regla 17)', va('urea', pct=True))}
+{kpi(n(k['ratio_urea'], 2) + NB + '%', 'ratio urea / gasoil', 'sobre la flota operativa', va('ratio_urea', dec=2, unidad=NB + 'pp'))}
+{kpi(n(k['km_prom']), 'km promedio por unidad', 'por ventana medible', va('km_prom', pct=True))}
 </div>
 <h3>Estado de la flota</h3>
 <div class="kpis">
-{kpi(f"{k['operativas']} de {k['totales']}", 'operativas', f"{k['sin_cargas']} sin cargas")}
-{kpi(k['criticas'], 'críticas', 'diferencia mayor a 3')}
-{kpi(k['atencion'], 'en atención', 'diferencia de 1 a 3')}
-{kpi(k['normales'], 'normales', 'diferencia hasta 1')}
-{kpi(k['coef_bajo'], 'coeficiente bajo', 'diferencia menor a −3')}
-{kpi(k['investigar'], 'a investigar', 'Regla 21')}
-{kpi(k['exceso_urea'], 'exceso de urea', 'ratio mayor a 8 %')}
+{kpi(f"{k['operativas']} de {k['totales']}", 'operativas', f"{k['sin_cargas']} sin cargas", va('operativas'))}
+{kpi(k['criticas'], 'críticas', 'diferencia mayor a 3', va('criticas', sentido=1))}
+{kpi(k['atencion'], 'en atención', 'diferencia de 1 a 3', va('atencion', sentido=1))}
+{kpi(k['normales'], 'normales', 'diferencia hasta 1', va('normales', sentido=-1))}
+{kpi(k['coef_bajo'], 'coeficiente bajo', 'diferencia menor a −3', va('coef_bajo'))}
+{kpi(k['investigar'], 'a investigar', 'Regla 21', va('investigar'))}
+{kpi(k['exceso_urea'], 'exceso de urea', 'ratio mayor a 8 %', va('exceso_urea', sentido=1))}
 </div>
 <h3>Conciliación con el total del archivo YPF</h3>{t_conc}
 <h3>Desglose de urea</h3>{t_urea}
