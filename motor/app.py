@@ -118,6 +118,10 @@ pintarInfo();
 // El acceso de administración no se muestra en el inicio: aparece solo entrando con #admin al final de la dirección.
 function verPuertaAdm(){var v=/^#admin$/i.test(location.hash);$("adm-door").hidden=!v;if(v)setTimeout(function(){try{$("pw-admin").focus();}catch(e){}},50);}
 verPuertaAdm();window.addEventListener("hashchange",verPuertaAdm);
+// Mismo link para todos: el acceso aparece tocando cinco veces seguidas el punto verde del logo.
+(function(){var p=document.querySelector("#acceso .marca b"),n=0,t=null;if(!p)return;
+ p.addEventListener("click",function(){n++;clearTimeout(t);t=setTimeout(function(){n=0;},2500);
+  if(n>=5){n=0;var d=$("adm-door");d.hidden=!d.hidden;if(!d.hidden){d.scrollIntoView({block:"center"});setTimeout(function(){try{$("pw-admin").focus();}catch(e){}},50);}}});})();
 var LISTO=Promise.resolve();
 if(LYSI.remoto){$("pie").textContent="Cargando los reportes…";
  LISTO=fetch(LYSI.remoto+"?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("http "+r.status);return r.json();})
