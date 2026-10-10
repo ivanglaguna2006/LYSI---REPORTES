@@ -152,7 +152,7 @@ var ADM=null,RES=null,SUCIO=false,MES=null,PYO=null;
 function sucio(v){SUCIO=v;$("sucio").hidden=!v;}
 window.addEventListener("beforeunload",function(ev){if(SUCIO){ev.preventDefault();ev.returnValue="";}});
 puerta($("pw-admin"),$("btn-admin"),$("msj-admin"),function(pw){
- return abrir(LYSI.admin,pw).then(function(txt){ADM=JSON.parse(txt);ADM.fuentes=ADM.fuentes||{};ADM.ajustes=ADM.ajustes||{};ADM.claves=ADM.claves||{};ADM.claves.admin=pw;abrirAdm();});});
+ return abrir(LYSI.admin,pw).then(function(txt){ADM=JSON.parse(txt);ADM.fuentes=ADM.fuentes||{};ADM.ajustes=ADM.ajustes||{};ADM.importados=ADM.importados||{};ADM.claves=ADM.claves||{};ADM.claves.admin=pw;abrirAdm();});});
 function abrirAdm(){acceso.hidden=true;app.hidden=true;adm.hidden=false;$("cl-comb").value=ADM.claves.combustible||"";$("cl-adm").value=ADM.claves.admin||"";
  var hoy=new Date(),y0=hoy.getFullYear(),ys={},k,sel=$("anio"),o="";ys[y0]=1;for(k in ADM.fuentes)ys[k.slice(0,4)]=1;ys[y0-1]=1;
  Object.keys(ys).sort().forEach(function(y){o+='<option value="'+y+'"'+(String(y)===String(y0)?" selected":"")+">"+y+"</option>";});sel.innerHTML=o;
@@ -162,7 +162,8 @@ $("volver-adm").addEventListener("click",volverAdm);
 $("salir-adm").addEventListener("click",function(){if(SUCIO&&!window.confirm("Hay cambios sin publicar. Si cerrás, se pierden. ¿Cerrar igual?"))return;sucio(false);cerrarTodo();});
 $("anio").addEventListener("change",function(){MES=null;$("panel").hidden=true;pintarMeses();});
 function estadoMes(id){var f=ADM.fuentes[id]||{},n=0;TIPOS.forEach(function(t){if(f[t[0]])n++;});
- var pub=(LYSI.info&&LYSI.info.ids||[]).indexOf(id)>=0;
+ var pub=(LYSI.info&&LYSI.info.ids||[]).indexOf(id)>=0,imp=!!ADM.importados[id];
+ if(imp&&!pub)return["ok",n?"Importado ("+n+" de 4 archivos)":"Importado de un reporte"];
  if(n===0)return["","Sin cargar"];if(n===4)return["ok",pub?"Publicado":"4 de 4 archivos"];
  if(f.cargas&&f.filarus&&n===2)return["arr","Solo arranque (2 de 4)"];return["arr",n+" de 4 archivos"];}
 function pintarMeses(){var y=$("anio").value,h="",m;for(m=1;m<=12;m++){var id=y+"-"+(m<10?"0":"")+m,e=estadoMes(id);
@@ -172,6 +173,7 @@ $("meses").addEventListener("click",function(ev){var b=ev.target.closest(".mesb"
 function nombreMes(id){return MESES[parseInt(id.slice(5),10)]+" "+id.slice(0,4);}
 function pintarPanel(){var p=$("panel"),f=ADM.fuentes[MES]||{},aj=(ADM.ajustes[MES]||{}).unidades||{},h="";
  h+="<h3>"+esc(nombreMes(MES).charAt(0).toUpperCase()+nombreMes(MES).slice(1))+"</h3>";
+ if(ADM.importados[MES])h+='<div class="estado av">Este mes está cargado desde un reporte ya hecho ('+esc(ADM.importados[MES].origen||"")+'). Si subís sus cuatro archivos y están los del mes anterior, pasa a calcularse acá y reemplaza al importado.</div>';
  h+='<div class="fila"><label for="varios">Elegir los archivos del mes juntos</label><input type="file" id="varios" multiple accept=".xlsx,.xls"></div><p class="nota">Los reconoce por el nombre con que bajan (ReporteConsumos, KmRecorridos, Informe de combustible, Resumen). Si alguno queda en el lugar equivocado, cargalo abajo en su fila.</p>';
  TIPOS.forEach(function(t){var x=f[t[0]];
   h+='<div class="slot"><div class="q">'+t[1]+"<small>"+t[2]+'</small></div><div class="e'+(x?" si":"")+'">'+(x?esc(x.n)+" ("+num(x.b.length*0.75/1024)+" KB)":"Sin cargar")+"</div>"
@@ -209,6 +211,7 @@ function procesar(){var el=$("proc-estado");$("procesar").disabled=true;$("proc-
     p.runPython("import shutil,os\nshutil.rmtree('/datos',ignore_errors=True)\nos.makedirs('/datos')");
     Object.keys(ADM.fuentes).forEach(function(id){p.FS.mkdirTree("/datos/"+id);var f=ADM.fuentes[id];Object.keys(f).forEach(function(k){p.FS.writeFile("/datos/"+id+"/"+k+".xlsx",b64(f[k].b));});
      if(ADM.ajustes[id])p.FS.writeFile("/datos/"+id+"/ajustes.json",JSON.stringify(ADM.ajustes[id]));});
+    Object.keys(ADM.importados).forEach(function(id){p.FS.mkdirTree("/datos/"+id);p.FS.writeFile("/datos/"+id+"/importado.json",JSON.stringify(ADM.importados[id]));});
     return JSON.parse(p.runPython("from motor import armado\narmado.procesar('/datos')"));});})
   .then(function(r){RES=r;$("procesar").disabled=false;pintarRes();})
   .catch(function(err){$("procesar").disabled=false;var m=String(err&&err.message||err);
@@ -216,11 +219,14 @@ function procesar(){var el=$("proc-estado");$("procesar").disabled=true;$("proc-
 function pintarRes(){var r=RES,h="";
  r.errores.forEach(function(x){h+='<div class="estado err">'+esc(x)+"</div>";});r.pendientes.forEach(function(x){h+='<div class="estado av">'+esc(x)+"</div>";});
  if(r.meses.length){h+='<div class="tw"><table><thead><tr><th>Mes</th><th class="r">km</th><th class="r">Gasoil L</th><th class="r">Coef</th><th class="r">Operativas</th><th class="r">Crít.</th><th class="r">Atenc.</th><th class="r">Norm.</th><th class="r">Bajo</th><th class="r">Invest.</th><th>Total YPF</th><th>Fuente de km</th></tr></thead><tbody>';
-  r.meses.forEach(function(m){h+="<tr><td><b>"+esc(m.nombre)+'</b></td><td class="r">'+num(m.km)+'</td><td class="r">'+num(m.gasoil,2)+'</td><td class="r">'+num(m.coef,2)+'</td><td class="r">'+m.operativas+" de "+m.totales+'</td><td class="r">'+m.criticas+'</td><td class="r">'+m.atencion+'</td><td class="r">'+m.normales+'</td><td class="r">'+m.coef_bajo+'</td><td class="r">'+m.investigar.length+"</td><td>"+(m.cierra_ypf?"Cierra":"NO CIERRA")+" ("+num(m.total_ypf,2)+" L)</td><td>"+m.fuente_odo+" odómetro, "+m.fuente_filarus+" Filarus"+(m.malla_anterior?"":" · sin malla del mes anterior")+"</td></tr>";});
+  r.meses.forEach(function(m){var d=function(v){return v==null?"—":v;};
+   h+="<tr><td><b>"+esc(m.nombre)+'</b></td><td class="r">'+num(m.km)+'</td><td class="r">'+num(m.gasoil,2)+'</td><td class="r">'+num(m.coef,2)+'</td><td class="r">'+m.operativas+(m.importado&&m.metodo!=="ventana"?"":" de "+m.totales)+'</td><td class="r">'+d(m.criticas)+'</td><td class="r">'+d(m.atencion)+'</td><td class="r">'+d(m.normales)+'</td><td class="r">'+d(m.coef_bajo)+'</td><td class="r">'+d(m.n_investigar)+"</td><td>"
+    +(m.importado?"—":(m.cierra_ypf?"Cierra":"NO CIERRA")+" ("+num(m.total_ypf,2)+" L)")+"</td><td>"
+    +(m.importado?(m.metodo==="ventana"?"Importado: ventana, km Filarus":"Importado: mes calendario, km Filarus"):m.fuente_odo+" odómetro, "+m.fuente_filarus+" Filarus"+(m.malla_anterior?"":" · sin malla del mes anterior"))+"</td></tr>";});
   h+="</tbody></table></div>";
   r.meses.forEach(function(m){if(m.investigar.length){h+='<h3 style="font-size:19px">A investigar en '+esc(m.nombre)+'</h3><ul class="hechos">';m.investigar.forEach(function(x){h+="<li><b>"+esc(x.unidad)+"</b>: "+esc(x.motivo)+(x.manual?" <span class=\"tag\">decisión registrada</span>":"")+"</li>";});h+="</ul>";}});}
  $("proc-res").innerHTML=h;var ok=!!r.html&&!r.errores.length;
- estado($("proc-estado"),ok?"Listo: "+r.meses.length+" mes(es) calculados. Revisá el control de abajo y la vista previa antes de publicar.":(r.html?"Se calculó, pero hay archivos con problemas. Corregilos antes de publicar.":"Todavía no hay ningún mes que se pueda calcular."),ok?"":"err");
+ estado($("proc-estado"),ok?"Listo: "+r.meses.length+" mes(es) armados. Revisá el control de abajo y la vista previa antes de publicar.":(r.html?"Se calculó, pero hay archivos con problemas. Corregilos antes de publicar.":"Todavía no hay ningún mes que se pueda calcular."),ok?"":"err");
  $("ver-previa").disabled=!r.html;$("publicar").disabled=!ok;}
 $("procesar").addEventListener("click",procesar);
 $("ver-previa").addEventListener("click",function(){if(RES&&RES.html)verReporte(RES.html,"Combustible",true);});
@@ -260,7 +266,7 @@ function publicar(){var el=$("pub-estado"),cc=$("cl-comb").value.trim(),ca=$("cl
  $("publicar").disabled=true;estado(el,"Cifrando y armando el archivo…");ADM.claves.combustible=cc;ADM.claves.admin=ca;
  setTimeout(function(){
   cifrar(RES.html,cc).then(function(c1){return cifrar(JSON.stringify(ADM),ca).then(function(c2){
-    var nuevo={v:LYSI.v,iter:LYSI.iter,pyodide:LYSI.pyodide,cajas:{combustible:c1},admin:c2,info:{meses:RES.meses.map(function(m){return m.nombre;}),ids:RES.meses.map(function(m){return m.id;}),generado:RES.generado,reglas:RES.reglas}};
+    var nuevo={v:LYSI.v,iter:LYSI.iter,pyodide:LYSI.pyodide,cajas:{combustible:c1},admin:c2,info:{meses:RES.meses.map(function(m){return m.nombre;}),ids:RES.meses.filter(function(m){return !m.importado;}).map(function(m){return m.id;}),generado:RES.generado,reglas:RES.reglas}};
     if(LYSI.remoto)nuevo.remoto=LYSI.remoto;var g=gh();
     function hecho(txt){LYSI=nuevo;window.LYSI=nuevo;pintarInfo();pintarMeses();sucio(false);$("publicar").disabled=false;$("copia").disabled=false;estado(el,txt);}
     if(g){estado(el,"Subiendo al sitio…");return subirGitHub(g,nuevo).then(function(){hecho("Publicado en el sitio. En uno o dos minutos lo ve todo el que entre al link.");});}
@@ -303,9 +309,14 @@ def semilla(base_datos, claves):
     """Primera versión del archivo: calcula con lo que hay en la carpeta y deja las fuentes guardadas para administración."""
     from . import armado, config as C
     r = json.loads(armado.procesar(base_datos))
-    adm = {"claves": claves, "fuentes": {}, "ajustes": {}}
+    adm = {"claves": claves, "fuentes": {}, "ajustes": {}, "importados": {}}
     for a, m, p in armado.meses_disponibles(base_datos):
         mid = f"{a}-{m:02d}"
+        imp = os.path.join(p, "importado.json")
+        if os.path.exists(imp):
+            adm["importados"][mid] = json.load(open(imp, encoding="utf-8"))
+        if not os.path.exists(os.path.join(p, "cargas.xlsx")):
+            continue
         adm["fuentes"][mid] = {}
         for t in ["cargas", "filarus", "malla", "resumen"]:
             ruta = os.path.join(p, t + ".xlsx")
@@ -318,7 +329,7 @@ def semilla(base_datos, claves):
     datos = {"v": 2, "iter": P.ITER, "pyodide": PYODIDE,
              "cajas": {"combustible": P.cifrar(r["html"], claves["combustible"])},
              "admin": P.cifrar(json.dumps(adm, ensure_ascii=False), claves["admin"]),
-             "info": {"meses": [m["nombre"] for m in r["meses"]], "ids": [m["id"] for m in r["meses"]], "generado": r["generado"], "reglas": r["reglas"]}}
+             "info": {"meses": [m["nombre"] for m in r["meses"]], "ids": [m["id"] for m in r["meses"] if not m["importado"]], "generado": r["generado"], "reglas": r["reglas"]}}
     return construir(datos), r
 
 

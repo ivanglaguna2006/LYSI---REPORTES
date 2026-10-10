@@ -78,6 +78,10 @@ def main():
                 open(os.path.join(d, t + ".xlsx"), "wb").write(base64.b64decode(x["b"]))
             if adm["ajustes"].get(mid):
                 json.dump(adm["ajustes"][mid], open(os.path.join(d, "ajustes.json"), "w", encoding="utf-8"), ensure_ascii=False)
+        for mid, imp in (adm.get("importados") or {}).items():
+            d = os.path.join(tmp, mid)
+            os.makedirs(d, exist_ok=True)
+            json.dump(imp, open(os.path.join(d, "importado.json"), "w", encoding="utf-8"), ensure_ascii=False)
         r = json.loads(armado.procesar(tmp))
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -88,6 +92,9 @@ def main():
     for p in r["pendientes"]:
         print("  Pendiente:", p)
     for m in r["meses"]:
+        if m.get("importado"):
+            print(f"  {m['nombre']}: {m['km']:,.0f} km · {m['gasoil']:,.2f} L · coef {m['coef']:.2f} · importado de un reporte ({m['metodo']})")
+            continue
         print(f"  {m['nombre']}: {m['km']:,.0f} km · {m['gasoil']:,.2f} L · coef {m['coef']:.2f} · {m['operativas']} de {m['totales']} operativas · "
               f"{m['criticas']} crít. / {m['atencion']} atenc. / {m['normales']} norm. / {m['coef_bajo']} bajo / {len(m['investigar'])} invest. · "
               f"YPF {'cierra' if m['cierra_ypf'] else 'NO CIERRA'} · km: {m['fuente_odo']} odómetro, {m['fuente_filarus']} Filarus"
@@ -106,7 +113,7 @@ def main():
     nuevo["cajas"] = dict(datos.get("cajas", {}))
     nuevo["cajas"]["combustible"] = P.cifrar(r["html"], adm["claves"]["combustible"])
     nuevo["admin"] = P.cifrar(json.dumps(adm, ensure_ascii=False), clave)
-    nuevo["info"] = {"meses": [m["nombre"] for m in r["meses"]], "ids": [m["id"] for m in r["meses"]],
+    nuevo["info"] = {"meses": [m["nombre"] for m in r["meses"]], "ids": [m["id"] for m in r["meses"] if not m.get("importado")],
                      "generado": datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-3))).strftime("%d/%m/%Y %H:%M"),
                      "reglas": r["reglas"]}
     json.dump(nuevo, open(ruta, "w", encoding="utf-8"), ensure_ascii=False)

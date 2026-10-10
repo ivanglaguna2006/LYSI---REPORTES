@@ -6,9 +6,9 @@ import pandas as pd
 from . import config as C
 
 NB = "&#160;"
-COL = {"CRITICO": "#C62828", "ATENCION": "#E65100", "NORMAL": "#2E7D32", "COEF BAJO": "#1565C0",
+COL = {"HISTORICO": "#6b7773", "SIN KM": "#9aa39f", "CRITICO": "#C62828", "ATENCION": "#E65100", "NORMAL": "#2E7D32", "COEF BAJO": "#1565C0",
        "A INVESTIGAR": "#455A64", "SIN GASOIL": "#8a8a8a"}
-ETIQ = {"CRITICO": "Crítico", "ATENCION": "Atención", "NORMAL": "Normal", "COEF BAJO": "Coef. bajo",
+ETIQ = {"HISTORICO": "Histórico", "SIN KM": "Sin km", "CRITICO": "Crítico", "ATENCION": "Atención", "NORMAL": "Normal", "COEF BAJO": "Coef. bajo",
         "A INVESTIGAR": "A investigar", "SIN GASOIL": "Sin gasoil"}
 ORDEN = ["CRITICO", "ATENCION", "NORMAL", "COEF BAJO", "A INVESTIGAR"]
 
@@ -386,9 +386,11 @@ def conclusion_html(R, prev):
 
 
 # ───────────────────────── evaluación anual ─────────────────────────
-def svg_linea(etqs, vals, alto=180, unidad=""):
-    """Línea estática de una sola serie con etiqueta directa en cada punto (son pocos meses)."""
+def svg_linea(etqs, vals, alto=180, unidad="", huecos=None):
+    """Línea estática de una sola serie con etiqueta directa en cada punto (son pocos meses).
+    huecos[i] = True dibuja el punto hueco y su tramo punteado: mes medido con otro método."""
     W, Hh, ml, mr, mt, mb = 640, alto, 46, 20, 22, 30
+    huecos = huecos or [False] * len(vals)
     vs = [v for v in vals if v is not None]
     if not vs:
         return ""
@@ -396,19 +398,24 @@ def svg_linea(etqs, vals, alto=180, unidad=""):
     pad = (hi - lo) * 0.35 or 0.5
     lo, hi = lo - pad, hi + pad
     nx = max(len(vals) - 1, 1)
-    X = lambda i: ml + 40 + (W - ml - mr - 80) * (i / nx if len(vals) > 1 else 0.5)
+    X = lambda i: ml + 30 + (W - ml - mr - 60) * (i / nx if len(vals) > 1 else 0.5)
     Y = lambda v: mt + (Hh - mt - mb) * (1 - (v - lo) / (hi - lo))
     g = []
     for j in range(4):
         v = lo + (hi - lo) * j / 3
         g.append(f'<line x1="{ml}" x2="{W - mr}" y1="{Y(v):.1f}" y2="{Y(v):.1f}" stroke="#e3e6e3"/>'
                  f'<text x="{ml - 6}" y="{Y(v) + 4:.1f}" text-anchor="end" class="ax">{n(v, 1)}</text>')
-    pts = [(X(i), Y(v), v) for i, v in enumerate(vals) if v is not None]
-    path = "M" + " L".join(f"{x:.1f},{y:.1f}" for x, y, _ in pts)
-    dots = "".join(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4.5" fill="#1B5E20" stroke="#fff" stroke-width="2"><title>{n(v, 2)} {unidad}</title></circle>'
-                   f'<text x="{x:.1f}" y="{y - 10:.1f}" text-anchor="middle" class="dl">{n(v, 2)}</text>' for x, y, v in pts)
+    pts = [(X(i), Y(v), v, huecos[i]) for i, v in enumerate(vals) if v is not None]
+    segs = "".join(f'<line x1="{a[0]:.1f}" y1="{a[1]:.1f}" x2="{b[0]:.1f}" y2="{b[1]:.1f}" stroke="{"#8a9590" if (a[3] or b[3]) else "#1B5E20"}" stroke-width="2"'
+                   f'{" stroke-dasharray=\"5 4\"" if (a[3] or b[3]) else ""}/>' for a, b in zip(pts, pts[1:]))
+    dots = "".join(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="4.5" fill="{"#fff" if h else "#1B5E20"}" stroke="{"#6b7773" if h else "#fff"}" stroke-width="2"><title>{n(v, 2)} {unidad}</title></circle>'
+                   f'<text x="{x:.1f}" y="{y - 10:.1f}" text-anchor="middle" class="dl">{n(v, 2)}</text>' for x, y, v, h in pts)
     xl = "".join(f'<text x="{X(i):.1f}" y="{Hh - 8}" text-anchor="middle" class="ax">{e(t)}</text>' for i, t in enumerate(etqs))
-    return f'<svg class="chart" viewBox="0 0 {W} {Hh}" role="img">{"".join(g)}<path d="{path}" fill="none" stroke="#1B5E20" stroke-width="2"/>{dots}{xl}</svg>'
+    ley = ""
+    if any(huecos):
+        ley = ('<div class="ley"><div class="le"><i style="background:#1B5E20;border-radius:50%"></i>Ventana carga a carga</div>'
+               '<div class="le"><i style="background:#fff;border:2px solid #6b7773;border-radius:50%"></i>Método anterior: mes calendario, km de Filarus</div></div>')
+    return f'<svg class="chart" viewBox="0 0 {W} {Hh}" role="img">{"".join(g)}{segs}{dots}{xl}</svg>{ley}'
 
 
 def svg_estados(etqs, conteos, alto=200):
@@ -447,8 +454,10 @@ def celda_estado(r):
     return f'<td class="r mz" style="box-shadow:inset 4px 0 0 {col}" title="{ETIQ[r["estado"]]}">{txt}</td>'
 
 
-def anual_html(meses, anio, faltantes):
-    """meses: lista de resultados R ordenados por mes."""
+def anual_html(meses, anio, faltantes, hist=None):
+    """meses: resultados medidos por ventana (comparables), ordenados por mes. hist: meses del método anterior."""
+    hist = hist or []
+    todos = sorted(meses + hist, key=lambda m: m["mes"])
     etq = [m["nombre_mes"][:3].capitalize() for m in meses]
     nombres = [m["nombre_mes"].capitalize() for m in meses]
     pid = f"a{anio}"
@@ -463,26 +472,46 @@ def anual_html(meses, anio, faltantes):
     sob2 = sum(m["kpis"]["sobre_ideal_crit_atencion"] for m in meses)
     costo2 = sum((m["kpis"]["costo_crit_atencion"] or 0) for m in meses)
     imp = sum(m["kpis"]["importe_gasoil"] for m in meses)
+    def met(m):
+        if not m.get("comparable", True):
+            return "Mes calendario, km Filarus"
+        if m.get("importado"):
+            return "Ventana, km Filarus"
+        return "Ventana"
+    o = lambda v, d=0: n(v, d) if v is not None else "—"
     filas = []
-    for m in meses:
+    for m in todos:
         k = m["kpis"]
-        filas.append([f"<b>{m['nombre_mes'].capitalize()}</b>", n(k["km"]), n(k["gasoil_medible"], 2), n(k["coef"], 2), n(k["urea"], 2), n(k["ratio_urea"], 2) + NB + "%",
-                      f"{k['operativas']} de {k['totales']}", n(k["criticas"]), n(k["atencion"]), n(k["normales"]), n(k["coef_bajo"]), n(k["investigar"]),
-                      "$" + NB + n(k["precio_gasoil"], 2), n(k["sobre_ideal_criticas"], 1), "$" + NB + n(k["costo_criticas"])])
-    filas.append({"cls": "tot", "c": [f"Acumulado ({len(meses)} meses)", n(km), n(gas, 2), n(gas * 100 / km, 2), n(urea, 2), n(urea / gas_op * 100, 2) + NB + "%",
+        c = m.get("comparable", True)
+        filas.append([f"<b>{m['nombre_mes'].capitalize()}</b>", met(m), n(k["km"]), n(k["gasoil_medible"], 2), n(k["coef"], 2),
+                      (n(k["urea"], 2) if c else "—"), ((n(k["ratio_urea"], 2) + NB + "%") if (c and k["ratio_urea"] is not None) else "—"),
+                      f"{k['operativas']} de {k['totales']}" if c else n(k["operativas"]), o(k["criticas"]), o(k["atencion"]), o(k["normales"]), o(k["coef_bajo"]), o(k["investigar"]),
+                      ("$" + NB + n(k["precio_gasoil"], 2)) if k.get("precio_gasoil") else "—",
+                      n(k["sobre_ideal_criticas"], 1) if k.get("sobre_ideal_criticas") is not None else "—",
+                      ("$" + NB + n(k["costo_criticas"])) if k.get("costo_criticas") else "—"])
+    filas.append({"cls": "tot", "c": [f"Acumulado por ventana ({len(meses)} meses)", "", n(km), n(gas, 2), n(gas * 100 / km, 2), n(urea, 2), n(urea / gas_op * 100, 2) + NB + "%",
                                       "", "", "", "", "", "", "$" + NB + n(imp / gas_op, 2), n(sob, 1), "$" + NB + n(costo)]})
-    t_pan = tabla([("Mes", "l"), ("km", "r"), ("Gasoil L", "r"), ("Coef", "r"), ("Urea L", "r"), ("Urea/gasoil", "r"), ("Operativas", "r"), ("Crít.", "r"), ("Atenc.", "r"),
+    if hist:
+        hk, hg = sum(m["kpis"]["km"] for m in hist), sum(m["kpis"]["gasoil_medible"] for m in hist)
+        filas.append({"cls": "tot", "c": [f"Acumulado método anterior ({len(hist)} meses)", "", n(hk), n(hg, 2), n(hg * 100 / hk, 2), "", "", "", "", "", "", "", "", "", "", ""]})
+    t_pan = tabla([("Mes", "l"), ("Método", "l"), ("km", "r"), ("Gasoil L", "r"), ("Coef", "r"), ("Urea L", "r"), ("Urea/gasoil", "r"), ("Operativas", "r"), ("Crít.", "r"), ("Atenc.", "r"),
                    ("Norm.", "r"), ("Bajo", "r"), ("Invest.", "r"), ("Precio gasoil", "r"), ("L sobre ideal (crít.)", "r"), ("Costo estimado", "r")], filas)
     falt = ""
     if faltantes:
         falt = f'<p class="aviso">Meses de {anio} todavía sin cargar en el software: {", ".join(faltantes)}. La evaluación cubre solo los meses cargados y se completa a medida que se suman.</p>'
+    aviso_h = ""
+    if hist:
+        aviso_h = (f'<p class="aviso">{", ".join(m["nombre_mes"].capitalize() for m in hist)} vienen de reportes hechos con el método anterior (mes calendario, km de Filarus en todas las unidades). '
+                   'Filarus cuenta menos km que el odómetro, así que esos coeficientes corren más altos: sirven para ver la tendencia entre ellos, no para compararlos uno a uno con los meses por ventana. '
+                   'Las posiciones y las evaluaciones por unidad y por chofer usan solo los meses por ventana.</p>')
+    etq_t = [m["nombre_mes"][:3].capitalize() for m in todos]
     S.append(("panorama", "Panorama del año", f"""
-<p class="lead">{len(meses)} meses cargados: {', '.join(nombres)}. {n(km)} km y {n(gas, 2)} L de gasoil en las ventanas medibles:
-coeficiente acumulado <strong>{n(gas * 100 / km, 2)} L/100 km</strong>.</p>{falt}
-<div class="dos"><figure><figcaption>Coeficiente general por mes, L/100 km</figcaption>{svg_linea(etq, [m['kpis']['coef'] for m in meses], unidad='L/100 km')}</figure>
-<figure><figcaption>Unidades operativas por estado, por mes</figcaption>{svg_estados(etq, [{x: int((m['unidades'].estado == x).sum()) for x in ORDEN} for m in meses])}</figure></div>
+<p class="lead">{len(todos)} meses cargados. En los {len(meses)} medidos por ventana ({', '.join(nombres)}): {n(km)} km y {n(gas, 2)} L de gasoil,
+coeficiente acumulado <strong>{n(gas * 100 / km, 2)} L/100 km</strong>.</p>{falt}{aviso_h}
+<div class="dos"><figure><figcaption>Coeficiente general por mes, L/100 km</figcaption>{svg_linea(etq_t, [m['kpis']['coef'] for m in todos], unidad='L/100 km', huecos=[not m.get('comparable', True) for m in todos])}</figure>
+<figure><figcaption>Unidades operativas por estado, meses por ventana</figcaption>{svg_estados(etq, [{x: int((m['unidades'].estado == x).sum()) for x in ORDEN} for m in meses])}</figure></div>
 {t_pan}
-<p class="nota">Costo estimado = litros por encima del ideal en las unidades críticas × precio promedio YER del mes. Sumando también las unidades en atención: {n(sob2, 1)} L ≈ $ {n(costo2)} en los meses cargados.</p>"""))
+<p class="nota">Costo estimado = litros por encima del ideal en las unidades críticas × precio promedio YER del mes. Sumando también las unidades en atención: {n(sob2, 1)} L ≈ $ {n(costo2)} en los meses por ventana.</p>"""))
 
     # 2 ── Evaluación por unidad
     reg = {}
@@ -587,6 +616,8 @@ de las ventanas medibles de los meses cargados, contra el mismo ideal y con los 
 Vale la advertencia de la Regla 13: con la capacidad nominal las P420 dan negativo por el divisor, no por la unidad.</p>
 """ + tabla([("Unidad", "l"), ("Modelo", "l")] + [(t, "r") for t in etq] + [("Tarjeta acum. L", "r"), ("Malla acum. L", "r"), ("Diferencia L", "r"), ("Desvío acum.", "r"), ("Subas sin carga", "r")], [x[1] for x in fm])))
 
+    if hist:
+        S.append(("historico", "Histórico, método anterior", historico_html(hist)))
     S.insert(0, ("resumen", "Resumen del año", resumen_anual(meses, filas_u, fcd, regu, urea / gas_op * 100)))
     nav = "".join(f'<a href="#{pid}-{sid}">{tit}</a>' for sid, tit, _ in S)
     cuerpo = "".join(f'<section id="{pid}-{sid}"><h2>{tit}</h2>{h}</section>' for sid, tit, h in S)
@@ -702,7 +733,83 @@ def resumen_anual(meses, filas_u, fcd, regu, ratio_urea):
             c0, c1 = meses[0]["kpis"]["coef"], ult["kpis"]["coef"]
             mejor = min(meses, key=lambda m: m["kpis"]["coef"]); peor = max(meses, key=lambda m: m["kpis"]["coef"])
             out += (f'<h3>Tendencia del año</h3><ul class="hechos"><li>El coeficiente general pasó de {n(c0, 2)} en {nombres[0]} a {n(c1, 2)} en {nombres[-1]} ({n(c1 - c0, 2, True)}). '
-                    f'Mejor mes: {mejor["nombre_mes"]} ({n(mejor["kpis"]["coef"], 2)}). Peor mes: {peor["nombre_mes"]} ({n(peor["kpis"]["coef"], 2)}).</li></ul>')
+                    f'Mejor mes: {mejor["nombre_mes"]} ({n(mejor["kpis"]["coef"], 2)}). Peor mes: {peor["nombre_mes"]} ({n(peor["kpis"]["coef"], 2)}).</li>'
+                    + "".join(f'<li>{m["nombre_mes"].capitalize()} se midió por ventana pero solo con km de Filarus, que cuenta menos km que el odómetro: su coeficiente corre algo más alto que el de los meses con odómetro.</li>'
+                              for m in meses if m.get("importado")) + '</ul>')
     else:
         out += '<p class="nota">Con un solo mes cargado todavía no hay comparación: los resultados de mejora o empeoramiento aparecen desde el segundo mes.</p>'
     return out
+
+
+def historico_html(hist):
+    """Unidad por mes con el método anterior. Como Filarus corre parejo para toda la flota, se evalúa contra la flota del mismo período."""
+    etq = [m["nombre_mes"][:3].capitalize() for m in hist]
+    reg = {}
+    for i, m in enumerate(hist):
+        for _, x in m["unidades"].iterrows():
+            d = reg.setdefault(x.unidad, {"modelo": x.modelo, "m": [None] * len(hist), "km": 0.0, "l": 0.0, "act": 0, "skm": 0.0})
+            d["modelo"] = x.modelo or d["modelo"]
+            d["act"] += 1
+            if x.km_confiable:
+                d["m"][i] = x.coef
+                d["km"] += x.km
+                d["l"] += x.gasoil
+            else:
+                d["skm"] += x.gasoil
+    tk, tl = sum(d["km"] for d in reg.values()), sum(d["l"] for d in reg.values())
+    flota = tl * 100 / tk
+    filas = []
+    for u, d in reg.items():
+        coef = d["l"] * 100 / d["km"] if d["km"] else None
+        filas.append((coef if coef is not None else -1, [f"<b>{e(u)}</b>", e(d["modelo"])] + [n(x, 2) if x is not None else "—" for x in d["m"]]
+                      + [f"{sum(1 for x in d['m'] if x is not None)} de {d['act']}", n(d["km"]) if d["km"] else "—", n(d["l"], 2) if d["km"] else "—",
+                         n(coef, 2), n(coef - flota, 2, True) if coef is not None else "—", barra_dif(coef - flota) if coef is not None else "",
+                         n(d["skm"], 2) if d["skm"] else ""]))
+    filas.sort(key=lambda x: -x[0])
+    cuerpo = [x[1] for x in filas] + [{"cls": "tot", "c": ["Flota", ""] + [n(m["kpis"]["coef"], 2) for m in hist] + ["", n(tk), n(tl, 2), n(flota, 2), "", "", ""]}]
+    return f"""<p class="nota">Coeficiente de cada unidad por mes calendario, con km de Filarus. Un mes sin km en Filarus o con coeficiente mayor a 50 queda fuera del coeficiente
+y sus litros van a la última columna. Como Filarus cuenta de menos parejo en toda la flota, acá cada unidad se compara contra la flota del mismo período ({n(flota, 2)} L/100 km), no contra el ideal.</p>
+""" + tabla([("Unidad", "l"), ("Modelo", "l")] + [(t, "r") for t in etq] + [("Meses con km", "r"), ("km", "r"), ("Gasoil L", "r"), ("Coef período", "r"), ("Dif vs flota", "r"), ("", "l"), ("Litros sin km", "r")], cuerpo, "unid")
+
+
+def mes_importado_html(R):
+    """Apartado de un mes que viene de un reporte ya hecho, no de los archivos fuente."""
+    k, U = R["kpis"], R["unidades"]
+    mes, anio = R["nombre_mes"].capitalize(), R["anio"]
+    pid = f"m{anio}{R['mes']:02d}"
+    vent = R["metodo"] == "ventana"
+    if vent:
+        orden = {"CRITICO": 0, "ATENCION": 1, "NORMAL": 2, "COEF BAJO": 3, "A INVESTIGAR": 4}
+        U = U.assign(_o=U.estado.map(orden)).sort_values(["_o", "dif"], ascending=[True, False])
+        filas = [[f"<b>{e(x.unidad)}</b>", e(x.modelo), e(x.chofer), (f"{f(x.t0)} → {f(x.t1)}" if not nulo(x.t0) else f"sin arranque → {f(x.t1)}"), n(x.dias, 1), e(x.fuente),
+                  n(x.km) if x.km_confiable else (f'<span class="nc">{n(x.km)}*</span>' if x.km else "—"), n(x.gasoil, 2), n(x.coef, 2), n(x.ideal, 1),
+                  n(x.dif, 2, True) if not nulo(x.dif) else "—", barra_dif(x.dif) if x.estado != "A INVESTIGAR" else "", badge(x.estado),
+                  f'<span class="obs">{e(" ".join(t for t in [x.motivo, x.obs] if t))}</span>'] for _, x in U.iterrows()]
+        cols = [("Unidad", "l"), ("Modelo", "l"), ("Responsable", "l"), ("Ventana", "l"), ("Días", "r"), ("Fuente km", "l"), ("km", "r"), ("Gasoil L", "r"), ("Coef", "r"),
+                ("Ideal", "r"), ("Dif", "r"), ("", "l"), ("Estado", "l"), ("Observación", "l")]
+        est = f"""{franja_estados(k)}<h3>Estado de la flota</h3><div class="kpis">
+{kpi(f"{k['operativas']} de {k['totales']}", 'operativas', f"{k['sin_cargas']} sin cargas")}{kpi(k['criticas'], 'críticas', 'diferencia mayor a 3')}
+{kpi(k['atencion'], 'en atención', 'diferencia de 1 a 3')}{kpi(k['normales'], 'normales', 'diferencia hasta 1')}
+{kpi(k['coef_bajo'], 'coeficiente bajo', 'diferencia menor a −3')}{kpi(k['investigar'], 'a investigar', 'Regla 21')}{kpi(k['exceso_urea'], 'exceso de urea', 'ratio mayor a 8 %')}</div>"""
+        extra = kpi(n(k["urea"], 2), "litros de urea", "bidones convertidos") + kpi(n(k["ratio_urea"], 2) + NB + "%", "ratio urea / gasoil", "sobre la flota operativa")
+    else:
+        flota = k["coef"]
+        U = U.assign(_o=U.coef.fillna(-1)).sort_values("_o", ascending=False)
+        filas = [[f"<b>{e(x.unidad)}</b>", e(x.modelo), e(x.chofer), n(x.km) if x.km else "—", n(x.gasoil, 2), n(x.n_cargas) if not nulo(x.n_cargas) else "—",
+                  n(x.coef, 2), n(x.coef - flota, 2, True) if not nulo(x.coef) else "—", barra_dif(x.coef - flota) if not nulo(x.coef) else "",
+                  f'<span class="obs">{e(x.motivo)}</span>'] for _, x in U.iterrows()]
+        cols = [("Unidad", "l"), ("Modelo", "l"), ("Chofer principal", "l"), ("km Filarus", "r"), ("Gasoil L", "r"), ("Cargas", "r"), ("Coef", "r"), ("Dif vs flota", "r"), ("", "l"), ("Observación", "l")]
+        est, extra = "", kpi(n(k["gasoil_no_medible"], 2), "litros sin km", "fuera del coeficiente")
+    cuerpo = f"""<section id="{pid}-resumen"><h2>Resumen</h2>
+<p class="aviso">{e(R['nota'])} Origen: {e(R['origen'])}.</p>
+<p class="lead">{k['operativas']} unidades con cargas. {n(k['km'])} km en {k['n_medibles']} unidades con km válido y {n(k['gasoil_medible'], 2)} L de gasoil:
+coeficiente general <strong>{n(k['coef'], 2)} L/100 km</strong>.</p>{est}
+<h3>Actividad de la flota</h3><div class="kpis">{kpi(n(k['km']), 'km', f"{k['n_medibles']} unidades con km válido")}{kpi(n(k['gasoil_medible'], 2), 'litros de gasoil', 'de esas unidades')}
+{kpi(n(k['coef'], 2), 'coeficiente general', 'gasoil × 100 / km')}{extra}{kpi(n(k['km_prom']), 'km promedio por unidad', '')}</div></section>
+<section id="{pid}-unidades"><h2>Consumo por unidad</h2>
+<p class="nota">{'La barra muestra la diferencia contra el ideal de cada unidad.' if vent else 'La barra muestra la diferencia contra el coeficiente de la flota en el mes, no contra el ideal.'}
+Este mes no tiene historial de tramos, conciliación con malla ni consumo real del motor en el software: para sumarlos hay que cargar sus cuatro archivos fuente y los del mes anterior.</p>
+{tabla(cols, filas, "unid")}</section>"""
+    return f"""<article class="apartado" id="{pid}" data-ap="{pid}" hidden>
+<header class="aph"><h1>{mes} {anio}</h1><p>{'Reporte importado, ventana carga a carga.' if vent else 'Histórico importado, método anterior.'}</p></header>
+<nav class="subnav" aria-label="Secciones de {mes}"><a href="#{pid}-resumen">Resumen</a><a href="#{pid}-unidades">Consumo por unidad</a></nav>{cuerpo}</article>"""
