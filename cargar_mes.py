@@ -116,6 +116,8 @@ def main():
     nuevo["info"] = {"meses": [m["nombre"] for m in r["meses"]], "ids": [m["id"] for m in r["meses"] if not m.get("importado")],
                      "generado": datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-3))).strftime("%d/%m/%Y %H:%M"),
                      "reglas": r["reglas"]}
+    if (datos.get("info") or {}).get("gastos"):
+        nuevo["info"]["gastos"] = datos["info"]["gastos"]
     json.dump(nuevo, open(ruta, "w", encoding="utf-8"), ensure_ascii=False)
     print("\ndatos.json actualizado. Falta commit y push para que el sitio lo muestre.")
 

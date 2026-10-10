@@ -4,6 +4,7 @@
 Cifrado: PBKDF2-HMAC-SHA256 -> clave AES-256-CTR + clave HMAC-SHA256 (cifrar y después autenticar).
 Sin la contraseña el archivo no contiene ningún dato legible."""
 import os
+import gzip
 import base64
 import hmac
 import hashlib
@@ -12,14 +13,21 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 ITER = 120000
 
 
-def cifrar(texto, clave):
+def cifrar(texto, clave, z=False):
+    """z=True: comprime (gzip) antes de cifrar; se usa en los apartados pesados (Gastos)."""
     salt, iv = os.urandom(16), os.urandom(16)
     dk = hashlib.pbkdf2_hmac("sha256", clave.encode("utf-8"), salt, ITER, 64)
     enc = Cipher(algorithms.AES(dk[:32]), modes.CTR(iv)).encryptor()
-    ct = enc.update(texto.encode("utf-8")) + enc.finalize()
+    datos = texto.encode("utf-8")
+    if z:
+        datos = gzip.compress(datos, 9, mtime=0)
+    ct = enc.update(datos) + enc.finalize()
     tag = hmac.new(dk[32:], iv + ct, hashlib.sha256).digest()
     b = lambda x: base64.b64encode(x).decode()
-    return {"s": b(salt), "i": b(iv), "t": b(tag), "c": b(ct), "n": ITER}
+    caja = {"s": b(salt), "i": b(iv), "t": b(tag), "c": b(ct), "n": ITER}
+    if z:
+        caja["z"] = 1
+    return caja
 
 
 
@@ -31,7 +39,10 @@ def descifrar(caja, clave):
     if not hmac.compare_digest(hmac.new(dk[32:], iv + ct, hashlib.sha256).digest(), tag):
         raise ValueError("contraseña incorrecta")
     dec = Cipher(algorithms.AES(dk[:32]), modes.CTR(iv)).decryptor()
-    return (dec.update(ct) + dec.finalize()).decode("utf-8")
+    datos = dec.update(ct) + dec.finalize()
+    if caja.get("z"):
+        datos = gzip.decompress(datos)
+    return datos.decode("utf-8")
 
 
 CSS = r"""
@@ -180,7 +191,9 @@ function derivar(pw,salt,it){
   puro();});}
 function abrir(caja,pw){var salt=b64(caja.s),iv=b64(caja.i),tag=b64(caja.t),ct=b64(caja.c);
  return derivar(pw,salt,caja.n).then(function(dk){var m=new Uint8Array(16+ct.length);m.set(iv);m.set(ct,16);var t=hmac(hmacEst(dk.subarray(32)),m),d=0,i;for(i=0;i<32;i++)d|=t[i]^tag[i];
-  if(d)throw new Error("clave");return new TextDecoder().decode(ctr(dk.subarray(0,32),iv,ct));});}
+  if(d)throw new Error("clave");var o=ctr(dk.subarray(0,32),iv,ct);return caja.z?inflar(o):new TextDecoder().decode(o);});}
+function inflar(u){if(!window.DecompressionStream)return Promise.reject(new Error("este navegador no puede abrir este reporte; actualizalo"));
+ return new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("gzip"))).text();}
 window.__lysi={sha256:sha256,pbkdf2:pbkdf2,ctr:ctr,hmac:hmac,hmacEst:hmacEst,abrir:abrir};
 
 // ── Interfaz: lo único que hace el JavaScript es abrir con la contraseña y mostrar u ocultar apartados ──

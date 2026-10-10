@@ -190,4 +190,8 @@ def procesar(base):
         })
     if res:
         out["html"] = html_combustible(res)
+    g = os.path.join(base, "gastos")
+    if os.path.isdir(g) and os.listdir(g):
+        from . import gastos as G
+        out["gastos"] = G.procesar(g)
     return json.dumps(out, ensure_ascii=False)

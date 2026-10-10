@@ -7,6 +7,8 @@ https://ivanglaguna2006.github.io/LYSI---REPORTES/
 - `datos.json`: los reportes y los archivos fuente, **cifrados**. Nunca editarlo a mano ni reemplazarlo por otra cosa: la app deja de abrir.
 - `motor/`: el código de cálculo (reglas del Prompt Maestro v4.7). Es el mismo que la app lleva adentro.
 - `cargar_mes.py`: carga un mes desde acá, con el mismo resultado que la pantalla de Administración.
+- `cargar_gastos.py`: carga el apartado Gastos y mantenimiento a partir de los dos Excel de gastos.
+- `motor/gastos.py`: pasa esos dos Excel a página, tal como están (no recalcula nada).
 
 ## Cargar un mes cuando Ivo pasa los archivos
 
@@ -23,6 +25,21 @@ ReporteConsumos (tarjeta YPF), KmRecorridos (Filarus), Informe de combustible y 
 7. Confirmarle qué meses quedaron publicados.
 
 Requisitos de Python: pandas, openpyxl, cryptography.
+
+## Cargar Gastos y mantenimiento
+
+Gastos tiene su propia contraseña y no toca Combustible. La app muestra los dos Excel que Ivo ya genera:
+el reporte mensual (una hoja por mes, `REPORTE_MENSUAL_LYSI_...xlsx`) y el de resultados del año
+(`REPORTE_RESULTADOS_LYSI_...xlsx`). Cada carga reemplaza lo anterior: van siempre los dos archivos completos.
+
+1. `git pull`.
+2. Copiar los dos Excel a una carpeta vacía.
+3. Control, sin publicar: `LYSI_ADMIN='<contraseña>' python3 cargar_gastos.py <carpeta>`
+4. Mostrarle a Ivo el control (el resumen de cada mes tal como figura en el Excel) y **esperar su OK**.
+5. Con su OK: repetir con `--publicar`, y después commit y push de `datos.json` a `main`.
+   La primera vez, o para cambiar la contraseña de Gastos, agregar `LYSI_GASTOS='<contraseña de gastos>'`.
+6. Si el control avisa que hay hojas sin contenido, el Excel se guardó sin valores calculados: pedirle a Ivo
+   que lo abra y lo guarde en Excel, y volver a cargarlo. No se publica así.
 
 ## Reglas
 
