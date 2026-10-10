@@ -56,19 +56,20 @@ CSS_ADM = r"""
 CSS_GAS = r"""
 .tablero{margin:0 0 40px}
 .est-l{background:#fff;border:1px solid var(--ln);border-radius:12px;box-shadow:0 1px 2px rgba(26,26,26,.04);overflow:hidden}
-.est-f{display:grid;grid-template-columns:minmax(170px,1.1fr) 120px minmax(190px,1.3fr) auto;gap:4px 20px;align-items:center;padding:16px 24px;border-top:1px solid var(--ln);font-size:16.5px}
-.est-f:first-child{border-top:0}
-.est-f b{font:600 19px var(--ti);letter-spacing:-.01em}
-.est-f .fr{color:var(--tx2);font-size:15px}
-.est-f .ul small{display:block;color:var(--tx2);font-size:13.5px}
-.est-f .det{grid-column:1/-1;color:var(--tx2);font-size:14.5px}
-.estc{justify-self:end;display:inline-flex;align-items:center;gap:8px;border-radius:20px;padding:6px 15px;font:600 15px var(--ti);white-space:nowrap}
+.est-l table{width:100%;border-collapse:collapse;font-size:16.5px}
+.est-l th,.est-l td{position:static;background:none;color:var(--tx);text-align:left;padding:15px 24px;border-top:1px solid var(--ln);vertical-align:top;white-space:normal;font-family:var(--cu);font-weight:400}
+.est-l thead th{border-top:0;font:600 16px var(--ti);color:var(--tx2);padding-bottom:11px;background:var(--bg2)}
+.est-l tbody tr:nth-child(even) td{background:none}
+.est-l tbody th{font:600 19px var(--ti);letter-spacing:-.01em;width:34%}
+.est-l small{display:block;font:400 13.5px var(--cu);color:var(--tx2);margin-top:3px;letter-spacing:0}
+.estc{display:inline-flex;align-items:center;gap:8px;border-radius:20px;padding:6px 15px;font:600 15px var(--ti);white-space:nowrap}
 .estc:before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
 .estc.ok{background:var(--lima0);color:#2C3A14}
 .estc.ok:before{background:var(--lima2)}
 .estc.pend{background:#FFF1D6;color:#7A4A00}
+.estc.curso{background:#E8EEF5;color:#274562}
 .estc.prep{background:var(--bg2);color:var(--tx2)}
-@media (max-width:640px){.tablero{margin-bottom:28px}.est-f{grid-template-columns:1fr auto;padding:13px 16px;font-size:15.5px}.est-f b{font-size:17px}.est-f .fr{display:none}.est-f .ul{grid-column:1/-1;grid-row:2}.estc{font-size:14px;padding:5px 12px}}
+@media (max-width:640px){.tablero{margin-bottom:28px}.est-l table{font-size:15px}.est-l th,.est-l td{padding:12px 10px}.est-l th:first-child{padding-left:14px}.est-l tbody th{font-size:15.5px;width:36%}.est-l thead th{font-size:14px}.estc{font-size:13px;padding:4px 10px;gap:6px}.est-l small{font-size:12.5px}}
 @media print{.tablero{display:none}}
 /* Reporte de resultados: viene de Excel (títulos en mayúsculas, color por rubro). Se lleva al mismo sistema que Combustible. */
 .gst .tw{margin:8px 0 14px}
@@ -232,23 +233,24 @@ function pintarGastos(){var hay=!!(LYSI.cajas&&LYSI.cajas.gastos),inf=LYSI.info|
  pr.textContent=CARGADO?"En preparación":(FALLO?"Sin cargar":"Cargando…");
  var t=hay&&inf.gastos?String(inf.gastos).split(" · ")[0].replace(/ a ([a-záéíóú])/,function(m,l){return " – "+l.toUpperCase();}):"";periodo("gastos",t);
  $("cuantos").textContent=CARGADO?(hay?"2 reportes":"1 reporte"):"";pintarEstado();}
-// Estado de cada reporte contra el calendario: Combustible es mensual (se espera el mes anterior completo);
-// Resultados es quincenal (desde el 16 se espera el corte del mes en curso; antes, el mes anterior cerrado).
+// Estado de cada reporte mes por mes: el mes anterior (que ya tiene que estar cargado) y el mes en curso.
+// Combustible es mensual; Resultados es quincenal (el corte parcial del mes en curso se espera desde el 16).
 function pintarEstado(){var el=$("estado");if(!CARGADO||FALLO||!LYSI.info){el.hidden=true;return;}
- var inf=LYSI.info,hoy=new Date(),y=hoy.getFullYear(),m=hoy.getMonth()+1,d=hoy.getDate(),py=m>1?y:y-1,pm=m>1?m-1:12,h="";
+ var inf=LYSI.info,hoy=new Date(),y=hoy.getFullYear(),m=hoy.getMonth()+1,d=hoy.getDate(),act=y*12+m,ant=act-1;
  function nom(i){var yy=Math.floor((i-1)/12),mm=i-yy*12;return mayus(MESES[mm])+" "+yy;}
- function fecha(t){var g=/^(\d\d)\/(\d\d)\/(\d{4})/.exec(t||"");return g?"Publicado el "+Number(g[1])+"/"+Number(g[2])+"/"+g[3]:"";}
- function fila(n,fr,ult,pub,cls,est,det){h+='<div class="est-f"><b>'+esc(n)+'</b><span class="fr">'+esc(fr)+'</span><span class="ul">'+esc(ult)+(pub?"<small>"+esc(pub)+"</small>":"")+'</span><span class="estc '+cls+'">'+esc(est)+'</span>'+(det?'<span class="det">'+esc(det)+"</span>":"")+"</div>";}
- var ms=inf.meses||[],u=ms.length?String(ms[ms.length-1]).toLowerCase().split(" "):null,ui=u&&MESES.indexOf(u[0])>0?Number(u[1])*12+MESES.indexOf(u[0]):0,esp=py*12+pm;
- if(!ui)fila("Combustible","Mensual","Sin meses cargados","","prep","Sin cargar","");
- else if(ui>=esp)fila("Combustible","Mensual","Último mes: "+nom(ui),fecha(inf.generado),"ok","Al día",mayus(MESES[m])+" se carga cuando cierre el mes.");
- else{var fl=[],i;for(i=ui+1;i<=esp&&fl.length<3;i++)fl.push(nom(i));fila("Combustible","Mensual","Último mes: "+nom(ui),fecha(inf.generado),"pend","Pendiente","Falta cargar "+fl.join(", ")+(esp-ui>3?" y más":"")+".");}
- if(!(LYSI.cajas&&LYSI.cajas.gastos&&inf.gastos))fila("Reporte de resultados","Quincenal","Todavía sin publicar","","prep","En preparación","");
- else{var t=String(inf.gastos).split(" · ")[0],par=/parcial/i.test(t),w=t.toLowerCase().split(" a ").pop().replace(/[^a-záéíóúñ ]/g," ").trim().split(" ")[0],gm=MESES.indexOf(w),gf=/^(\d\d)\/(\d\d)\/(\d{4})/.exec(inf.gastos_fecha||"");
-  var gy=gf?Number(gf[3]):y;if(gm>(gf?Number(gf[2]):m))gy--;var gi=gm>0?gy*12+gm:0,quin=d>=16,ei=quin?y*12+m:esp,al=gi>ei||(gi===ei&&(quin||!par));
-  var ult="Hasta "+(gi?nom(gi):t)+(par?" (parcial)":"");
-  if(al)fila("Reporte de resultados","Quincenal",ult,fecha(inf.gastos_fecha),"ok","Al día","Próximo corte: "+(quin?"1 de "+MESES[m<12?m+1:1]:"16 de "+MESES[m])+".");
-  else fila("Reporte de resultados","Quincenal",ult,fecha(inf.gastos_fecha),"pend","Pendiente",quin?"Falta el corte del 16 de "+MESES[m]+".":"Falta el cierre de "+nom(esp)+".");}
+ function celda(c){return'<td><span class="estc '+c[0]+'">'+esc(c[1])+"</span>"+(c[2]?"<small>"+esc(c[2])+"</small>":"")+"</td>";}
+ var comb={},ms=inf.meses||[],i;for(i=0;i<ms.length;i++){var u=String(ms[i]).toLowerCase().split(" "),k=MESES.indexOf(u[0]);if(k>0)comb[Number(u[1])*12+k]=1;}
+ function eComb(x){if(comb[x])return["ok","Cargado",""];return x===act?["curso","En curso","Se carga cuando cierre el mes"]:["pend","Pendiente","Falta cargarlo"];}
+ var hayG=!!(LYSI.cajas&&LYSI.cajas.gastos&&inf.gastos),gi=0,par=false;
+ if(hayG){var t=String(inf.gastos).split(" · ")[0],w=t.toLowerCase().split(" a ").pop().replace(/[^a-záéíóúñ ]/g," ").trim().split(" ")[0],gm=MESES.indexOf(w),gf=/^(\d\d)\/(\d\d)\/(\d{4})/.exec(inf.gastos_fecha||"");
+  par=/parcial/i.test(t);var gy=gf?Number(gf[3]):y;if(gm>(gf?Number(gf[2]):m))gy--;gi=gm>0?gy*12+gm:0;}
+ function eRes(x){if(!hayG)return["prep","En preparación",""];
+  if(x<act){if(gi>x||(gi===x&&!par))return["ok","Cargado",""];return gi===x?["pend","Pendiente","Falta el cierre del mes"]:["pend","Pendiente","Falta cargarlo"];}
+  if(gi>=x)return["ok","Corte cargado","Cierra el 1 de "+MESES[m<12?m+1:1]];
+  return d>=16?["pend","Pendiente","Falta el corte del 16"]:["curso","En curso","Primer corte: 16 de "+MESES[m]];}
+ var h='<table><thead><tr><th scope="col">Reporte</th><th scope="col">'+esc(nom(ant))+'</th><th scope="col">'+esc(nom(act))+"<small>mes en curso</small></th></tr></thead><tbody>"
+  +'<tr><th scope="row">Combustible<small>Mensual</small></th>'+celda(eComb(ant))+celda(eComb(act))+"</tr>"
+  +'<tr><th scope="row">Reporte de resultados<small>Quincenal</small></th>'+celda(eRes(ant))+celda(eRes(act))+"</tr></tbody></table>";
  $("est-l").innerHTML=h;$("est-hoy").textContent="Hoy: "+d+" de "+MESES[m]+" de "+y;el.hidden=false;}
 // Ver u ocultar la contraseña mientras se escribe.
 function ojo(inp,ver){inp.type=ver?"text":"password";var o=inp.parentNode.querySelector(".ojo");
