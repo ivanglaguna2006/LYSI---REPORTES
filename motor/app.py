@@ -11,83 +11,106 @@ from . import portal as P
 PYODIDE = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"
 
 CSS_ADM = r"""
-.adm-door{border-top:1px solid #2c2f2d;padding:16px 0 0;margin-top:26px;display:flex;gap:10px 18px;align-items:center;flex-wrap:wrap;color:#8d968f;font-size:14px}
+.adm-door{border-top:1px solid #3B3B39;padding:18px 0 0;margin-top:22px;display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;color:#9B9F96;font-size:14px}
 .adm-door span{flex:1 1 220px}
-.adm-door input{font:inherit;padding:7px 10px;border:1px solid #3a403c;background:#0b0b0b;color:#fff;border-radius:3px;width:190px}
-.adm-door button{font:500 15px Barlow,sans-serif;padding:7px 14px;border:1px solid #4a514c;border-radius:3px;background:none;color:#d7ded9;cursor:pointer}
+.adm-door input{font:inherit;padding:8px 11px;border:1px solid #4A4A47;background:#222221;color:#fff;border-radius:6px;width:210px}
+.adm-door button{font:500 15px var(--cu);padding:8px 14px;border:1px solid #5C5C59;border-radius:6px;background:none;color:#DCDFD7;cursor:pointer}
 .adm-door .msj{flex-basis:100%;margin:0}
-#previa{background:#FFF8E1;border-bottom:2px solid #E65100;padding:8px 20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:14.5px}
-#previa button,.btn{font:600 16px "Barlow Condensed","Arial Narrow",sans-serif;padding:7px 16px;border-radius:3px;border:1px solid var(--v1);background:#fff;color:var(--v1);cursor:pointer}
-.btn.pri{background:var(--v2);color:#fff;border-color:var(--v2);font-size:18px;padding:9px 22px}
-.btn.pri:hover{background:var(--v1)}
-.btn[disabled]{opacity:.5;cursor:not-allowed}
-.btn.mini{font-size:14px;padding:3px 10px}
-.btn:focus-visible,#previa button:focus-visible,.mesb:focus-visible,.adm-door button:focus-visible,.adm-door input:focus-visible,.adm input:focus-visible,.adm select:focus-visible{outline:3px solid var(--v3);outline-offset:2px}
-.adm section{padding-top:30px}
+#previa{background:#FFF7E0;color:var(--ink);border-bottom:2px solid #E65100;padding:8px 20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:14.5px}
+#previa button,.btn{font:600 15px var(--ti);padding:8px 16px;border-radius:6px;border:1px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer}
+.btn:hover{background:var(--bg2)}
+.btn.pri{background:var(--ink);color:#fff;border-color:var(--ink);font-size:16.5px;padding:10px 22px}
+.btn.pri:hover{background:#333}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.mini{font-size:13.5px;padding:3px 10px}
+.adm section{padding-top:34px}
 .adm .pasos{counter-reset:p}
 .adm section>h2{counter-increment:p}
 .adm section>h2:before{content:counter(p) ". "}
 .adm label{font-weight:600;font-size:14.5px}
-.adm input[type=text],.adm input[type=password],.adm select{font:inherit;padding:7px 9px;border:1px solid #b9c2bb;border-radius:3px;background:#fff;color:var(--tx)}
+.adm input[type=text],.adm input[type=password],.adm select{font:inherit;padding:8px 10px;border:1px solid #B9BEB3;border-radius:6px;background:#fff;color:var(--tx)}
 .anio{display:flex;gap:10px;align-items:center;margin:8px 0 12px}
 .meses{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;max-width:1100px}
-.mesb{text-align:left;font:inherit;border:1px solid var(--ln);background:#fff;border-radius:3px;padding:9px 11px;cursor:pointer;border-left:6px solid #c9cfca}
-.mesb b{display:block;font:600 19px "Barlow Condensed","Arial Narrow",sans-serif}
+.mesb{text-align:left;font:inherit;border:1px solid var(--ln);background:#fff;border-radius:6px;padding:9px 11px;cursor:pointer;border-left:5px solid #C9CDC3}
+.mesb b{display:block;font:600 18px var(--ti)}
 .mesb span{font-size:13px;color:var(--tx2)}
-.mesb.ok{border-left-color:var(--v2)}
+.mesb.ok{border-left-color:var(--lima)}
 .mesb.arr{border-left-color:#E65100}
-.mesb[aria-pressed=true]{background:var(--v0);border-color:var(--v2)}
-.panel{border:1px solid var(--ln);border-radius:3px;padding:14px 16px 16px;margin-top:14px;max-width:1100px}
-.panel h3{margin-top:0;font-size:26px}
+.mesb[aria-pressed=true]{background:var(--lima0);border-color:var(--lima2)}
+.panel{border:1px solid var(--ln);border-radius:6px;padding:14px 16px 16px;margin-top:14px;max-width:1100px}
+.panel h3{margin-top:0;font-size:24px}
 .slot{display:grid;grid-template-columns:minmax(210px,1.2fr) minmax(180px,1.4fr) auto auto;gap:6px 14px;align-items:center;padding:8px 0;border-top:1px solid var(--ln)}
 .slot .q{font-weight:600}
 .slot .q small{display:block;font-weight:400;color:var(--tx2);font-size:13px}
 .slot .e{font-size:14px;color:var(--tx2);overflow-wrap:anywhere}
-.slot .e.si{color:var(--v1);font-weight:600}
+.slot .e.si{color:var(--lima2);font-weight:600}
 .fila{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
-.estado{padding:10px 12px;border-left:4px solid var(--v2);background:var(--v0);max-width:1100px;margin:10px 0;font-size:14.5px}
+.estado{padding:10px 13px;border-left:4px solid var(--lima);background:var(--lima0);border-radius:0 6px 6px 0;max-width:1100px;margin:10px 0;font-size:14.5px}
 .estado.err{border-left-color:#C62828;background:#FDECEA}
-.estado.av{border-left-color:#E65100;background:#FFF8E1}
-.sucio{display:inline-block;background:#E65100;color:#fff;font:600 14px "Barlow Condensed","Arial Narrow",sans-serif;padding:1px 9px 2px;border-radius:2px;margin-left:10px;vertical-align:middle}
+.estado.av{border-left-color:#E65100;background:#FFF7E0}
+.sucio{display:inline-block;background:#E65100;color:#fff;font:600 13px var(--cu);letter-spacing:0;padding:3px 9px;border-radius:3px;margin-left:10px;vertical-align:middle}
 @media (max-width:700px){.slot{grid-template-columns:1fr}}
 """
 
 CSS_GAS = r"""
+/* Reporte de resultados: viene de Excel (títulos en mayúsculas, color por rubro). Se lleva al mismo sistema que Combustible. */
 .gst .tw{margin:8px 0 14px}
-.gst th{white-space:normal;text-align:center;vertical-align:bottom;min-width:62px;position:static;font-size:14px;line-height:1.15}
+.gst th{white-space:normal;text-align:center;vertical-align:bottom;min-width:62px;position:static;font-size:12px;letter-spacing:.04em;line-height:1.2}
+.gst th[style*="2E5233"],.gst h3.barra[style*="2E5233"]{background:var(--ink)!important}
 .gst td.c{text-align:center}
 .gst th.gap{background:#fff}
-.gst .aph h1{font-size:clamp(30px,4.4vw,54px);line-height:1}
+.gst .aph h1{font-size:clamp(23px,2.3vw,31px);line-height:1.15;letter-spacing:.01em}
+.gst section>h2{font-size:19px;letter-spacing:.03em;line-height:1.25}
+.gst section>h2[style*="2E5233"]{border-left-color:var(--lima)!important}
 .gst .tw.sl{border:0;margin:14px 0 0}
-.gst .tw.sl td{border:0;font:600 20px "Barlow Condensed","Arial Narrow",sans-serif;padding:2px 0}
+.gst .tw.sl td{border:0;font:600 19px var(--ti);padding:2px 0}
 .gst .gr{color:var(--tx2)}
 .gst td .obs{min-width:220px;max-width:460px;color:inherit}
 .gst tbody tr:nth-child(even) td{background:transparent}
-.gst td{font-size:13.5px}
-.gk{margin:10px 0 6px;grid-template-columns:repeat(auto-fit,minmax(235px,1fr))}
-.gk .kl{font-size:13px;color:var(--tx2);margin:0 0 3px;text-transform:uppercase;letter-spacing:.02em}
-.gk .kv{font-size:29px;white-space:nowrap}
-h3.barra{color:#fff;padding:7px 12px;margin:24px 0 8px;font-size:21px;border-radius:3px}
-h3.barra.b2{font-size:17px;margin:14px 0 4px}
+.gst td{font-size:13.5px;padding-left:8px;padding-right:8px}
+.gst th{padding-left:7px;padding-right:7px}
+.gk{margin:14px 0 10px;grid-template-columns:repeat(auto-fit,minmax(225px,1fr))}
+.gk .kl{font-size:12px;font-weight:600;color:var(--tx2);margin:0 0 5px;letter-spacing:.07em;line-height:1.3}
+.gk .kv{font-size:28px}
+.gk .kv[style*="2E5233"]{color:var(--ink)!important}
+.gk .kn{margin-top:4px}
+h3.barra{color:#fff;padding:8px 13px;margin:26px 0 8px;font-size:15px;letter-spacing:.05em;border-radius:6px}
+h3.barra.b2{font-size:13.5px;margin:14px 0 4px}
 details.gd>summary{font-weight:600}
-details.gd .pt{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:8px}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 4px}
-.chips button{font:500 15px Barlow,sans-serif;border:1px solid #c5ccc6;background:#fff;color:var(--tx);border-radius:16px;padding:4px 12px;cursor:pointer}
-.chips button:hover{background:var(--v0)}
-.chips button[aria-current=true]{background:var(--v1);color:#fff;border-color:var(--v1)}
-.chips button:focus-visible,.lnk:focus-visible{outline:3px solid var(--v3);outline-offset:2px}
-.lnk{font:inherit;font-weight:600;color:var(--v1);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+details.gd .pt{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 4px}
+.chips button{font:500 14px var(--cu);border:1px solid #C9CDC3;background:#fff;color:var(--tx);border-radius:16px;padding:3px 11px;cursor:pointer;text-align:left}
+.chips button:hover{background:var(--bg2)}
+.chips button[aria-current=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lnk{font:inherit;font-weight:600;color:var(--lima2);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
 .gfig{margin:12px 0 18px;max-width:1000px}
-.gfig img{max-width:100%;height:auto;display:block;border:1px solid var(--ln)}
-.gp{max-width:86em;margin:6px 0}
+.gfig img{max-width:100%;height:auto;display:block;border:1px solid var(--ln);border-radius:6px}
+.gp{max-width:100ch;margin:6px 0}
 .gst p.aviso{margin:8px 0}
-@media (max-width:640px){.gk .kv{font-size:24px}.chips{flex-wrap:nowrap;overflow-x:auto;margin:12px -20px 0;padding:0 20px 6px}.chips button{font-size:14px;padding:4px 11px;white-space:nowrap;flex:none}}
+/* en pantallas anchas las 19 hojas pasan a un índice fijo a la izquierda */
+@media (min-width:1500px){
+ .gst[data-grupo]{display:grid;grid-template-columns:196px minmax(0,1fr);column-gap:32px;align-items:start}
+ .gst[data-grupo]>*{grid-column:2;min-width:0}
+ .gst[data-grupo]>.aph{grid-column:1/-1;padding-bottom:14px;border-bottom:1px solid var(--ln)}
+ .gst[data-grupo]>.chips{grid-column:1;grid-row:2/span 300;position:sticky;top:calc(var(--cabh,96px) + 14px);max-height:calc(100vh - var(--cabh,96px) - 28px);overflow-y:auto;flex-direction:column;flex-wrap:nowrap;gap:0;margin:22px 0 0;padding:0 0 12px}
+ .gst[data-grupo]>.chips button{border:0;border-left:3px solid var(--ln);border-radius:0;padding:6px 12px;font-size:14.5px;color:var(--tx2);background:none}
+ .gst[data-grupo]>.chips button:hover{color:var(--ink);background:var(--bg2)}
+ .gst[data-grupo]>.chips button[aria-current=true]{border-left-color:var(--lima);color:var(--ink);font-weight:600;background:var(--lima0)}
+ .gst[data-grupo]>section:first-of-type{padding-top:26px}
+}
+@media (max-width:640px){.gk{grid-template-columns:1fr 1fr}.gk .kv{font-size:19px;white-space:normal;overflow-wrap:anywhere}.gk .kl{font-size:11px}
+ .chips{flex-wrap:nowrap;overflow-x:auto;margin:14px -16px 0;padding:0 16px 8px;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent)}
+ .chips::-webkit-scrollbar{display:none}
+ .chips button{font-size:14px;padding:5px 12px;white-space:nowrap;flex:none}
+ .gst .aph h1{font-size:23px}.gst section>h2{font-size:17px}}
 """
 
 HTML_CUERPO = r"""
-<div id="acceso"><div class="cinta"></div><div class="acc">
-<p class="marca">LYSI<b>.</b></p>
-<p class="sub">Reportes de flota de Logística y Servicios Integrales S.A. Cada reporte se abre con su propia contraseña.</p>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="lg" viewBox="0 0 960 920"><path fill="currentColor" fill-rule="evenodd" d="M385 689C384 688 385 686 392 673C395 669 398 663 400 660C411 640 437 601 439 600C440 600 449 600 484 600C538 600 545 599 558 597C611 588 642 548 629 500C625 484 615 468 602 456C597 453 598 452 611 446C638 435 667 429 693 429C702 429 701 428 706 438C724 476 730 519 721 560C707 622 654 670 585 683C582 684 580 684 579 684C569 686 547 689 529 689C513 690 386 690 385 689ZM118 587C118 587 118 531 118 462C118 394 118 271 118 188C118 38 118 38 119 37C120 36 215 36 216 38C217 38 217 477 216 480C216 480 213 484 209 488C178 517 152 546 126 580C120 588 119 588 119 588C118 588 118 588 118 587ZM520 410C512 405 512 405 528 400C544 394 555 391 573 388C586 385 592 384 604 383C615 382 616 382 617 382C617 382 617 383 616 383C615 383 606 385 603 386C580 390 561 396 546 402C544 403 541 404 538 405C535 406 531 408 529 409C524 411 524 411 520 410ZM406 356C384 343 372 335 356 320C333 298 313 267 306 238C284 151 336 68 427 45C442 41 453 39 472 37C484 36 691 36 692 38C693 39 693 126 692 127C691 128 691 128 587 128C472 128 474 128 462 130C412 138 386 175 400 216C406 235 422 252 447 266C449 267 453 269 454 270C457 271 473 280 489 288C494 290 508 298 520 304C568 328 564 325 549 326C544 326 538 327 536 327C533 328 528 328 525 329C493 332 451 343 416 356C411 358 410 358 406 356Z"/><path fill="#94C337" fill-rule="evenodd" d="M291 897C289 896 283 886 278 880C277 878 274 874 273 872C271 870 269 867 269 866C268 865 266 863 266 862C264 860 263 858 262 856C260 854 257 850 255 846C252 843 250 839 250 838C249 837 248 836 247 835C247 834 244 831 242 827C238 821 235 817 231 811C230 810 227 806 225 802C222 799 220 795 219 793C216 790 216 789 217 786C218 784 219 780 220 778C220 777 221 775 222 773C222 772 223 770 224 769C224 768 225 766 225 765C226 764 226 763 226 763C226 763 227 761 228 759C228 757 230 754 230 753C231 751 232 748 234 746C240 732 244 724 246 719C250 711 254 704 256 701C257 699 259 695 260 692C262 688 264 686 264 685C264 684 266 682 267 680C268 678 270 675 271 673C272 671 274 668 275 666C276 664 277 663 277 662C278 662 278 660 279 658C280 657 282 653 284 650C286 647 289 643 289 642C293 637 309 613 314 605C318 600 333 580 337 575C338 573 340 571 341 570C342 568 344 566 345 564C347 563 348 561 349 560C350 559 352 557 354 554C356 552 358 549 359 548C361 546 366 541 370 536C372 535 375 531 378 528C392 513 406 499 416 491C418 489 421 486 422 485C423 484 426 482 428 480C429 479 433 476 436 474C450 463 462 454 475 446C477 444 480 442 482 441C483 440 486 439 487 438C488 438 491 436 493 435C497 433 500 431 508 427C511 425 527 417 530 416C531 415 534 414 537 413C540 412 543 410 544 410C545 409 548 408 550 408C552 407 554 406 556 406C557 405 559 404 561 404C562 403 565 402 566 402C568 401 570 401 572 400C573 400 576 399 576 399C580 398 588 395 594 394C596 394 598 393 600 393C601 393 604 392 606 392C609 391 611 391 612 390C613 390 615 390 616 390C618 390 626 389 628 389C635 387 678 387 686 389C687 389 692 390 695 390C696 390 698 390 700 391C702 391 705 392 707 392C710 393 715 394 719 394C721 395 727 396 728 397C728 397 729 397 730 398C732 398 734 399 737 400C739 400 742 401 744 402C746 402 748 403 750 404C752 405 755 406 757 407C764 410 780 417 785 420C786 421 789 422 791 423C796 426 811 436 817 440C819 442 822 444 824 445C826 447 830 450 838 458C849 467 868 486 875 494C876 496 878 498 879 499C882 503 888 510 890 511C890 512 892 514 893 516C894 517 896 520 897 522C899 523 900 526 901 527C903 529 908 536 912 542C913 544 915 547 916 548C918 551 919 553 919 554C919 555 914 550 910 545C909 543 906 540 901 534C888 517 869 498 852 483C850 482 848 480 847 480C847 479 845 478 843 476C841 475 838 472 835 470C833 469 829 466 828 465C824 462 818 459 808 453C800 448 787 441 784 440C783 440 782 440 781 439C780 439 779 438 778 438C777 438 775 437 774 436C772 436 770 435 768 434C767 434 764 433 762 432C754 430 745 427 740 426C739 426 736 426 735 425C733 425 730 424 724 424C723 424 721 423 719 423C711 421 681 422 672 423C670 423 667 424 665 424C662 424 659 425 658 425C656 426 654 426 652 426C651 427 649 427 648 427C648 428 646 428 644 428C643 428 640 429 637 430C635 431 632 432 631 432C629 432 628 433 627 433C626 434 623 435 621 436C618 436 615 438 614 438C612 439 610 440 608 441C597 445 576 456 563 465C548 475 544 478 532 488C531 489 528 491 527 492C515 502 493 524 482 536C480 539 476 542 475 544C474 545 471 548 469 551C467 553 464 556 463 558C461 560 458 564 456 566C455 568 452 571 451 572C447 578 441 586 438 589C437 591 436 593 435 594C434 595 431 600 421 614C416 622 414 625 410 630C410 631 407 635 406 638C404 640 402 643 402 643C401 645 395 655 393 658C391 661 390 664 388 668C385 673 383 677 381 680C380 682 377 686 376 690C374 693 372 696 371 697C368 703 344 750 344 752C344 752 342 756 340 760C338 765 336 769 336 770C336 770 335 772 334 775C333 777 332 780 331 782C331 783 330 784 329 786C329 787 328 788 328 789C328 790 327 792 326 794C325 796 324 798 324 799C324 799 324 800 323 801C323 802 322 804 322 804C322 805 321 807 320 809C320 811 318 814 317 817C316 820 315 824 314 825C314 827 313 830 312 831C312 832 311 834 311 834C311 835 310 836 310 836C310 837 310 838 310 839C308 844 305 854 304 857C304 858 303 860 303 861C303 861 302 863 302 865C301 868 298 879 297 883C297 884 297 886 296 887C296 888 296 890 296 891C295 893 295 894 294 895C294 898 292 899 291 897ZM177 736C177 735 175 733 174 730C172 728 170 726 170 725C168 721 163 714 162 712C161 711 157 705 152 698C147 691 142 682 139 679C137 676 134 671 132 668C128 663 126 660 123 654C120 650 107 631 104 627C102 623 101 625 116 604C118 601 122 596 123 594C125 591 128 588 129 586C131 584 133 582 134 580C137 576 139 573 142 570C143 568 146 565 147 563C149 561 152 558 153 556C155 554 158 551 160 548C162 545 164 543 164 543C164 543 166 542 168 540C180 525 204 501 219 487C230 477 232 476 234 473C236 472 238 470 240 469C242 467 245 465 247 463C249 461 253 458 256 456C258 454 261 451 262 450C263 450 267 447 271 444C275 441 280 437 283 435C285 434 288 431 290 430C294 427 315 413 321 410C323 409 326 406 329 405C332 404 335 402 336 401C337 400 340 398 343 397C347 394 376 380 382 377C384 376 387 375 389 374C392 373 394 372 395 372C396 371 397 370 399 370C404 368 407 366 412 365C414 364 418 362 421 361C423 360 427 359 429 358C431 358 435 356 437 356C439 355 442 354 443 354C444 354 446 353 447 353C449 352 455 350 456 350C457 350 459 349 462 348C464 348 467 347 469 346C476 345 480 344 483 343C485 342 487 342 488 342C488 342 490 342 492 341C497 340 504 338 508 338C510 338 513 337 514 337C516 337 518 336 520 336C522 336 525 335 527 335C529 335 533 334 536 334C540 334 544 333 545 333C554 332 554 332 584 332C609 332 613 332 615 332C619 333 620 333 627 334C630 334 635 335 636 335C638 335 641 336 643 336C645 336 647 336 648 337C649 337 651 338 653 338C655 338 657 338 659 339C660 339 663 340 664 340C666 340 668 341 670 341C671 341 674 342 676 343C679 343 682 344 683 344C684 345 687 345 688 346C691 346 696 348 699 349C700 350 704 351 707 352C713 354 722 357 732 361C735 362 738 364 738 364C742 365 773 382 776 384C777 385 778 386 778 386C782 388 801 401 806 405C807 406 809 408 810 408C812 409 814 411 815 412C816 413 818 415 820 416C821 417 824 420 826 422C828 424 831 427 833 428C835 430 848 443 852 448C854 449 856 452 857 453C860 456 864 461 866 464C867 464 869 467 871 469C874 474 881 483 884 487C885 489 886 491 887 492C888 492 889 495 890 496C891 498 893 502 895 504C899 510 903 517 905 522C906 524 908 526 908 527C910 529 914 537 914 537C914 539 912 538 910 535C908 531 903 522 902 521C902 520 901 519 900 518C899 517 897 513 894 510C892 507 890 503 889 502C888 502 887 499 885 497C884 496 882 493 880 491C879 490 876 486 874 484C873 482 869 478 867 476C861 469 847 455 842 450C838 446 834 443 831 441C830 440 828 438 826 437C824 435 818 430 811 425C805 421 793 413 787 410C772 402 771 401 769 400C768 400 766 399 764 398C762 397 760 396 759 396C758 395 755 394 753 394C746 391 735 387 732 386C730 386 729 385 728 385C728 385 727 385 725 384C724 384 722 384 721 383C720 383 718 382 717 382C716 382 714 381 713 381C712 381 710 380 708 380C707 380 705 380 704 379C703 379 700 378 699 378C696 378 694 378 689 377C688 377 684 376 682 376C679 376 675 375 673 375C659 374 618 374 610 375C609 376 606 376 604 376C600 376 596 377 592 378C590 378 588 378 588 378C586 378 580 379 568 382C564 382 561 383 546 387C543 388 537 390 526 394C520 396 512 398 510 399C508 400 507 400 507 400C507 400 505 401 503 402C501 403 499 404 498 404C497 404 495 405 494 406C492 407 490 408 489 408C488 408 483 411 478 413C473 415 468 417 468 417C468 417 444 430 441 432C440 432 439 433 437 434C435 435 416 446 412 449C411 450 410 451 409 451C406 453 405 454 400 458C397 460 392 463 390 464C387 466 384 468 382 470C381 471 378 473 376 474C374 476 371 478 369 480C368 481 365 483 364 484C362 485 359 488 357 490C355 492 352 494 352 494C350 495 349 497 340 504C327 516 302 541 294 550C293 552 291 554 289 556C288 558 285 561 284 562C283 564 281 566 280 566C276 571 275 573 273 575C272 577 270 579 269 581C262 590 251 604 241 620C237 625 234 631 232 632C231 634 230 636 229 637C226 643 221 651 216 660C207 676 206 680 200 693C196 701 195 703 193 707C193 708 192 710 191 711C191 712 190 715 189 717C186 726 181 736 181 737C180 738 178 737 177 736Z"/></symbol></svg>
+<div id="acceso"><div class="lado"><div class="marca"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg></div>
+<p class="razon">Logistica y Servicios<span>Integrales S.A.</span></p></div><div class="acc">
+<h1>Reportes de flota</h1>
+<p class="sub">Cada reporte se abre con su propia contraseña.</p>
 <div class="puerta"><div><h2>Combustible</h2><p id="desc-combustible">Reporte mensual de la flota y evaluación del año.</p></div>
 <div class="fm" data-caja="combustible" data-nombre="Combustible"><input id="pw-combustible" type="password" placeholder="Contraseña" aria-label="Contraseña de Combustible" autocomplete="off"><button type="button">Entrar</button></div>
 <p class="msj" id="msj-combustible" role="status"></p></div>
@@ -97,15 +120,14 @@ HTML_CUERPO = r"""
 <div class="adm-door" id="adm-door" hidden><span>Administración: cargar los archivos de un mes y publicar.</span>
 <input id="pw-admin" type="password" placeholder="Contraseña de administración" aria-label="Contraseña de administración" autocomplete="off"><button type="button" id="btn-admin">Administrar</button>
 <p class="msj" id="msj-admin" role="status"></p></div>
-</div>
-<p class="pie" id="pie">Este archivo no guarda ni envía las contraseñas: sin ellas, el contenido no se puede leer.</p></div>
+<p class="pie" id="pie">Este archivo no guarda ni envía las contraseñas: sin ellas, el contenido no se puede leer.</p></div></div>
 
-<div id="app" hidden><div class="cab"><div class="in"><span class="logo">LYSI<b>.</b></span><span class="donde" id="donde"></span><button id="salir" type="button">Cerrar</button></div>
+<div id="app" hidden><div class="cab"><div class="in"><span class="logo"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg></span><span class="donde" id="donde"></span><button id="salir" type="button">Cerrar</button></div>
 <div class="tabs" id="tabs" role="navigation" aria-label="Apartados"></div>
 <div id="previa" hidden><b>Vista previa.</b> Así va a quedar; todavía no está publicado. <button type="button" id="volver-adm">Volver a administración</button></div></div>
 <main id="contenido"></main></div>
 
-<div id="adm" class="adm" hidden><div class="cab"><div class="in"><span class="logo">LYSI<b>.</b></span><span class="donde">Administración</span><button id="salir-adm" type="button" style="margin-left:auto;font:500 15px Barlow,sans-serif;background:none;color:#fff;border:1px solid #555;border-radius:3px;padding:6px 12px;cursor:pointer">Cerrar</button></div></div>
+<div id="adm" class="adm" hidden><div class="cab"><div class="in"><span class="logo"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg></span><span class="donde">Administración</span><button id="salir-adm" type="button">Cerrar</button></div></div>
 <main class="pasos">
 <header class="aph"><h1>Administración <span class="sucio" id="sucio" hidden>Cambios sin publicar</span></h1>
 <p>Subís los archivos del mes, el software calcula con las reglas v<span id="reglas"></span> y publicás. Nadie más entra acá.</p></header>
@@ -159,8 +181,8 @@ pintarGastos();pintarInfo();
 // El acceso de administración no se muestra en el inicio: aparece solo entrando con #admin al final de la dirección.
 function verPuertaAdm(){var v=/^#admin$/i.test(location.hash);$("adm-door").hidden=!v;if(v)setTimeout(function(){try{$("pw-admin").focus();}catch(e){}},50);}
 verPuertaAdm();window.addEventListener("hashchange",verPuertaAdm);
-// Mismo link para todos: el acceso aparece tocando cinco veces seguidas el punto verde del logo.
-(function(){var p=document.querySelector("#acceso .marca b"),n=0,t=null;if(!p)return;
+// Mismo link para todos: el acceso aparece tocando cinco veces seguidas el logo de la pantalla de inicio.
+(function(){var p=document.querySelector("#acceso .marca"),n=0,t=null;if(!p)return;
  p.addEventListener("click",function(){n++;clearTimeout(t);t=setTimeout(function(){n=0;},2500);
   if(n>=5){n=0;var d=$("adm-door");d.hidden=!d.hidden;if(!d.hidden){d.scrollIntoView({block:"center"});setTimeout(function(){try{$("pw-admin").focus();}catch(e){}},50);}}});})();
 var LISTO=Promise.resolve();
@@ -173,8 +195,22 @@ function mostrar(id){var aps=cont.querySelectorAll(".apartado"),i,ok=false;for(i
  if(!ok&&aps.length){aps[aps.length-1].hidden=false;id=aps[aps.length-1].id;}
  var ap=document.getElementById(id),gr=ap&&ap.getAttribute("data-grupo");
  var bs=document.querySelectorAll(".tabs button");for(i=0;i<bs.length;i++){var on=bs[i].getAttribute("data-ir")===id||(gr&&bs[i].getAttribute("data-grupo")===gr);bs[i].setAttribute("aria-current",on?"true":"false");if(on&&bs[i].scrollIntoView)try{bs[i].scrollIntoView({block:"nearest",inline:"nearest"});}catch(e){}}
- window.scrollTo(0,0);medir();}
-function verReporte(htmlTxt,nombre,previa){cont.innerHTML=htmlTxt;var t=cont.querySelector("template[data-tabs]");$("tabs").innerHTML=t?t.innerHTML:"";$("donde").textContent=nombre;
+ try{window.scrollTo({top:0,left:0,behavior:"instant"});}catch(e){window.scrollTo(0,0);}medir();espiar();}
+// Presentación solamente: no cambia ningún número ni texto de los reportes.
+function realzar(){var i,st=cont.querySelectorAll("style");for(i=0;i<st.length;i++)st[i].textContent=st[i].textContent.replace(/#2E5233/gi,"#1A1A1A");
+ var E={"críticas":"c","en atención":"a","normales":"n","coeficiente bajo":"b","a investigar":"i"},ks=cont.querySelectorAll(".kpi>.kl");
+ for(i=0;i<ks.length;i++){var t=(ks[i].textContent||"").trim().toLowerCase(),k=ks[i].parentNode;if(t==="coeficiente general")k.classList.add("kpi-h");else if(E[t])k.setAttribute("data-e",E[t]);}}
+// Marca en la barra de secciones cuál se está leyendo.
+var ESP=0;
+function espiar(){if(ESP)return;ESP=1;(window.requestAnimationFrame||setTimeout)(function(){ESP=0;
+ var ap=cont.querySelector(".apartado:not([hidden])"),nav=ap&&ap.querySelector(".subnav");if(!nav)return;
+ var ls=nav.querySelectorAll("a"),corte=nav.getBoundingClientRect().bottom+60,act=null,i;
+ for(i=0;i<ls.length;i++){var s=document.getElementById((ls[i].getAttribute("href")||"").slice(1));if(s&&s.getBoundingClientRect().top<=corte)act=ls[i];}
+ if(!act)act=ls[0];
+ for(i=0;i<ls.length;i++){var on=ls[i]===act;if((ls[i].getAttribute("aria-current")==="true")!==on){if(on){ls[i].setAttribute("aria-current","true");
+   var d=ls[i].offsetLeft-nav.offsetLeft-(nav.clientWidth-ls[i].offsetWidth)/2;try{nav.scrollTo({left:d,behavior:"smooth"});}catch(e){nav.scrollLeft=d;}}else ls[i].removeAttribute("aria-current");}}},16);}
+window.addEventListener("scroll",espiar,{passive:true});
+function verReporte(htmlTxt,nombre,previa){cont.innerHTML=htmlTxt;realzar();var t=cont.querySelector("template[data-tabs]");$("tabs").innerHTML=t?t.innerHTML:"";$("donde").textContent=nombre;
  $("previa").hidden=!previa;acceso.hidden=true;adm.hidden=true;app.hidden=false;
  mostrar((cont.querySelector("[data-inicio]")||{getAttribute:function(){return"";}}).getAttribute("data-inicio"));}
 document.addEventListener("click",function(ev){var b=ev.target.closest&&ev.target.closest("[data-ir]");if(b){mostrar(b.getAttribute("data-ir"));}});
@@ -365,8 +401,9 @@ def construir(datos):
     return f'''<!doctype html>
 <html lang="es-AR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow"><title>LYSI Reportes</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -80 1080 1080'%3E%3Crect x='-60' y='-80' width='1080' height='1080' rx='190' fill='%23fff'/%3E%3Cpath fill='%231A1A1A' fill-rule='evenodd' d='M385 689C384 688 385 686 392 673C395 669 398 663 400 660C411 640 437 601 439 600C440 600 449 600 484 600C538 600 545 599 558 597C611 588 642 548 629 500C625 484 615 468 602 456C597 453 598 452 611 446C638 435 667 429 693 429C702 429 701 428 706 438C724 476 730 519 721 560C707 622 654 670 585 683C582 684 580 684 579 684C569 686 547 689 529 689C513 690 386 690 385 689ZM118 587C118 587 118 531 118 462C118 394 118 271 118 188C118 38 118 38 119 37C120 36 215 36 216 38C217 38 217 477 216 480C216 480 213 484 209 488C178 517 152 546 126 580C120 588 119 588 119 588C118 588 118 588 118 587ZM520 410C512 405 512 405 528 400C544 394 555 391 573 388C586 385 592 384 604 383C615 382 616 382 617 382C617 382 617 383 616 383C615 383 606 385 603 386C580 390 561 396 546 402C544 403 541 404 538 405C535 406 531 408 529 409C524 411 524 411 520 410ZM406 356C384 343 372 335 356 320C333 298 313 267 306 238C284 151 336 68 427 45C442 41 453 39 472 37C484 36 691 36 692 38C693 39 693 126 692 127C691 128 691 128 587 128C472 128 474 128 462 130C412 138 386 175 400 216C406 235 422 252 447 266C449 267 453 269 454 270C457 271 473 280 489 288C494 290 508 298 520 304C568 328 564 325 549 326C544 326 538 327 536 327C533 328 528 328 525 329C493 332 451 343 416 356C411 358 410 358 406 356Z'/%3E%3Cpath fill='%2394C337' fill-rule='evenodd' d='M291 897C289 896 283 886 278 880C277 878 274 874 273 872C271 870 269 867 269 866C268 865 266 863 266 862C264 860 263 858 262 856C260 854 257 850 255 846C252 843 250 839 250 838C249 837 248 836 247 835C247 834 244 831 242 827C238 821 235 817 231 811C230 810 227 806 225 802C222 799 220 795 219 793C216 790 216 789 217 786C218 784 219 780 220 778C220 777 221 775 222 773C222 772 223 770 224 769C224 768 225 766 225 765C226 764 226 763 226 763C226 763 227 761 228 759C228 757 230 754 230 753C231 751 232 748 234 746C240 732 244 724 246 719C250 711 254 704 256 701C257 699 259 695 260 692C262 688 264 686 264 685C264 684 266 682 267 680C268 678 270 675 271 673C272 671 274 668 275 666C276 664 277 663 277 662C278 662 278 660 279 658C280 657 282 653 284 650C286 647 289 643 289 642C293 637 309 613 314 605C318 600 333 580 337 575C338 573 340 571 341 570C342 568 344 566 345 564C347 563 348 561 349 560C350 559 352 557 354 554C356 552 358 549 359 548C361 546 366 541 370 536C372 535 375 531 378 528C392 513 406 499 416 491C418 489 421 486 422 485C423 484 426 482 428 480C429 479 433 476 436 474C450 463 462 454 475 446C477 444 480 442 482 441C483 440 486 439 487 438C488 438 491 436 493 435C497 433 500 431 508 427C511 425 527 417 530 416C531 415 534 414 537 413C540 412 543 410 544 410C545 409 548 408 550 408C552 407 554 406 556 406C557 405 559 404 561 404C562 403 565 402 566 402C568 401 570 401 572 400C573 400 576 399 576 399C580 398 588 395 594 394C596 394 598 393 600 393C601 393 604 392 606 392C609 391 611 391 612 390C613 390 615 390 616 390C618 390 626 389 628 389C635 387 678 387 686 389C687 389 692 390 695 390C696 390 698 390 700 391C702 391 705 392 707 392C710 393 715 394 719 394C721 395 727 396 728 397C728 397 729 397 730 398C732 398 734 399 737 400C739 400 742 401 744 402C746 402 748 403 750 404C752 405 755 406 757 407C764 410 780 417 785 420C786 421 789 422 791 423C796 426 811 436 817 440C819 442 822 444 824 445C826 447 830 450 838 458C849 467 868 486 875 494C876 496 878 498 879 499C882 503 888 510 890 511C890 512 892 514 893 516C894 517 896 520 897 522C899 523 900 526 901 527C903 529 908 536 912 542C913 544 915 547 916 548C918 551 919 553 919 554C919 555 914 550 910 545C909 543 906 540 901 534C888 517 869 498 852 483C850 482 848 480 847 480C847 479 845 478 843 476C841 475 838 472 835 470C833 469 829 466 828 465C824 462 818 459 808 453C800 448 787 441 784 440C783 440 782 440 781 439C780 439 779 438 778 438C777 438 775 437 774 436C772 436 770 435 768 434C767 434 764 433 762 432C754 430 745 427 740 426C739 426 736 426 735 425C733 425 730 424 724 424C723 424 721 423 719 423C711 421 681 422 672 423C670 423 667 424 665 424C662 424 659 425 658 425C656 426 654 426 652 426C651 427 649 427 648 427C648 428 646 428 644 428C643 428 640 429 637 430C635 431 632 432 631 432C629 432 628 433 627 433C626 434 623 435 621 436C618 436 615 438 614 438C612 439 610 440 608 441C597 445 576 456 563 465C548 475 544 478 532 488C531 489 528 491 527 492C515 502 493 524 482 536C480 539 476 542 475 544C474 545 471 548 469 551C467 553 464 556 463 558C461 560 458 564 456 566C455 568 452 571 451 572C447 578 441 586 438 589C437 591 436 593 435 594C434 595 431 600 421 614C416 622 414 625 410 630C410 631 407 635 406 638C404 640 402 643 402 643C401 645 395 655 393 658C391 661 390 664 388 668C385 673 383 677 381 680C380 682 377 686 376 690C374 693 372 696 371 697C368 703 344 750 344 752C344 752 342 756 340 760C338 765 336 769 336 770C336 770 335 772 334 775C333 777 332 780 331 782C331 783 330 784 329 786C329 787 328 788 328 789C328 790 327 792 326 794C325 796 324 798 324 799C324 799 324 800 323 801C323 802 322 804 322 804C322 805 321 807 320 809C320 811 318 814 317 817C316 820 315 824 314 825C314 827 313 830 312 831C312 832 311 834 311 834C311 835 310 836 310 836C310 837 310 838 310 839C308 844 305 854 304 857C304 858 303 860 303 861C303 861 302 863 302 865C301 868 298 879 297 883C297 884 297 886 296 887C296 888 296 890 296 891C295 893 295 894 294 895C294 898 292 899 291 897ZM177 736C177 735 175 733 174 730C172 728 170 726 170 725C168 721 163 714 162 712C161 711 157 705 152 698C147 691 142 682 139 679C137 676 134 671 132 668C128 663 126 660 123 654C120 650 107 631 104 627C102 623 101 625 116 604C118 601 122 596 123 594C125 591 128 588 129 586C131 584 133 582 134 580C137 576 139 573 142 570C143 568 146 565 147 563C149 561 152 558 153 556C155 554 158 551 160 548C162 545 164 543 164 543C164 543 166 542 168 540C180 525 204 501 219 487C230 477 232 476 234 473C236 472 238 470 240 469C242 467 245 465 247 463C249 461 253 458 256 456C258 454 261 451 262 450C263 450 267 447 271 444C275 441 280 437 283 435C285 434 288 431 290 430C294 427 315 413 321 410C323 409 326 406 329 405C332 404 335 402 336 401C337 400 340 398 343 397C347 394 376 380 382 377C384 376 387 375 389 374C392 373 394 372 395 372C396 371 397 370 399 370C404 368 407 366 412 365C414 364 418 362 421 361C423 360 427 359 429 358C431 358 435 356 437 356C439 355 442 354 443 354C444 354 446 353 447 353C449 352 455 350 456 350C457 350 459 349 462 348C464 348 467 347 469 346C476 345 480 344 483 343C485 342 487 342 488 342C488 342 490 342 492 341C497 340 504 338 508 338C510 338 513 337 514 337C516 337 518 336 520 336C522 336 525 335 527 335C529 335 533 334 536 334C540 334 544 333 545 333C554 332 554 332 584 332C609 332 613 332 615 332C619 333 620 333 627 334C630 334 635 335 636 335C638 335 641 336 643 336C645 336 647 336 648 337C649 337 651 338 653 338C655 338 657 338 659 339C660 339 663 340 664 340C666 340 668 341 670 341C671 341 674 342 676 343C679 343 682 344 683 344C684 345 687 345 688 346C691 346 696 348 699 349C700 350 704 351 707 352C713 354 722 357 732 361C735 362 738 364 738 364C742 365 773 382 776 384C777 385 778 386 778 386C782 388 801 401 806 405C807 406 809 408 810 408C812 409 814 411 815 412C816 413 818 415 820 416C821 417 824 420 826 422C828 424 831 427 833 428C835 430 848 443 852 448C854 449 856 452 857 453C860 456 864 461 866 464C867 464 869 467 871 469C874 474 881 483 884 487C885 489 886 491 887 492C888 492 889 495 890 496C891 498 893 502 895 504C899 510 903 517 905 522C906 524 908 526 908 527C910 529 914 537 914 537C914 539 912 538 910 535C908 531 903 522 902 521C902 520 901 519 900 518C899 517 897 513 894 510C892 507 890 503 889 502C888 502 887 499 885 497C884 496 882 493 880 491C879 490 876 486 874 484C873 482 869 478 867 476C861 469 847 455 842 450C838 446 834 443 831 441C830 440 828 438 826 437C824 435 818 430 811 425C805 421 793 413 787 410C772 402 771 401 769 400C768 400 766 399 764 398C762 397 760 396 759 396C758 395 755 394 753 394C746 391 735 387 732 386C730 386 729 385 728 385C728 385 727 385 725 384C724 384 722 384 721 383C720 383 718 382 717 382C716 382 714 381 713 381C712 381 710 380 708 380C707 380 705 380 704 379C703 379 700 378 699 378C696 378 694 378 689 377C688 377 684 376 682 376C679 376 675 375 673 375C659 374 618 374 610 375C609 376 606 376 604 376C600 376 596 377 592 378C590 378 588 378 588 378C586 378 580 379 568 382C564 382 561 383 546 387C543 388 537 390 526 394C520 396 512 398 510 399C508 400 507 400 507 400C507 400 505 401 503 402C501 403 499 404 498 404C497 404 495 405 494 406C492 407 490 408 489 408C488 408 483 411 478 413C473 415 468 417 468 417C468 417 444 430 441 432C440 432 439 433 437 434C435 435 416 446 412 449C411 450 410 451 409 451C406 453 405 454 400 458C397 460 392 463 390 464C387 466 384 468 382 470C381 471 378 473 376 474C374 476 371 478 369 480C368 481 365 483 364 484C362 485 359 488 357 490C355 492 352 494 352 494C350 495 349 497 340 504C327 516 302 541 294 550C293 552 291 554 289 556C288 558 285 561 284 562C283 564 281 566 280 566C276 571 275 573 273 575C272 577 270 579 269 581C262 590 251 604 241 620C237 625 234 631 232 632C231 634 230 636 229 637C226 643 221 651 216 660C207 676 206 680 200 693C196 701 195 703 193 707C193 708 192 710 191 711C191 712 190 715 189 717C186 726 181 736 181 737C180 738 178 737 177 736Z'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <style>{P.CSS}{CSS_ADM}{CSS_GAS}</style></head><body>{HTML_CUERPO}
 <script id="py" type="application/json">{py}</script>
 <script id="datos">window.LYSI=/*D0*/{d}/*D1*/;</script>
