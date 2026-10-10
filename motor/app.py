@@ -54,6 +54,8 @@ CSS_ADM = r"""
 """
 
 CSS_GAS = r"""
+#imp-menu hr{border:0;border-top:1px solid var(--ln);margin:5px 4px;width:auto}
+#xls-msj{margin:4px 12px 6px;font-size:13px;color:#C62828}
 .tablero{margin:0 0 40px}
 .est-l{background:#fff;border:1px solid var(--ln);border-radius:12px;box-shadow:0 1px 2px rgba(26,26,26,.04);overflow:hidden}
 .est-l table{width:100%;border-collapse:collapse;font-size:16.5px}
@@ -167,7 +169,7 @@ HTML_CUERPO = r"""
 <p class="pie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><path d="M12 14.5v2.5"/></svg><span id="pie">Cada reporte tiene una contraseña independiente.</span></p></div>
 <footer class="fin"><span>LYSI · Plataforma de reportes</span><span id="actualizado"></span></footer></div>
 
-<div id="app" hidden><a class="saltar" href="#contenido">Saltar al contenido</a><div class="cab"><div class="in"><span class="logo"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg></span><span class="donde" id="donde"></span><div class="imp"><button id="imp-btn" class="bt" type="button" aria-label="Imprimir o guardar en PDF" aria-controls="imp-menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8.5V3.5h10v5M7 17H5a1.5 1.5 0 0 1-1.5-1.5v-5A2 2 0 0 1 5.5 8.5h13a2 2 0 0 1 2 2v5A1.5 1.5 0 0 1 19 17h-2"/><rect x="7" y="13.5" width="10" height="7" rx="1"/></svg><span>Imprimir / PDF</span></button><div id="imp-menu" hidden><button type="button" data-imp="resumen">Solo el resumen<small>La primera sección de esta pestaña</small></button><button type="button" data-imp="todo">Todo lo de esta pestaña<small>Todas las secciones, con los detalles abiertos</small></button></div></div><button id="salir" type="button">Cerrar</button></div>
+<div id="app" hidden><a class="saltar" href="#contenido">Saltar al contenido</a><div class="cab"><div class="in"><span class="logo"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg></span><span class="donde" id="donde"></span><div class="imp"><button id="imp-btn" class="bt" type="button" aria-label="Descargar en Excel, imprimir o guardar en PDF" aria-controls="imp-menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8.5V3.5h10v5M7 17H5a1.5 1.5 0 0 1-1.5-1.5v-5A2 2 0 0 1 5.5 8.5h13a2 2 0 0 1 2 2v5A1.5 1.5 0 0 1 19 17h-2"/><rect x="7" y="13.5" width="10" height="7" rx="1"/></svg><span>Descargar / Imprimir</span></button><div id="imp-menu" hidden><button type="button" data-imp="resumen">Solo el resumen<small>Para imprimir o guardar en PDF: la primera sección</small></button><button type="button" data-imp="todo">Todo lo de esta pestaña<small>Todas las secciones, con los detalles abiertos</small></button><hr><button type="button" data-xls="esta">Excel de esta pestaña<small>Las tablas y los indicadores que estás viendo</small></button><button type="button" data-xls="todo">Excel de todo el reporte<small>Una hoja por cada pestaña</small></button><p id="xls-msj" role="status" hidden></p></div></div><button id="salir" type="button">Cerrar</button></div>
 <div class="tabs" id="tabs" role="navigation" aria-label="Apartados"></div>
 <div id="previa" hidden><b>Vista previa.</b> Así va a quedar; todavía no está publicado. <button type="button" id="volver-adm">Volver a administración</button></div></div>
 <div class="imp-cab"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg><div><b>Logística y Servicios Integrales</b><span id="imp-tit"></span></div><span class="f" id="imp-fecha"></span></div>
@@ -377,6 +379,83 @@ window.addEventListener("afterprint",terminarImp);
 function menuImp(v){if(v){var ap=cont.querySelector(".apartado:not([hidden])"),r=document.querySelector('#imp-menu [data-imp="resumen"]');if(r)r.hidden=!ap||!partesImp(ap).ss.length;}
  $("imp-menu").hidden=!v;$("imp-btn").setAttribute("aria-expanded",v?"true":"false");}
 $("imp-btn").addEventListener("click",function(ev){ev.stopPropagation();menuImp($("imp-menu").hidden);});
+// ───────────── Descargar en Excel: arma un .xlsx con lo que muestra la pantalla (tablas, indicadores y textos) ─────────────
+var CRCT=null;
+function crc32(u){var t=CRCT,c,i,k;if(!t){t=CRCT=[];for(i=0;i<256;i++){c=i;for(k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[i]=c>>>0;}}c=-1;for(i=0;i<u.length;i++)c=t[(c^u[i])&255]^(c>>>8);return(c^-1)>>>0;}
+function comprimir(u){if(!window.CompressionStream)return Promise.resolve(null);
+ try{return new Response(new Blob([u]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer().then(function(b){return new Uint8Array(b);},function(){return null;});}catch(e){return Promise.resolve(null);}}
+function armarZip(files){return Promise.all(files.map(function(f){return comprimir(f.d);})).then(function(zs){var parts=[],cen=[],off=0;
+ files.forEach(function(f,i){var z=zs[i],met=z?8:0,dat=z||f.d,n=utf8(f.n),c=crc32(f.d),h=new Uint8Array(30+n.length),v=new DataView(h.buffer);
+  v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(6,0x0800,true);v.setUint16(8,met,true);v.setUint16(12,0x21,true);v.setUint32(14,c,true);v.setUint32(18,dat.length,true);v.setUint32(22,f.d.length,true);v.setUint16(26,n.length,true);h.set(n,30);
+  var e=new Uint8Array(46+n.length),w=new DataView(e.buffer);w.setUint32(0,0x02014b50,true);w.setUint16(4,20,true);w.setUint16(6,20,true);w.setUint16(8,0x0800,true);w.setUint16(10,met,true);w.setUint16(14,0x21,true);w.setUint32(16,c,true);w.setUint32(20,dat.length,true);w.setUint32(24,f.d.length,true);w.setUint16(28,n.length,true);w.setUint32(42,off,true);e.set(n,46);
+  parts.push(h,dat);cen.push(e);off+=h.length+dat.length;});
+ var cs=0;cen.forEach(function(e){cs+=e.length;});var fin=new Uint8Array(22),q=new DataView(fin.buffer);q.setUint32(0,0x06054b50,true);q.setUint16(8,files.length,true);q.setUint16(10,files.length,true);q.setUint32(12,cs,true);q.setUint32(16,off,true);
+ return new Blob(parts.concat(cen,[fin]),{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});});}
+function xesc(t){return String(t).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function limpio(el){return (el.textContent||"").replace(/[ \t\r\n]+/g," ").replace(/^ +| +$/g,"");}
+// Texto de pantalla a número de Excel: miles con punto o espacio fino, decimales con coma, $ y %.
+function numero(t){var x=t.replace(/[  ]/g,"").replace(/−/g,"-"),pct=false,mon=false;
+ if(!/^[+-]?\$?[+-]?\d[\d.]*(,\d+)?%?$/.test(x))return null;
+ if(x.slice(-1)==="%"){pct=true;x=x.slice(0,-1);}if(x.indexOf("$")>=0){mon=true;x=x.replace("$","");}
+ var neg=x.charAt(0)==="-",p=x.replace(/^[+-]/,"").split(","),ent=p[0];
+ if(ent.indexOf(".")>=0&&!/^\d{1,3}(\.\d{3})+$/.test(ent))return null;
+ if(/^0\d/.test(ent)||ent.replace(/\./g,"").length>15)return null;
+ var v=Number((neg?"-":"")+ent.replace(/\./g,"")+(p[1]?"."+p[1]:""));if(!isFinite(v))return null;
+ var dec=p[1]?p[1].length:0;
+ return{v:pct?v/100:v,s:pct?(dec?4:9):mon?(dec?10:5):dec===0?(Math.abs(v)>=10000?2:0):dec===1?8:3};}
+function celdaX(t,est){if(t==="")return null;var n=est?null:numero(t);return n?{n:n.v,s:n.s}:{t:t,s:est||0};}
+// Recorre una pestaña en el orden en que se lee y devuelve las filas de su hoja.
+function filasDe(ap){var F=[],els=ap.querySelectorAll("h1,h2,h3,summary,p,li,.kpi,.pod,figcaption,table"),i,j,k;
+ for(i=0;i<els.length;i++){var e=els[i],tg=e.tagName;
+  if(e.closest("nav,.subnav,.chips,template")||(tg!=="TABLE"&&e.closest("table"))||(e.closest(".kpi,.pod")&&!e.matches(".kpi,.pod")))continue;
+  if(tg==="TABLE"){var trs=e.rows;for(j=0;j<trs.length;j++){var cab=trs[j].parentNode.tagName==="THEAD",fila=[],cs=trs[j].cells;
+    for(k=0;k<cs.length;k++){var tx=limpio(cs[k]);fila.push(cab?(tx?{t:tx,s:7}:{t:"",s:7}):celdaX(tx,0));var sp=cs[k].colSpan||1;while(--sp>0)fila.push(cab?{t:"",s:7}:null);}
+    F.push(fila);}F.push([]);continue;}
+  if(e.matches(".kpi")){var a=e.querySelector(".kl"),b=e.querySelector(".kv"),c=e.querySelector(".kn");F.push([celdaX(a?limpio(a):"",1),celdaX(b?limpio(b):"",0),celdaX(c?limpio(c):"",11)]);continue;}
+  if(e.matches(".pod")){var ps=e.children,fp=[];for(j=0;j<ps.length;j++)fp.push(celdaX(limpio(ps[j]),j?11:1));F.push(fp);continue;}
+  var t=limpio(e);if(!t)continue;
+  if(tg==="H1"){F.push([{t:t,s:6}]);}
+  else if(tg==="H2"){F.push([]);F.push([{t:t,s:6}]);}
+  else if(tg==="H3"||tg==="SUMMARY"||tg==="FIGCAPTION"){F.push([]);F.push([{t:t,s:1}]);}
+  else F.push([{t:(tg==="LI"?"• ":"")+t,s:11}]);}
+ return F;}
+function col(i){var s="";i++;while(i>0){var r=(i-1)%26;s=String.fromCharCode(65+r)+s;i=(i-r-1)/26;}return s;}
+function hojaXml(F){var anc=[],o=[],i,j;
+ for(i=0;i<F.length;i++){var f=F[i],r="";for(j=0;j<f.length;j++){var c=f[j];if(!c)continue;var ref=col(j)+(i+1);
+   if(c.n!==undefined)r+='<c r="'+ref+'"'+(c.s?' s="'+c.s+'"':"")+"><v>"+c.n+"</v></c>";
+   else{r+='<c r="'+ref+'" t="inlineStr"'+(c.s?' s="'+c.s+'"':"")+'><is><t xml:space="preserve">'+xesc(c.t)+"</t></is></c>";}
+   if(c.s!==6&&c.s!==11){var l=c.n!==undefined?String(Math.round(c.n)).length+5:Math.min(c.t.length,60);if(!(anc[j]>=l))anc[j]=l;}}
+  o.push('<row r="'+(i+1)+'">'+r+"</row>");}
+ var cols="";for(j=0;j<anc.length;j++)cols+='<col min="'+(j+1)+'" max="'+(j+1)+'" width="'+Math.max(10,(anc[j]||0)+2)+'" customWidth="1"/>';
+ return'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+(cols?"<cols>"+cols+"</cols>":"")+"<sheetData>"+o.join("")+"</sheetData></worksheet>";}
+var ESTILOS='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="4"><numFmt numFmtId="164" formatCode="&quot;$&quot;#,##0"/><numFmt numFmtId="165" formatCode="&quot;$&quot;#,##0.00"/><numFmt numFmtId="166" formatCode="#,##0.0"/><numFmt numFmtId="167" formatCode="0.0%"/></numFmts>'
+ +'<fonts count="4"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="14"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts>'
+ +'<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF4B7010"/><bgColor indexed="64"/></patternFill></fill></fills>'
+ +'<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="12">'
+ +'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+ +'<xf numFmtId="167" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
+ +'<xf numFmtId="0" fontId="3" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf><xf numFmtId="166" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="9" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+ +'<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs></styleSheet>';
+function nombreHoja(ap,usados){var b=ap.querySelector(".chips [aria-current=true]")||document.querySelector('#tabs [data-ir="'+ap.id+'"]'),h=ap.querySelector("h1");
+ var n=(b?limpio(b):h?limpio(h):ap.id).replace(/[\[\]:*?\/\\]/g," ").slice(0,31).replace(/^'+|'+$/g,"")||"Hoja",base=n,k=2;
+ while(usados[n.toLowerCase()]){var suf=" ("+k+++")";n=base.slice(0,31-suf.length)+suf;}usados[n.toLowerCase()]=1;return n;}
+function excel(modo){var aps=modo==="todo"?cont.querySelectorAll(".apartado"):cont.querySelectorAll(".apartado:not([hidden])"),msj=$("xls-msj");msj.hidden=true;
+ if(!aps.length)return;var usados={},hojas=[],i;for(i=0;i<aps.length;i++)hojas.push({n:nombreHoja(aps[i],usados),x:hojaXml(filasDe(aps[i]))});
+ var ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>',
+  wb='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>',
+  rl='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">',fs=[];
+ hojas.forEach(function(h,k){var id=k+1;ct+='<Override PartName="/xl/worksheets/sheet'+id+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>';
+  wb+='<sheet name="'+xesc(h.n).replace(/"/g,"&quot;")+'" sheetId="'+id+'" r:id="rId'+id+'"/>';rl+='<Relationship Id="rId'+id+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+id+'.xml"/>';
+  fs.push({n:"xl/worksheets/sheet"+id+".xml",d:utf8(h.x)});});
+ rl+='<Relationship Id="rId'+(hojas.length+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
+ var todos=[{n:"[Content_Types].xml",d:utf8(ct+"</Types>")},{n:"_rels/.rels",d:utf8('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>')},
+  {n:"xl/workbook.xml",d:utf8(wb+"</sheets></workbook>")},{n:"xl/_rels/workbook.xml.rels",d:utf8(rl)},{n:"xl/styles.xml",d:utf8(ESTILOS)}].concat(fs);
+ var nombre=("LYSI "+($("donde").textContent||"Reporte")+" - "+(modo==="todo"?"completo":hojas[0].n)).replace(/[\\\/:*?"<>|]/g," ").replace(/ +/g," ")+".xlsx";
+ return armarZip(todos).then(function(blob){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nombre;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},4000);})
+  .catch(function(e){msj.textContent="No se pudo armar el Excel ("+(e&&e.message||e)+").";msj.hidden=false;menuImp(true);});}
+document.addEventListener("click",function(ev){var b=ev.target.closest&&ev.target.closest("[data-xls]");if(!b)return;ev.stopPropagation();menuImp(false);var m=b.getAttribute("data-xls");setTimeout(function(){excel(m);},30);});
+window.__lysi.excel={filasDe:filasDe,numero:numero};
+
 document.querySelector(".imp").addEventListener("focusout",function(ev){if(ev.relatedTarget&&!this.contains(ev.relatedTarget))menuImp(false);});
 document.addEventListener("click",function(ev){var b=ev.target.closest&&ev.target.closest("[data-imp]");
  if(b&&b.id!=="imp-btn"&&b.tagName==="BUTTON"){menuImp(false);if(prepararImp(b.getAttribute("data-imp")))setTimeout(function(){window.print();},60);return;}
