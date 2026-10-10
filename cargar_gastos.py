@@ -13,6 +13,7 @@ Después de --publicar hay que hacer commit y push de datos.json. No toca Combus
 import os
 import sys
 import json
+import datetime
 
 from motor import portal as P, gastos as G
 
@@ -67,6 +68,7 @@ def main():
     nuevo["admin"] = P.cifrar(json.dumps(adm, ensure_ascii=False), clave)
     nuevo["info"] = dict(datos.get("info", {}))
     nuevo["info"]["gastos"] = r["descripcion"]
+    nuevo["info"]["gastos_fecha"] = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-3))).strftime("%d/%m/%Y %H:%M")
     # se escribe aparte y se reemplaza de una: si algo se corta, datos.json no queda a medias
     with open(ruta + ".tmp", "w", encoding="utf-8") as fh:
         json.dump(nuevo, fh, ensure_ascii=False)

@@ -54,6 +54,22 @@ CSS_ADM = r"""
 """
 
 CSS_GAS = r"""
+.tablero{margin:0 0 40px}
+.est-l{background:#fff;border:1px solid var(--ln);border-radius:12px;box-shadow:0 1px 2px rgba(26,26,26,.04);overflow:hidden}
+.est-f{display:grid;grid-template-columns:minmax(170px,1.1fr) 120px minmax(190px,1.3fr) auto;gap:4px 20px;align-items:center;padding:16px 24px;border-top:1px solid var(--ln);font-size:16.5px}
+.est-f:first-child{border-top:0}
+.est-f b{font:600 19px var(--ti);letter-spacing:-.01em}
+.est-f .fr{color:var(--tx2);font-size:15px}
+.est-f .ul small{display:block;color:var(--tx2);font-size:13.5px}
+.est-f .det{grid-column:1/-1;color:var(--tx2);font-size:14.5px}
+.estc{justify-self:end;display:inline-flex;align-items:center;gap:8px;border-radius:20px;padding:6px 15px;font:600 15px var(--ti);white-space:nowrap}
+.estc:before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
+.estc.ok{background:var(--lima0);color:#2C3A14}
+.estc.ok:before{background:var(--lima2)}
+.estc.pend{background:#FFF1D6;color:#7A4A00}
+.estc.prep{background:var(--bg2);color:var(--tx2)}
+@media (max-width:640px){.tablero{margin-bottom:28px}.est-f{grid-template-columns:1fr auto;padding:13px 16px;font-size:15.5px}.est-f b{font-size:17px}.est-f .fr{display:none}.est-f .ul{grid-column:1/-1;grid-row:2}.estc{font-size:14px;padding:5px 12px}}
+@media print{.tablero{display:none}}
 /* Reporte de resultados: viene de Excel (títulos en mayúsculas, color por rubro). Se lleva al mismo sistema que Combustible. */
 .gst .tw{margin:8px 0 14px}
 .gst th{white-space:normal;text-align:center;vertical-align:bottom;min-width:62px;position:static;font-size:12px;letter-spacing:.04em;line-height:1.2}
@@ -128,6 +144,7 @@ HTML_CUERPO = r"""
 <p class="ceja">Gestión de flota</p>
 <h1>Reportes de flota</h1>
 <p class="sub">Consultá los reportes y la evolución de tu operación.</p>
+<section class="tablero" id="estado" hidden><div class="rdh"><h2>Estado de los reportes</h2><span id="est-hoy"></span></div><div class="est-l" id="est-l"></div></section>
 <div class="rdh"><h2>Reportes disponibles</h2><span id="cuantos"></span></div>
 <div class="puertas">
 <div class="puerta"><div class="pc"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20.5V5.5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15M3.5 20.5h13M7.5 7h5v4.5h-5zM15 9.5h1.5a2 2 0 0 1 2 2v4.2a1.4 1.4 0 0 0 2.8 0V8.8L18.6 6"/></svg></span><div><h3>Combustible</h3><p id="desc-combustible">Consumos mensuales y evaluación anual de la flota.</p>
@@ -214,7 +231,25 @@ function pintarInfo(){var inf=LYSI.info||{},ms=inf.meses||[],t="";
 function pintarGastos(){var hay=!!(LYSI.cajas&&LYSI.cajas.gastos),inf=LYSI.info||{},pr=$("pronto-gastos");$("fm-gastos").hidden=!hay;pr.hidden=hay;
  pr.textContent=CARGADO?"En preparación":(FALLO?"Sin cargar":"Cargando…");
  var t=hay&&inf.gastos?String(inf.gastos).split(" · ")[0].replace(/ a ([a-záéíóú])/,function(m,l){return " – "+l.toUpperCase();}):"";periodo("gastos",t);
- $("cuantos").textContent=CARGADO?(hay?"2 reportes":"1 reporte"):"";}
+ $("cuantos").textContent=CARGADO?(hay?"2 reportes":"1 reporte"):"";pintarEstado();}
+// Estado de cada reporte contra el calendario: Combustible es mensual (se espera el mes anterior completo);
+// Resultados es quincenal (desde el 16 se espera el corte del mes en curso; antes, el mes anterior cerrado).
+function pintarEstado(){var el=$("estado");if(!CARGADO||FALLO||!LYSI.info){el.hidden=true;return;}
+ var inf=LYSI.info,hoy=new Date(),y=hoy.getFullYear(),m=hoy.getMonth()+1,d=hoy.getDate(),py=m>1?y:y-1,pm=m>1?m-1:12,h="";
+ function nom(i){var yy=Math.floor((i-1)/12),mm=i-yy*12;return mayus(MESES[mm])+" "+yy;}
+ function fecha(t){var g=/^(\d\d)\/(\d\d)\/(\d{4})/.exec(t||"");return g?"Publicado el "+Number(g[1])+"/"+Number(g[2])+"/"+g[3]:"";}
+ function fila(n,fr,ult,pub,cls,est,det){h+='<div class="est-f"><b>'+esc(n)+'</b><span class="fr">'+esc(fr)+'</span><span class="ul">'+esc(ult)+(pub?"<small>"+esc(pub)+"</small>":"")+'</span><span class="estc '+cls+'">'+esc(est)+'</span>'+(det?'<span class="det">'+esc(det)+"</span>":"")+"</div>";}
+ var ms=inf.meses||[],u=ms.length?String(ms[ms.length-1]).toLowerCase().split(" "):null,ui=u&&MESES.indexOf(u[0])>0?Number(u[1])*12+MESES.indexOf(u[0]):0,esp=py*12+pm;
+ if(!ui)fila("Combustible","Mensual","Sin meses cargados","","prep","Sin cargar","");
+ else if(ui>=esp)fila("Combustible","Mensual","Último mes: "+nom(ui),fecha(inf.generado),"ok","Al día",mayus(MESES[m])+" se carga cuando cierre el mes.");
+ else{var fl=[],i;for(i=ui+1;i<=esp&&fl.length<3;i++)fl.push(nom(i));fila("Combustible","Mensual","Último mes: "+nom(ui),fecha(inf.generado),"pend","Pendiente","Falta cargar "+fl.join(", ")+(esp-ui>3?" y más":"")+".");}
+ if(!(LYSI.cajas&&LYSI.cajas.gastos&&inf.gastos))fila("Reporte de resultados","Quincenal","Todavía sin publicar","","prep","En preparación","");
+ else{var t=String(inf.gastos).split(" · ")[0],par=/parcial/i.test(t),w=t.toLowerCase().split(" a ").pop().replace(/[^a-záéíóúñ ]/g," ").trim().split(" ")[0],gm=MESES.indexOf(w),gf=/^(\d\d)\/(\d\d)\/(\d{4})/.exec(inf.gastos_fecha||"");
+  var gy=gf?Number(gf[3]):y;if(gm>(gf?Number(gf[2]):m))gy--;var gi=gm>0?gy*12+gm:0,quin=d>=16,ei=quin?y*12+m:esp,al=gi>ei||(gi===ei&&(quin||!par));
+  var ult="Hasta "+(gi?nom(gi):t)+(par?" (parcial)":"");
+  if(al)fila("Reporte de resultados","Quincenal",ult,fecha(inf.gastos_fecha),"ok","Al día","Próximo corte: "+(quin?"1 de "+MESES[m<12?m+1:1]:"16 de "+MESES[m])+".");
+  else fila("Reporte de resultados","Quincenal",ult,fecha(inf.gastos_fecha),"pend","Pendiente",quin?"Falta el corte del 16 de "+MESES[m]+".":"Falta el cierre de "+nom(esp)+".");}
+ $("est-l").innerHTML=h;$("est-hoy").textContent="Hoy: "+d+" de "+MESES[m]+" de "+y;el.hidden=false;}
 // Ver u ocultar la contraseña mientras se escribe.
 function ojo(inp,ver){inp.type=ver?"text":"password";var o=inp.parentNode.querySelector(".ojo");
  if(o){o.setAttribute("aria-pressed",ver?"true":"false");o.setAttribute("aria-label",ver?"Ocultar la contraseña":"Mostrar la contraseña");}}
@@ -495,7 +530,7 @@ function publicar(){var el=$("pub-estado"),cc=$("cl-comb").value.trim(),ca=$("cl
    return cifrar(RES.html,cc).then(function(c1){return cifrar(JSON.stringify(ADM),ca).then(function(c2){
     var cajas={},k;for(k in (LYSI.cajas||{}))cajas[k]=LYSI.cajas[k];cajas.combustible=c1;if(cgx)cajas.gastos=cgx;
     var nuevo={v:LYSI.v,iter:LYSI.iter,pyodide:LYSI.pyodide,cajas:cajas,admin:c2,info:{meses:RES.meses.map(function(m){return m.nombre;}),ids:RES.meses.filter(function(m){return !m.importado;}).map(function(m){return m.id;}),generado:RES.generado,reglas:RES.reglas}};
-    var dg=(RES.gastos&&RES.gastos.html)?RES.gastos.descripcion:(LYSI.info&&LYSI.info.gastos);if(cgx&&dg)nuevo.info.gastos=dg;
+    var dg=(RES.gastos&&RES.gastos.html)?RES.gastos.descripcion:(LYSI.info&&LYSI.info.gastos);if(cgx&&dg){nuevo.info.gastos=dg;var df=(RES.gastos&&RES.gastos.html)?RES.generado:(LYSI.info&&LYSI.info.gastos_fecha);if(df)nuevo.info.gastos_fecha=df;}
     if(LYSI.remoto)nuevo.remoto=LYSI.remoto;var g=gh();
     function hecho(txt){LYSI=nuevo;window.LYSI=nuevo;pintarInfo();pintarGastos();pintarMeses();GAS=[];$("gas-arch").value="";pintarGas();sucio(false);$("publicar").disabled=false;$("copia").disabled=false;estado(el,txt);}
     if(g){estado(el,"Subiendo al sitio…");return subirGitHub(g,nuevo).then(function(){hecho("Publicado en el sitio. En uno o dos minutos lo ve todo el que entre al link.");});}

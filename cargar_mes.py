@@ -116,8 +116,9 @@ def main():
     nuevo["info"] = {"meses": [m["nombre"] for m in r["meses"]], "ids": [m["id"] for m in r["meses"] if not m.get("importado")],
                      "generado": datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-3))).strftime("%d/%m/%Y %H:%M"),
                      "reglas": r["reglas"]}
-    if (datos.get("info") or {}).get("gastos"):
-        nuevo["info"]["gastos"] = datos["info"]["gastos"]
+    for k in ("gastos", "gastos_fecha"):
+        if (datos.get("info") or {}).get(k):
+            nuevo["info"][k] = datos["info"][k]
     # se escribe aparte y se reemplaza de una: si algo se corta, datos.json no queda a medias
     with open(ruta + ".tmp", "w", encoding="utf-8") as fh:
         json.dump(nuevo, fh, ensure_ascii=False)
