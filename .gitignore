@@ -1,2 +1,10 @@
 __pycache__/
 *.pyc
+# nunca al repositorio público: archivos fuente, claves y salidas locales
+*.xlsx
+*.xls
+*.xlsm
+*.csv
+claves*.json
+datos.json.tmp
+sitio/

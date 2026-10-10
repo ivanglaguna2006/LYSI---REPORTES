@@ -49,4 +49,6 @@ el reporte mensual (una hoja por mes, `REPORTE_MENSUAL_LYSI_...xlsx`) y el de re
 - Para medir un mes tiene que estar cargado el mes anterior.
 - Las decisiones de criterio (mandar una unidad a investigar por un motivo que las reglas no detectan) las toma Ivo y se registran desde Administración en la app, no acá.
 - No cambiar `motor/` ni `index.html` en una carga mensual. Si hay que cambiar una regla, es un cambio de software: se hace aparte, se valida contra agosto y septiembre 2026 (484 888 km / 30,41 y 535 206 km / 30,60), se regenera `index.html` (`python3 -c "from motor import app; open('index.html','w',encoding='utf-8').write(app.cascara())"`) y, si cambia cómo se arma Combustible, se vuelve a armar lo publicado con `LYSI_ADMIN='<contraseña>' python3 regenerar.py` (control) y después `--publicar`.
-- Este repositorio es público: nunca subir contraseñas, tokens ni archivos fuente sin cifrar.
+- Este repositorio es público: nunca subir contraseñas, tokens ni archivos fuente sin cifrar. Los archivos de Ivo se copian a una carpeta **fuera** del repositorio, y al publicar se agrega solo lo necesario (`git add datos.json`), nunca `git add -A`.
+- Antes de publicar, `git pull`: si alguien publicó desde la app mientras tanto, hay que volver a correr el control sobre la versión nueva.
+- Volver atrás una publicación: `git revert` del commit de `datos.json`. Esa versión abre con las contraseñas que tenía en ese momento.
