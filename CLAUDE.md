@@ -1,0 +1,34 @@
+# LYSI Reportes — instrucciones para Claude
+
+Este repositorio aloja la app de reportes de LYSI (GitHub Pages):
+https://ivanglaguna2006.github.io/LYSI---REPORTES/
+
+- `index.html`: la app (pantalla de acceso, consulta y Administración). No tiene datos.
+- `datos.json`: los reportes y los archivos fuente, **cifrados**. Nunca editarlo a mano ni reemplazarlo por otra cosa: la app deja de abrir.
+- `motor/`: el código de cálculo (reglas del Prompt Maestro v4.7). Es el mismo que la app lleva adentro.
+- `cargar_mes.py`: carga un mes desde acá, con el mismo resultado que la pantalla de Administración.
+
+## Cargar un mes cuando Ivo pasa los archivos
+
+Ivo adjunta los cuatro archivos del mes tal como bajan de cada plataforma:
+ReporteConsumos (tarjeta YPF), KmRecorridos (Filarus), Informe de combustible y Resumen de rendimientos (My Scania).
+
+1. `git pull` de este repositorio antes de empezar (Ivo también puede publicar desde la app).
+2. Copiar los cuatro archivos a una carpeta vacía, sin renombrarlos.
+3. Pedirle a Ivo la contraseña de administración si no la dio en este chat. Usarla solo como variable de entorno; no escribirla en ningún archivo ni en un commit.
+4. Control, sin publicar:
+   `LYSI_ADMIN='<contraseña>' python3 cargar_mes.py AAAA-MM <carpeta>`
+5. Mostrarle a Ivo el control tal como sale: km, litros, coeficiente, estados, si cierra la conciliación con YPF y la lista de unidades a investigar con su motivo. Es el checkpoint: **esperar su OK antes de publicar**.
+6. Con su OK: repetir el comando con `--publicar`, y después commit y push de `datos.json` a `main`. El sitio se actualiza en uno o dos minutos.
+7. Confirmarle qué meses quedaron publicados.
+
+Requisitos de Python: pandas, openpyxl, cryptography.
+
+## Reglas
+
+- No inventar ni corregir datos: si el control muestra un error de archivo (export equivocado, fechas de otro mes), se lo informa a Ivo y no se publica.
+- Si falta alguno de los cuatro archivos, avisar cuál. Con solo cargas + Filarus el mes sirve de arranque para el siguiente, pero no se calcula completo.
+- Para medir un mes tiene que estar cargado el mes anterior.
+- Las decisiones de criterio (mandar una unidad a investigar por un motivo que las reglas no detectan) las toma Ivo y se registran desde Administración en la app, no acá.
+- No cambiar `motor/` ni `index.html` en una carga mensual. Si hay que cambiar una regla, es un cambio de software: se hace aparte, se valida contra agosto y septiembre 2026 (484 888 km / 30,41 y 535 206 km / 30,60) y se regenera `index.html` con `construir.py`.
+- Este repositorio es público: nunca subir contraseñas, tokens ni archivos fuente sin cifrar.
