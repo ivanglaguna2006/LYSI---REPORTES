@@ -536,9 +536,15 @@ def hoja_html(wb, ws, ids, dib, est):
     return titulo, sub, color, "".join(o)
 
 
+def es_mes(h):
+    """True si la hoja es de un mes, aunque el nombre traiga algo más («Octubre (parcial)», «Oct 2026»)."""
+    p = re.split(r"[^a-záéíóúñ]+", h.strip().lower())
+    return bool(p and p[0]) and (p[0] in MESES or (len(p[0]) >= 3 and any(m.startswith(p[0]) for m in MESES)))
+
+
 def _clasificar(wb):
     hs = [h.lower() for h in wb.sheetnames]
-    if sum(1 for h in hs if h in MESES) >= 1:
+    if sum(1 for h in hs if es_mes(h)) >= 1:
         return "mensual"
     if "resumen" in hs or "gasto mensual" in hs:
         return "resultados"
@@ -547,7 +553,7 @@ def _clasificar(wb):
 
 def control_mensual(wb):
     """Tabla de control: el resumen de cada mes tal como figura en la hoja Índice."""
-    idx = [h for h in wb.sheetnames if h.lower() not in MESES]
+    idx = [h for h in wb.sheetnames if not es_mes(h)]
     if not idx:
         return None
     filas = leer_hoja(wb[idx[0]])
@@ -632,10 +638,10 @@ def procesar(carpeta):
             tabs.append('<span class="sep"></span>')
         for t, h, i, et in planes:
             if t == "mensual":
-                tabs.append(f'<button type="button" data-ir="{i}">{e("Mes a mes" if h.lower() not in MESES else et)}</button>')
+                tabs.append(f'<button type="button" data-ir="{i}">{e("Mes a mes" if not es_mes(h) else et)}</button>')
         out["control"] = control_mensual(libros["mensual"][2])
     inicio = "gr00" if "resultados" in libros else [i for t, h, i, _ in planes if t == "mensual"][-1]
-    meses = [h for t, h, _, _ in planes if t == "mensual" and h.lower() in MESES]
+    meses = [h for t, h, _, _ in planes if t == "mensual" and es_mes(h)]
     out["descripcion"] = (f"{meses[0]} a {meses[-1].lower()}" if len(meses) > 1 else (meses[0] if meses else "")) + (
         " · resultados del año" if "resultados" in libros else "")
     out["html"] = f'<template data-tabs>{"".join(tabs)}</template><div data-inicio="{inicio}"></div><style>{est.css()}</style>' + "".join(partes)
