@@ -118,7 +118,10 @@ def main():
                      "reglas": r["reglas"]}
     if (datos.get("info") or {}).get("gastos"):
         nuevo["info"]["gastos"] = datos["info"]["gastos"]
-    json.dump(nuevo, open(ruta, "w", encoding="utf-8"), ensure_ascii=False)
+    # se escribe aparte y se reemplaza de una: si algo se corta, datos.json no queda a medias
+    with open(ruta + ".tmp", "w", encoding="utf-8") as fh:
+        json.dump(nuevo, fh, ensure_ascii=False)
+    os.replace(ruta + ".tmp", ruta)
     print("\ndatos.json actualizado. Falta commit y push para que el sitio lo muestre.")
 
 

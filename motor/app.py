@@ -13,8 +13,9 @@ PYODIDE = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"
 CSS_ADM = r"""
 .adm-door{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:18px 22px 10px;margin-top:26px;display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;color:var(--tx2);font-size:15px}
 .adm-door span{flex:1 1 220px}
-.adm-door input{font:inherit;padding:10px 13px;border:1px solid #C9CDC3;background:#fff;color:var(--tx);border-radius:8px;width:230px}
-.adm-door button{font:600 15px var(--ti);padding:10px 18px;border:1px solid var(--ink);border-radius:8px;background:var(--ink);color:#fff;cursor:pointer}
+.adm-door input{font:inherit;padding:10px 13px;border:1px solid #8A8F84;background:#fff;color:var(--tx);border-radius:8px;width:230px}
+.adm-door button{font:600 15px var(--ti);padding:10px 18px;border:1px solid var(--lima);border-radius:8px;background:var(--lima);color:var(--ink);cursor:pointer}
+.adm-door input::placeholder{color:#6B7066}
 .adm-door .msj{flex-basis:100%;margin:0}
 #previa{background:#FFF7E0;color:var(--ink);border-bottom:2px solid #E65100;padding:8px 20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:14.5px}
 #previa button,.btn{font:600 15px var(--ti);padding:8px 16px;border-radius:8px;border:1px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer}
@@ -57,6 +58,8 @@ CSS_GAS = r"""
 .gst .tw{margin:8px 0 14px}
 .gst th{white-space:normal;text-align:center;vertical-align:bottom;min-width:62px;position:static;font-size:12px;letter-spacing:.04em;line-height:1.2}
 .gst th[style*="2E5233"],.gst h3.barra[style*="2E5233"]{background:var(--ink)!important}
+/* el ocre del Excel con texto blanco no llegaba al contraste mínimo: se oscurece */
+.gst th[style*="C4841D"],.gst h3.barra[style*="C4841D"],.gst td[style*="C4841D;color:#fff"]{background:#8F5E0F!important}
 .gst td.c{text-align:center}
 .gst th.gap{background:#fff}
 .gst .aph h1{font-size:clamp(23px,2.3vw,31px);line-height:1.15;letter-spacing:.01em}
@@ -79,14 +82,17 @@ h3.barra.b2{font-size:13.5px;margin:14px 0 4px}
 details.gd>summary{font-weight:600}
 details.gd .pt{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 4px}
-.chips button{font:500 14px var(--cu);border:1px solid #C9CDC3;background:#fff;color:var(--tx);border-radius:16px;padding:3px 11px;cursor:pointer;text-align:left}
+.chips button{font:500 14px var(--cu);border:1px solid #8A8F84;background:#fff;color:var(--tx);border-radius:16px;padding:3px 11px;cursor:pointer;text-align:left}
 .chips button:hover{background:var(--bg2)}
 .chips button[aria-current=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
 .lnk{font:inherit;font-weight:600;color:var(--lima2);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
 .gfig{margin:14px 0 20px;max-width:1180px}
 .gfig img{max-width:100%;height:auto;display:block;border:1px solid var(--ln);border-radius:10px;cursor:zoom-in}
-#zoom{position:fixed;inset:0;z-index:60;background:rgba(26,26,26,.82);display:grid;place-items:center;padding:18px;cursor:zoom-out}
+#zoom{position:fixed;inset:0;z-index:60;background:rgba(26,26,26,.86);display:grid;place-items:center;padding:56px 18px 18px;cursor:zoom-out;outline:none}
 #zoom img{max-width:100%;max-height:100%;background:#fff;border-radius:8px}
+#zoom .bt{position:absolute;top:10px;right:14px}
+.gfig img:focus-visible{outline:3px solid var(--lima2);outline-offset:2px}
+@media print{#zoom{display:none!important}}
 /* el gráfico de barras del Excel toma los colores de la marca */
 .gst .chart rect[fill="#2E7D32"]{fill:var(--lima)}
 .gst .gfig .le i[style*="2E7D32"]{background:var(--lima)!important}
@@ -104,10 +110,14 @@ details.gd .pt{display:inline-block;width:10px;height:10px;border-radius:50%;mar
  .gst[data-grupo]>.chips button[aria-current=true]{border-left-color:var(--lima);color:var(--ink);font-weight:600;background:var(--lima0)}
  .gst[data-grupo]>section:first-of-type{padding-top:26px}
 }
+/* en tablet y celular las hojas van en una tira fija bajo la cabecera, con la hoja activa siempre a la vista */
+@media (max-width:900px){
+ .gst .chips{position:sticky;top:var(--cabh,96px);z-index:20;background:var(--bg);flex-wrap:nowrap;overflow-x:auto;margin:14px -20px 0;padding:8px 20px;border-bottom:1px solid var(--ln);scrollbar-width:none}
+ .gst .chips::-webkit-scrollbar{display:none}
+ .gst .chips button{flex:none;white-space:nowrap}
+}
 @media (max-width:640px){.gk{grid-template-columns:1fr 1fr}.gk .kv{font-size:19px;white-space:normal;overflow-wrap:anywhere}.gk .kl{font-size:11px}
- .chips{flex-wrap:nowrap;overflow-x:auto;margin:14px -16px 0;padding:0 16px 8px;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent)}
- .chips::-webkit-scrollbar{display:none}
- .chips button{font-size:14px;padding:5px 12px;white-space:nowrap;flex:none}
+ .gst .chips{margin:14px -16px 0;padding:8px 16px}
  .gst .aph h1{font-size:23px}.gst section>h2{font-size:17px}}
 """
 
@@ -139,11 +149,11 @@ HTML_CUERPO = r"""
 <p class="pie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><path d="M12 14.5v2.5"/></svg><span id="pie">Cada reporte tiene una contraseña independiente.</span></p></div>
 <footer class="fin"><span>LYSI · Plataforma de reportes</span><span id="actualizado"></span></footer></div>
 
-<div id="app" hidden><div class="cab"><div class="in"><span class="logo"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg></span><span class="donde" id="donde"></span><div class="imp"><button id="imp-btn" class="bt" type="button" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8.5V3.5h10v5M7 17H5a1.5 1.5 0 0 1-1.5-1.5v-5A2 2 0 0 1 5.5 8.5h13a2 2 0 0 1 2 2v5A1.5 1.5 0 0 1 19 17h-2"/><rect x="7" y="13.5" width="10" height="7" rx="1"/></svg><span>Imprimir / PDF</span></button><div id="imp-menu" hidden><button type="button" data-imp="resumen">Solo el resumen<small>La primera sección de esta pestaña</small></button><button type="button" data-imp="todo">Todo lo de esta pestaña<small>Todas las secciones, con los detalles abiertos</small></button></div></div><button id="salir" type="button">Cerrar</button></div>
+<div id="app" hidden><a class="saltar" href="#contenido">Saltar al contenido</a><div class="cab"><div class="in"><span class="logo"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg></span><span class="donde" id="donde"></span><div class="imp"><button id="imp-btn" class="bt" type="button" aria-label="Imprimir o guardar en PDF" aria-controls="imp-menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8.5V3.5h10v5M7 17H5a1.5 1.5 0 0 1-1.5-1.5v-5A2 2 0 0 1 5.5 8.5h13a2 2 0 0 1 2 2v5A1.5 1.5 0 0 1 19 17h-2"/><rect x="7" y="13.5" width="10" height="7" rx="1"/></svg><span>Imprimir / PDF</span></button><div id="imp-menu" hidden><button type="button" data-imp="resumen">Solo el resumen<small>La primera sección de esta pestaña</small></button><button type="button" data-imp="todo">Todo lo de esta pestaña<small>Todas las secciones, con los detalles abiertos</small></button></div></div><button id="salir" type="button">Cerrar</button></div>
 <div class="tabs" id="tabs" role="navigation" aria-label="Apartados"></div>
 <div id="previa" hidden><b>Vista previa.</b> Así va a quedar; todavía no está publicado. <button type="button" id="volver-adm">Volver a administración</button></div></div>
 <div class="imp-cab"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg><div><b>Logística y Servicios Integrales</b><span id="imp-tit"></span></div><span class="f" id="imp-fecha"></span></div>
-<main id="contenido"></main></div>
+<main id="contenido" tabindex="-1"></main></div>
 
 <div id="adm" class="adm" hidden><div class="cab"><div class="in"><span class="logo"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg></span><span class="donde">Administración</span><button id="salir-adm" type="button">Cerrar</button></div></div>
 <main class="pasos">
@@ -193,40 +203,76 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return
 function num(v,d){if(v==null)return"—";var p=Number(v).toFixed(d||0).split(".");p[0]=p[0].replace(/\B(?=(\d{3})+(?!\d))/g," ");return p.join(",");}
 function mayus(s){s=String(s||"");return s.charAt(0).toUpperCase()+s.slice(1);}
 function periodo(id,txt){var c=$("per-"+id);c.hidden=!txt;c.lastChild.textContent=txt||"";}
+var CARGADO=!LYSI.remoto,FALLO=false,PYO_URL=LYSI.pyodide,TITULO=document.title,ORIGEN=null;
+var QUIETO=!!(window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches);
 function pintarInfo(){var inf=LYSI.info||{},ms=inf.meses||[],t="";
  if(ms.length){var x=ms[0].split(" "),y=ms[ms.length-1].split(" ");t=ms.length>1?mayus(x[0])+(x[1]&&x[1]!==y[1]?" "+x[1]:"")+" – "+mayus(y[0])+(y[1]?" "+y[1]:""):mayus(ms[0]);}
- periodo("combustible",t);$("pie").textContent="Cada reporte tiene una contraseña independiente.";
+ periodo("combustible",t);if(CARGADO)$("pie").textContent="Cada reporte tiene una contraseña independiente.";
  var g=/^(\d\d)\/(\d\d)\/(\d{4})/.exec(inf.generado||"");$("actualizado").textContent=g?"Actualizado el "+Number(g[1])+" de "+MESES[Number(g[2])]+" de "+g[3]:"";
  $("reglas").textContent=inf.reglas||"";}
-function pintarGastos(){var hay=!!(LYSI.cajas&&LYSI.cajas.gastos),inf=LYSI.info||{};$("fm-gastos").hidden=!hay;$("pronto-gastos").hidden=hay;
+// Mientras los datos se están bajando la tarjeta dice «Cargando…»; «En preparación» es solo para un reporte que todavía no existe.
+function pintarGastos(){var hay=!!(LYSI.cajas&&LYSI.cajas.gastos),inf=LYSI.info||{},pr=$("pronto-gastos");$("fm-gastos").hidden=!hay;pr.hidden=hay;
+ pr.textContent=CARGADO?"En preparación":(FALLO?"Sin cargar":"Cargando…");
  var t=hay&&inf.gastos?String(inf.gastos).split(" · ")[0].replace(/ a ([a-záéíóú])/,function(m,l){return " – "+l.toUpperCase();}):"";periodo("gastos",t);
- $("cuantos").textContent=hay?"2 reportes":"1 reporte";}
+ $("cuantos").textContent=CARGADO?(hay?"2 reportes":"1 reporte"):"";}
 // Ver u ocultar la contraseña mientras se escribe.
-document.addEventListener("click",function(ev){var o=ev.target.closest&&ev.target.closest(".ojo");if(!o)return;var inp=o.parentNode.querySelector("input"),ver=inp.type==="password";
- inp.type=ver?"text":"password";o.setAttribute("aria-pressed",ver?"true":"false");o.setAttribute("aria-label",ver?"Ocultar la contraseña":"Mostrar la contraseña");inp.focus();});
+function ojo(inp,ver){inp.type=ver?"text":"password";var o=inp.parentNode.querySelector(".ojo");
+ if(o){o.setAttribute("aria-pressed",ver?"true":"false");o.setAttribute("aria-label",ver?"Ocultar la contraseña":"Mostrar la contraseña");}}
+document.addEventListener("click",function(ev){var o=ev.target.closest&&ev.target.closest(".ojo");if(!o)return;var inp=o.parentNode.querySelector("input");ojo(inp,inp.type==="password");inp.focus();});
 pintarGastos();pintarInfo();
-// El acceso de administración no se muestra en el inicio: aparece solo entrando con #admin al final de la dirección.
-function verPuertaAdm(){var v=/^#admin$/i.test(location.hash);$("adm-door").hidden=!v;if(v)setTimeout(function(){try{$("pw-admin").focus();}catch(e){}},50);}
+// El acceso de administración no se muestra en el inicio: aparece entrando con #admin al final de la dirección…
+var PUERTA_HASH=false;
+function verPuertaAdm(){var v=/^#admin$/i.test(location.hash);
+ if(v){PUERTA_HASH=true;$("adm-door").hidden=false;setTimeout(function(){try{$("pw-admin").focus();}catch(e){}},50);}
+ else if(PUERTA_HASH){PUERTA_HASH=false;$("adm-door").hidden=true;}}
 verPuertaAdm();window.addEventListener("hashchange",verPuertaAdm);
-// Mismo link para todos: el acceso aparece tocando cinco veces seguidas el logo de la pantalla de inicio.
+// …o, con el mismo link para todos, tocando cinco veces seguidas el logo de la pantalla de inicio.
 (function(){var p=document.querySelector("#acceso .marca"),n=0,t=null;if(!p)return;
  p.addEventListener("click",function(){n++;clearTimeout(t);t=setTimeout(function(){n=0;},2500);
   if(n>=5){n=0;var d=$("adm-door");d.hidden=!d.hidden;if(!d.hidden){d.scrollIntoView({block:"center"});setTimeout(function(){try{$("pw-admin").focus();}catch(e){}},50);}}});})();
 var LISTO=Promise.resolve();
-if(LYSI.remoto){$("pie").textContent="Cargando los reportes…";
+function cargarDatos(){FALLO=false;var pie=$("pie"),r0=$("reintentar");if(r0)r0.remove();pie.parentNode.classList.remove("err");pie.textContent="Cargando los reportes…";pintarGastos();
  LISTO=fetch(LYSI.remoto+"?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("http "+r.status);return r.json();})
-  .then(function(d){d.remoto=LYSI.remoto;LYSI=d;window.LYSI=d;pintarInfo();pintarGastos();})
-  .catch(function(e){$("pie").textContent="No se pudieron cargar los reportes ("+(e&&e.message||e)+"). Revisá la conexión y recargá la página.";throw new Error("sin datos");});}
+  .then(function(d){d.remoto=LYSI.remoto;LYSI=d;window.LYSI=d;CARGADO=true;pintarInfo();pintarGastos();})
+  .catch(function(e){FALLO=true;pintarGastos();pie.parentNode.classList.add("err");pie.textContent="No se pudieron cargar los reportes ("+(e&&e.message||e)+"). Revisá la conexión.";
+   var b=document.createElement("button");b.type="button";b.id="reintentar";b.className="bt";b.textContent="Reintentar";b.addEventListener("click",cargarDatos);pie.parentNode.appendChild(b);
+   throw new Error("sin datos");});
+ LISTO.catch(function(){});}
+if(LYSI.remoto)cargarDatos();
 function medir(){var cs=document.querySelectorAll(".cab"),i;for(i=0;i<cs.length;i++)if(cs[i].offsetHeight)document.documentElement.style.setProperty("--cabh",cs[i].offsetHeight+"px");}
-function mostrar(id){var aps=cont.querySelectorAll(".apartado"),i,ok=false;for(i=0;i<aps.length;i++){var v=aps[i].id===id;aps[i].hidden=!v;ok=ok||v;}
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(medir);
+// Tablas más anchas que la pantalla: se desvanecen a la derecha mientras quede algo por ver.
+var SOM=0;
+function sombras(){if(SOM)return;SOM=1;setTimeout(function(){SOM=0;var ap=cont.querySelector(".apartado:not([hidden])");if(!ap)return;
+ var ts=ap.querySelectorAll(".tw"),i;for(i=0;i<ts.length;i++){var t=ts[i];if(!t.clientWidth)continue;t.classList.toggle("mas",t.scrollWidth-t.clientWidth-t.scrollLeft>6);}},60);}
+document.addEventListener("scroll",function(ev){if(ev.target&&ev.target.classList&&ev.target.classList.contains("tw"))sombras();},true);
+document.addEventListener("toggle",sombras,true);
+function enfocar(el){if(!el)return;try{if(!el.hasAttribute("tabindex"))el.setAttribute("tabindex","-1");el.focus({preventScroll:true});}catch(e){}}
+function mostrar(id,foco){var aps=cont.querySelectorAll(".apartado"),i,ok=false;for(i=0;i<aps.length;i++){var v=aps[i].id===id;aps[i].hidden=!v;ok=ok||v;}
  if(!ok&&aps.length){aps[aps.length-1].hidden=false;id=aps[aps.length-1].id;}
  var ap=document.getElementById(id),gr=ap&&ap.getAttribute("data-grupo");
  var bs=document.querySelectorAll(".tabs button");for(i=0;i<bs.length;i++){var on=bs[i].getAttribute("data-ir")===id||(gr&&bs[i].getAttribute("data-grupo")===gr);bs[i].setAttribute("aria-current",on?"true":"false");if(on&&bs[i].scrollIntoView)try{bs[i].scrollIntoView({block:"nearest",inline:"nearest"});}catch(e){}}
- try{window.scrollTo({top:0,left:0,behavior:"instant"});}catch(e){window.scrollTo(0,0);}medir();espiar();}
+ // la hoja activa queda a la vista dentro de su lista (tira en celular, índice lateral en pantallas anchas)
+ var ch=ap&&ap.querySelector(".chips"),ca=ch&&ch.querySelector('button[aria-current="true"]');
+ if(ca){var rc=ch.getBoundingClientRect(),ra=ca.getBoundingClientRect();ch.scrollLeft+=ra.left-rc.left-(ch.clientWidth-ra.width)/2;ch.scrollTop+=ra.top-rc.top-(ch.clientHeight-ra.height)/2;}
+ try{window.scrollTo({top:0,left:0,behavior:"instant"});}catch(e){window.scrollTo(0,0);}medir();espiar();sombras();
+ var h=ap&&ap.querySelector("h1");document.title=(h?h.textContent.trim()+" · ":"")+$("donde").textContent+" · "+TITULO;if(foco)enfocar(h);}
 // Presentación solamente: no cambia ningún número ni texto de los reportes.
-function realzar(){var i,st=cont.querySelectorAll("style");for(i=0;i<st.length;i++)st[i].textContent=st[i].textContent.replace(/#2E5233/gi,"#1A1A1A");
+function realzar(){var i,st=cont.querySelectorAll("style");
+ // colores que vienen del Excel: el verde por defecto pasa al negro de la marca y el ocre se oscurece para que el texto blanco se lea
+ for(i=0;i<st.length;i++)st[i].textContent=st[i].textContent.replace(/#2E5233/gi,"#1A1A1A").replace(/#C4841D;color:#fff/gi,"#8F5E0F;color:#fff");
  var E={"críticas":"c","en atención":"a","normales":"n","coeficiente bajo":"b","a investigar":"i"},ks=cont.querySelectorAll(".kpi>.kl");
- for(i=0;i<ks.length;i++){var t=(ks[i].textContent||"").trim().toLowerCase(),k=ks[i].parentNode;if(t==="coeficiente general")k.classList.add("kpi-h");else if(E[t])k.setAttribute("data-e",E[t]);}}
+ for(i=0;i<ks.length;i++){var t=(ks[i].textContent||"").trim().toLowerCase(),k=ks[i].parentNode;if(t==="coeficiente general")k.classList.add("kpi-h");else if(E[t])k.setAttribute("data-e",E[t]);}
+ // ayudas para lectores de pantalla y teclado
+ var ths=cont.querySelectorAll("thead th");for(i=0;i<ths.length;i++)ths[i].setAttribute("scope","col");
+ var ts=cont.querySelectorAll(".tw");for(i=0;i<ts.length;i++){var p=ts[i].previousElementSibling;while(p&&!/^H[23]$/.test(p.tagName))p=p.previousElementSibling;
+  if(!p){var d=ts[i].closest("details");p=d&&d.querySelector("summary");}
+  ts[i].setAttribute("role","region");ts[i].setAttribute("aria-label","Tabla"+(p?": "+p.textContent.trim().slice(0,90):""));}
+ // tablas cuya primera columna es un texto largo (no una patente): en celular esa columna se ajusta en varias líneas
+ var tb=cont.querySelectorAll(".apartado:not(.gst) table");for(i=0;i<tb.length;i++){var rs=tb[i].tBodies[0]?tb[i].tBodies[0].rows:[],mx=0,j;
+  for(j=0;j<rs.length&&j<40;j++)if(rs[j].cells[0])mx=Math.max(mx,(rs[j].cells[0].textContent||"").length);if(mx>26)tb[i].classList.add("c1l");}
+ var gs=cont.querySelectorAll(".gfig img");for(i=0;i<gs.length;i++){var s=gs[i].closest("section"),h=s&&s.querySelector("h2"),n=h?h.textContent.trim():"";
+  gs[i].alt="Gráfico"+(n?": "+n:" del reporte");gs[i].setAttribute("role","button");gs[i].setAttribute("tabindex","0");gs[i].setAttribute("aria-label","Ampliar el gráfico"+(n?": "+n:""));}}
 // Marca en la barra de secciones cuál se está leyendo.
 var ESP=0;
 function espiar(){if(ESP)return;ESP=1;(window.requestAnimationFrame||setTimeout)(function(){ESP=0;
@@ -235,52 +281,80 @@ function espiar(){if(ESP)return;ESP=1;(window.requestAnimationFrame||setTimeout)
  for(i=0;i<ls.length;i++){var s=document.getElementById((ls[i].getAttribute("href")||"").slice(1));if(s&&s.getBoundingClientRect().top<=corte)act=ls[i];}
  if(!act)act=ls[0];
  for(i=0;i<ls.length;i++){var on=ls[i]===act;if((ls[i].getAttribute("aria-current")==="true")!==on){if(on){ls[i].setAttribute("aria-current","true");
-   var d=ls[i].offsetLeft-nav.offsetLeft-(nav.clientWidth-ls[i].offsetWidth)/2;try{nav.scrollTo({left:d,behavior:"smooth"});}catch(e){nav.scrollLeft=d;}}else ls[i].removeAttribute("aria-current");}}},16);}
+   var d=ls[i].offsetLeft-nav.offsetLeft-(nav.clientWidth-ls[i].offsetWidth)/2;try{nav.scrollTo({left:d,behavior:QUIETO?"auto":"smooth"});}catch(e){nav.scrollLeft=d;}}else ls[i].removeAttribute("aria-current");}}},16);}
 window.addEventListener("scroll",espiar,{passive:true});
 function verReporte(htmlTxt,nombre,previa){cont.innerHTML=htmlTxt;realzar();var t=cont.querySelector("template[data-tabs]");$("tabs").innerHTML=t?t.innerHTML:"";$("donde").textContent=nombre;
  $("previa").hidden=!previa;acceso.hidden=true;adm.hidden=true;app.hidden=false;
- mostrar((cont.querySelector("[data-inicio]")||{getAttribute:function(){return"";}}).getAttribute("data-inicio"));}
-document.addEventListener("click",function(ev){var b=ev.target.closest&&ev.target.closest("[data-ir]");if(b){mostrar(b.getAttribute("data-ir"));}});
+ mostrar((cont.querySelector("[data-inicio]")||{getAttribute:function(){return"";}}).getAttribute("data-inicio"),true);}
+document.addEventListener("click",function(ev){var c=ev.target.closest&&ev.target.closest.bind(ev.target);if(!c)return;
+ var b=c("[data-ir]");if(b){mostrar(b.getAttribute("data-ir"),true);return;}
+ // las secciones se recorren sin ensuciar la dirección ni el botón «Atrás»
+ var a=c(".subnav a");if(a){var s=document.getElementById((a.getAttribute("href")||"").slice(1));if(s){ev.preventDefault();s.scrollIntoView({block:"start",behavior:QUIETO?"auto":"smooth"});enfocar(s.querySelector("h2"));}return;}
+ if(c(".saltar")){ev.preventDefault();enfocar(cont);}});
 function puerta(inp,btn,msj,accion){
- function entrar(){var pw=(inp.value||"").trim();if(!pw){msj.style.color="";msj.textContent="Escribí la contraseña.";return;}
-  btn.disabled=true;msj.style.color="var(--tx2)";msj.textContent="Abriendo…";
+ function mal(t,inv){msj.style.color="";msj.textContent=t;if(inv)inp.setAttribute("aria-invalid","true");}
+ function entrar(){if(btn.disabled)return;var pw=(inp.value||"").trim();if(!pw){mal("Escribí la contraseña.",true);inp.focus();return;}
+  inp.removeAttribute("aria-invalid");btn.disabled=true;msj.style.color="var(--tx2)";msj.textContent="Abriendo…";
   setTimeout(function(){var pr;try{pr=LISTO.then(function(){return accion(pw);});}catch(err){pr=Promise.reject(err);}
-   pr.then(function(){inp.value="";inp.type="password";msj.textContent="";btn.disabled=false;})
-    .catch(function(err){btn.disabled=false;msj.style.color="";
-     if(err&&err.message==="clave"){msj.textContent="Contraseña incorrecta. Probá de nuevo.";inp.select();}
-     else if(err&&err.message==="sin datos"){msj.textContent="Todavía no se pudieron cargar los reportes. Recargá la página.";}
-     else{msj.textContent="No se pudo abrir en este visor ("+(err&&err.message?err.message:err)+"). Abrí el archivo con Chrome o Edge.";}});},40);}
+   pr.then(function(){inp.value="";ojo(inp,false);msj.textContent="";btn.disabled=false;})
+    .catch(function(err){btn.disabled=false;var m=err&&err.message;
+     if(m==="clave"){mal("Contraseña incorrecta. Probá de nuevo.",true);inp.select();}
+     else if(m==="sin datos"){mal("Todavía no se pudieron cargar los reportes. Tocá «Reintentar» al pie de la página.");}
+     else if(m==="viejo"){mal("Tu navegador es antiguo para este reporte. Actualizalo o abrilo con Chrome, Edge o Safari al día.");}
+     else{mal("No se pudo abrir el reporte ("+(m||err)+"). Recargá la página y probá de nuevo.");}});},40);}
+ if(msj.id)inp.setAttribute("aria-describedby",msj.id);
+ inp.addEventListener("input",function(){inp.removeAttribute("aria-invalid");});
  btn.addEventListener("click",entrar);inp.addEventListener("keydown",function(ev){if(ev.key==="Enter"||ev.keyCode===13){ev.preventDefault();entrar();}});}
 Array.prototype.forEach.call(document.querySelectorAll("[data-caja]"),function(fm){var id=fm.getAttribute("data-caja");
  puerta(fm.querySelector("input"),fm.querySelector(".entrar"),$("msj-"+id),function(pw){
   if(!LYSI.cajas||!LYSI.cajas[id])return Promise.reject(new Error("todavía no hay reportes publicados"));
-  return abrir(LYSI.cajas[id],pw).then(function(h){verReporte(h,fm.getAttribute("data-nombre"),false);});});});
-function cerrarTodo(){terminarImp();menuImp(false);cont.innerHTML="";$("tabs").innerHTML="";app.hidden=true;adm.hidden=true;acceso.hidden=false;ADM=null;RES=null;window.scrollTo(0,0);}
+  return abrir(LYSI.cajas[id],pw).then(function(h){ORIGEN=fm;verReporte(h,fm.getAttribute("data-nombre"),false);});});});
+function cerrarTodo(){terminarImp();menuImp(false);cerrarZoom();cont.innerHTML="";$("tabs").innerHTML="";app.hidden=true;adm.hidden=true;acceso.hidden=false;ADM=null;RES=null;
+ // al cerrar no queda ninguna contraseña ni el token escritos en la página
+ ["cl-comb","cl-gas","cl-adm","gh-t"].forEach(function(k){var x=$(k);if(x)x.value="";});
+ document.title=TITULO;window.scrollTo(0,0);var o=ORIGEN&&ORIGEN.querySelector(".entrar");ORIGEN=null;if(o)try{o.focus({preventScroll:true});}catch(e){}}
 $("salir").addEventListener("click",function(){if(!$("previa").hidden){volverAdm();return;}cerrarTodo();});
-window.addEventListener("resize",medir);
+window.addEventListener("resize",function(){medir();sombras();});
 
 // ───────────── Imprimir o guardar en PDF ─────────────
 // Solo cambia qué se muestra en el papel; al terminar, la pantalla queda como estaba.
 var IMP=null;
-function prepararImp(modo){terminarImp();var ap=cont.querySelector(".apartado:not([hidden])");if(!ap)return false;
- var s=ap.querySelector("section"),ds=[];if(s)s.classList.add("imp-1");
+function partesImp(ap){var ss=ap.querySelectorAll("section"),libre=false,i;
+ // en Resultados, si la hoja ya abre con indicadores sueltos, el resumen son esos indicadores y sus notas
+ if(ap.classList.contains("gst"))for(i=0;i<ap.children.length;i++)if(ap.children[i].classList.contains("kpis"))libre=true;
+ return {ss:ss,libre:libre};}
+function prepararImp(modo){terminarImp();cerrarZoom();var ap=cont.querySelector(".apartado:not([hidden])");if(!ap)return false;
+ var p=partesImp(ap),oc=[],ds=[],i;
+ if(modo==="resumen")for(i=0;i<p.ss.length;i++)if(p.libre||i>0){p.ss[i].classList.add("imp-o");oc.push(p.ss[i]);}
  if(modo==="todo")Array.prototype.forEach.call(ap.querySelectorAll("details:not([open])"),function(d){d.open=true;ds.push(d);});
  document.body.setAttribute("data-imp",modo);var h=ap.querySelector("h1"),hoy=new Date();
- $("imp-tit").textContent=$("donde").textContent+(h?" · "+h.textContent:"")+(modo==="resumen"?" · resumen":"");
+ var tit=$("donde").textContent+(h?" · "+h.textContent.trim():"")+(modo==="resumen"?" · resumen":"");$("imp-tit").textContent=tit;
  $("imp-fecha").textContent="Impreso el "+hoy.getDate()+" de "+MESES[hoy.getMonth()+1]+" de "+hoy.getFullYear();
- IMP={s:s,ds:ds};return true;}
-function terminarImp(){if(!IMP)return;if(IMP.s)IMP.s.classList.remove("imp-1");IMP.ds.forEach(function(d){d.open=false;});document.body.removeAttribute("data-imp");IMP=null;}
+ // pie en todas las hojas: qué reporte es y número de página (los navegadores que no lo soportan lo ignoran)
+ var st=document.createElement("style");st.id="imp-pag";var f="font:8pt Barlow,Arial,sans-serif;color:#5A6055";
+ st.textContent='@page{@bottom-left{content:"LYSI · '+tit.replace(/["\\\n\r]/g," ")+'";'+f+'}@bottom-right{content:"Página " counter(page) " de " counter(pages);'+f+'}}';
+ document.head.appendChild(st);IMP={oc:oc,ds:ds,st:st};return true;}
+function terminarImp(){if(!IMP)return;IMP.oc.forEach(function(s){s.classList.remove("imp-o");});IMP.ds.forEach(function(d){d.open=false;});if(IMP.st.parentNode)IMP.st.parentNode.removeChild(IMP.st);
+ document.body.removeAttribute("data-imp");IMP=null;sombras();}
 window.addEventListener("afterprint",terminarImp);
-function menuImp(v){$("imp-menu").hidden=!v;$("imp-btn").setAttribute("aria-expanded",v?"true":"false");}
+function menuImp(v){if(v){var ap=cont.querySelector(".apartado:not([hidden])"),r=document.querySelector('#imp-menu [data-imp="resumen"]');if(r)r.hidden=!ap||!partesImp(ap).ss.length;}
+ $("imp-menu").hidden=!v;$("imp-btn").setAttribute("aria-expanded",v?"true":"false");}
 $("imp-btn").addEventListener("click",function(ev){ev.stopPropagation();menuImp($("imp-menu").hidden);});
+document.querySelector(".imp").addEventListener("focusout",function(ev){if(ev.relatedTarget&&!this.contains(ev.relatedTarget))menuImp(false);});
 document.addEventListener("click",function(ev){var b=ev.target.closest&&ev.target.closest("[data-imp]");
- if(b){menuImp(false);if(prepararImp(b.getAttribute("data-imp")))setTimeout(function(){window.print();},60);return;}
+ if(b&&b.id!=="imp-btn"&&b.tagName==="BUTTON"){menuImp(false);if(prepararImp(b.getAttribute("data-imp")))setTimeout(function(){window.print();},60);return;}
  if(!$("imp-menu").hidden&&!(ev.target.closest&&ev.target.closest(".imp")))menuImp(false);});
-document.addEventListener("keydown",function(ev){if(ev.key==="Escape"){menuImp(false);var z=document.getElementById("zoom");if(z)z.remove();}});
-// Gráficos que vienen como imagen: un clic los abre a pantalla completa.
-document.addEventListener("click",function(ev){var z=document.getElementById("zoom");if(z){z.remove();return;}
- var im=ev.target.closest&&ev.target.closest(".gfig img");if(!im)return;z=document.createElement("div");z.id="zoom";z.setAttribute("role","dialog");z.setAttribute("aria-label","Gráfico ampliado. Clic o Escape para cerrar.");
- var c=document.createElement("img");c.src=im.src;c.alt=im.alt;z.appendChild(c);document.body.appendChild(z);});
+// Gráficos que vienen como imagen: un clic (o Enter) los abre a pantalla completa.
+var ZO=null;
+function cerrarZoom(){var z=$("zoom");if(!z)return;z.parentNode.removeChild(z);document.body.style.overflow="";var o=ZO;ZO=null;if(o)try{o.focus({preventScroll:true});}catch(e){}}
+function abrirZoom(im){ZO=im;var z=document.createElement("div");z.id="zoom";z.setAttribute("role","dialog");z.setAttribute("aria-modal","true");z.setAttribute("aria-label",im.alt||"Gráfico ampliado");z.tabIndex=-1;
+ var b=document.createElement("button");b.type="button";b.className="bt";b.textContent="Cerrar";var c=document.createElement("img");c.src=im.src;c.alt=im.alt;
+ z.appendChild(b);z.appendChild(c);document.body.appendChild(z);document.body.style.overflow="hidden";b.focus();}
+document.addEventListener("click",function(ev){if($("zoom")){cerrarZoom();return;}var im=ev.target.closest&&ev.target.closest(".gfig img");if(im)abrirZoom(im);});
+document.addEventListener("keydown",function(ev){var z=$("zoom");
+ if(ev.key==="Escape"){if(z){cerrarZoom();return;}if(!$("imp-menu").hidden){menuImp(false);$("imp-btn").focus();}return;}
+ if(z){if(ev.key==="Tab"){ev.preventDefault();z.querySelector("button").focus();}return;}
+ if((ev.key==="Enter"||ev.key===" ")&&ev.target&&ev.target.matches&&ev.target.matches(".gfig img")){ev.preventDefault();abrirZoom(ev.target);}});
 
 // ───────────── Administración ─────────────
 var ADM=null,RES=null,SUCIO=false,MES=null,PYO=null,GAS=[];
@@ -339,7 +413,7 @@ $("panel").addEventListener("click",function(ev){var t=ev.target,q=t.getAttribut
   var prev=ADM.ajustes[MES].unidades[u]||{};prev.estado="A INVESTIGAR";prev.motivo=m;prev.km_confiable=$("aj-k").checked;ADM.ajustes[MES].unidades[u]=prev;invalidar();pintarPanel();}});
 
 function estado(el,txt,cls){el.innerHTML='<div class="estado '+(cls||"")+'">'+txt+"</div>";}
-function cargarPyodide(){if(PYO)return Promise.resolve(PYO);var base=window.LYSI_PYO||LYSI.pyodide;
+function cargarPyodide(){if(PYO)return Promise.resolve(PYO);var base=window.LYSI_PYO||PYO_URL||LYSI.pyodide; // la dirección sale de la app, no de datos.json
  return new Promise(function(ok,no){var s=document.createElement("script");s.src=base+"pyodide.js";s.onload=ok;s.onerror=function(){no(new Error("sin conexión"));};document.head.appendChild(s);})
   .then(function(){return loadPyodide({indexURL:base});})
   .then(function(p){return p.loadPackage(["pandas","micropip"]).then(function(){return p;});})
