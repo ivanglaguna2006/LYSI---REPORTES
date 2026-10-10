@@ -18,7 +18,7 @@ from openpyxl.utils import range_boundaries
 
 MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
 GRIS = {"6B6B6B", "808080", "7F7F7F", "595959"}
-SERIES = ["#2E7D32", "#9AA39C", "#C4841D", "#2A5C8A", "#5B4A8B", "#B33A3A"]
+SERIES = ["#94C337", "#9AA39C", "#C4841D", "#2A5C8A", "#5B4A8B", "#B33A3A"]
 
 
 def e(s):

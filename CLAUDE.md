@@ -9,6 +9,7 @@ https://ivanglaguna2006.github.io/LYSI---REPORTES/
 - `cargar_mes.py`: carga un mes desde acá, con el mismo resultado que la pantalla de Administración.
 - `cargar_gastos.py`: carga el apartado Reporte de resultados a partir de los dos Excel de gastos.
 - `motor/gastos.py`: pasa esos dos Excel a página, tal como están (no recalcula nada).
+- `regenerar.py`: vuelve a armar Combustible con los archivos ya cargados, sin sumar ninguno. Se usa después de un cambio de software en `motor/`.
 
 ## Cargar un mes cuando Ivo pasa los archivos
 
@@ -47,5 +48,5 @@ el reporte mensual (una hoja por mes, `REPORTE_MENSUAL_LYSI_...xlsx`) y el de re
 - Si falta alguno de los cuatro archivos, avisar cuál. Con solo cargas + Filarus el mes sirve de arranque para el siguiente, pero no se calcula completo.
 - Para medir un mes tiene que estar cargado el mes anterior.
 - Las decisiones de criterio (mandar una unidad a investigar por un motivo que las reglas no detectan) las toma Ivo y se registran desde Administración en la app, no acá.
-- No cambiar `motor/` ni `index.html` en una carga mensual. Si hay que cambiar una regla, es un cambio de software: se hace aparte, se valida contra agosto y septiembre 2026 (484 888 km / 30,41 y 535 206 km / 30,60) y se regenera `index.html` con `construir.py`.
+- No cambiar `motor/` ni `index.html` en una carga mensual. Si hay que cambiar una regla, es un cambio de software: se hace aparte, se valida contra agosto y septiembre 2026 (484 888 km / 30,41 y 535 206 km / 30,60), se regenera `index.html` (`python3 -c "from motor import app; open('index.html','w',encoding='utf-8').write(app.cascara())"`) y, si cambia cómo se arma Combustible, se vuelve a armar lo publicado con `LYSI_ADMIN='<contraseña>' python3 regenerar.py` (control) y después `--publicar`.
 - Este repositorio es público: nunca subir contraseñas, tokens ni archivos fuente sin cifrar.
