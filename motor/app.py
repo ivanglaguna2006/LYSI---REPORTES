@@ -60,7 +60,7 @@ HTML_CUERPO = r"""
 <div class="fm" data-caja="combustible" data-nombre="Combustible"><input id="pw-combustible" type="password" placeholder="Contraseña" aria-label="Contraseña de Combustible" autocomplete="off"><button type="button">Entrar</button></div>
 <p class="msj" id="msj-combustible" role="status"></p></div>
 <div class="puerta"><div><h2>Gastos y mantenimiento</h2><p>Mantenimiento, gastos por unidad y eficiencias. Va a tener su propia contraseña.</p></div><span class="pronto">En preparación</span></div>
-<div class="adm-door"><span>Administración: cargar los archivos de un mes y publicar.</span>
+<div class="adm-door" id="adm-door" hidden><span>Administración: cargar los archivos de un mes y publicar.</span>
 <input id="pw-admin" type="password" placeholder="Contraseña de administración" aria-label="Contraseña de administración" autocomplete="off"><button type="button" id="btn-admin">Administrar</button>
 <p class="msj" id="msj-admin" role="status"></p></div>
 </div>
@@ -115,6 +115,9 @@ function num(v,d){if(v==null)return"—";var p=Number(v).toFixed(d||0).split("."
 function pintarInfo(){var inf=LYSI.info||{};if(inf.meses&&inf.meses.length)$("desc-combustible").textContent="Reporte mensual de la flota y evaluación del año. Meses cargados: "+inf.meses.join(", ")+".";
  $("pie").textContent="Reglas de cálculo v"+(inf.reglas||"")+". Publicado el "+(inf.generado||"—")+". Este archivo no guarda ni envía las contraseñas: sin ellas, el contenido no se puede leer.";$("reglas").textContent=inf.reglas||"";}
 pintarInfo();
+// El acceso de administración no se muestra en el inicio: aparece solo entrando con #admin al final de la dirección.
+function verPuertaAdm(){var v=/^#admin$/i.test(location.hash);$("adm-door").hidden=!v;if(v)setTimeout(function(){try{$("pw-admin").focus();}catch(e){}},50);}
+verPuertaAdm();window.addEventListener("hashchange",verPuertaAdm);
 var LISTO=Promise.resolve();
 if(LYSI.remoto){$("pie").textContent="Cargando los reportes…";
  LISTO=fetch(LYSI.remoto+"?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("http "+r.status);return r.json();})
@@ -344,3 +347,8 @@ def sitio(base_datos, claves, carpeta):
     open(os.path.join(carpeta, "datos.json"), "w", encoding="utf-8").write(datos)
     open(os.path.join(carpeta, ".nojekyll"), "w").write("")
     return html, r
+
+
+def cascara():
+    """Solo index.html (la app sin datos). Para actualizar el software sin tocar datos.json."""
+    return construir({"v": 2, "iter": P.ITER, "pyodide": PYODIDE, "remoto": "datos.json"})
