@@ -176,8 +176,8 @@ details.gd .pt{display:inline-block;width:10px;height:10px;border-radius:2px;mar
 <div class="puerta"><div><h2>Combustible</h2><p id="desc-combustible">Reporte mensual de la flota y evaluación del año.</p></div>
 <div class="fm" data-caja="combustible" data-nombre="Combustible"><input id="pw-combustible" type="password" placeholder="Contraseña" aria-label="Contraseña de Combustible" autocomplete="off"><button type="button">Entrar</button></div>
 <p class="msj" id="msj-combustible" role="status"></p></div>
-<div class="puerta"><div><h2>Gastos y mantenimiento</h2><p id="desc-gastos">Mantenimiento, gomería y proveedores: el gasto de cada mes y los resultados del año.</p></div>
-<div class="fm" data-caja="gastos" data-nombre="Gastos y mantenimiento" id="fm-gastos" hidden><input id="pw-gastos" type="password" placeholder="Contraseña" aria-label="Contraseña de Gastos y mantenimiento" autocomplete="off"><button type="button">Entrar</button></div><span class="pronto" id="pronto-gastos">En preparación</span>
+<div class="puerta"><div><h2>Reporte de resultados</h2><p id="desc-gastos">Compras y proveedores: resultados del año y gasto de cada mes en mantenimiento, gomería y residuos.</p></div>
+<div class="fm" data-caja="gastos" data-nombre="Reporte de resultados" id="fm-gastos" hidden><input id="pw-gastos" type="password" placeholder="Contraseña" aria-label="Contraseña de Reporte de resultados" autocomplete="off"><button type="button">Entrar</button></div><span class="pronto" id="pronto-gastos">En preparación</span>
 <p class="msj" id="msj-gastos" role="status"></p></div>
 <div class="adm-door" id="adm-door" hidden><span>Administración: cargar los archivos de un mes y publicar.</span>
 <input id="pw-admin" type="password" placeholder="Contraseña de administración" aria-label="Contraseña de administración" autocomplete="off"><button type="button" id="btn-admin">Administrar</button>
@@ -199,17 +199,17 @@ details.gd .pt{display:inline-block;width:10px;height:10px;border-radius:2px;mar
 <div class="anio"><label for="anio">Año</label><select id="anio"></select></div>
 <div class="meses" id="meses"></div>
 <div class="panel" id="panel" hidden></div></section>
-<section><h2>Gastos y mantenimiento</h2>
-<p class="nota">Subí juntos los dos Excel de gastos tal como los generás: el reporte mensual (una hoja por mes) y el de resultados del año. La aplicación los muestra como están, no recalcula nada. Si no subís nada, Gastos queda como está publicado.</p>
-<div class="fila"><label for="gas-arch">Excel de gastos</label><input type="file" id="gas-arch" multiple accept=".xlsx,.xlsm"></div>
+<section><h2>Reporte de resultados</h2>
+<p class="nota">Subí juntos los dos Excel del reporte de resultados tal como los generás: el reporte mensual (una hoja por mes) y el de resultados del año. La aplicación los muestra como están, no recalcula nada. Si no subís nada, Resultados queda como está publicado.</p>
+<div class="fila"><label for="gas-arch">Excel de resultados</label><input type="file" id="gas-arch" multiple accept=".xlsx,.xlsm"></div>
 <div id="gas-estado" role="status"></div></section>
 <section><h2>Procesá y revisá</h2>
 <p class="nota">El cálculo corre en esta computadora y necesita internet la primera vez de cada sesión (unos segundos). Los archivos no salen de acá.</p>
-<div class="fila"><button type="button" class="btn pri" id="procesar">Procesar todo</button><button type="button" class="btn" id="ver-previa" disabled>Ver vista previa</button><button type="button" class="btn" id="ver-previa-g" disabled>Vista previa de Gastos</button></div>
+<div class="fila"><button type="button" class="btn pri" id="procesar">Procesar todo</button><button type="button" class="btn" id="ver-previa" disabled>Ver vista previa</button><button type="button" class="btn" id="ver-previa-g" disabled>Vista previa de Resultados</button></div>
 <div id="proc-estado" role="status"></div><div id="proc-res"></div></section>
 <section><h2>Publicá</h2>
 <p class="nota" id="pub-nota"></p>
-<div class="fila"><label for="cl-comb">Contraseña de Combustible</label><input type="text" id="cl-comb" autocomplete="off"><label for="cl-gas">Contraseña de Gastos</label><input type="text" id="cl-gas" autocomplete="off"><label for="cl-adm">Contraseña de administración</label><input type="text" id="cl-adm" autocomplete="off"></div>
+<div class="fila"><label for="cl-comb">Contraseña de Combustible</label><input type="text" id="cl-comb" autocomplete="off"><label for="cl-gas">Contraseña de Resultados</label><input type="text" id="cl-gas" autocomplete="off"><label for="cl-adm">Contraseña de administración</label><input type="text" id="cl-adm" autocomplete="off"></div>
 <div class="fila"><button type="button" class="btn pri" id="publicar" disabled>Publicar</button><button type="button" class="btn" id="copia" disabled>Guardar una copia en archivo</button></div>
 <div id="pub-estado" role="status"></div></section>
 <section><h2>Dónde se publica</h2>
@@ -292,7 +292,7 @@ function num(v,d){if(v==null)return"—";var p=Number(v).toFixed(d||0).split("."
 function pintarInfo(){var inf=LYSI.info||{};if(inf.meses&&inf.meses.length)$("desc-combustible").textContent="Reporte mensual de la flota y evaluación del año. Meses cargados: "+inf.meses.join(", ")+".";
  $("pie").textContent="Reglas de cálculo v"+(inf.reglas||"")+". Publicado el "+(inf.generado||"—")+". Este archivo no guarda ni envía las contraseñas: sin ellas, el contenido no se puede leer.";$("reglas").textContent=inf.reglas||"";}
 function pintarGastos(){var hay=!!(LYSI.cajas&&LYSI.cajas.gastos),inf=LYSI.info||{};$("fm-gastos").hidden=!hay;$("pronto-gastos").hidden=hay;
- $("desc-gastos").textContent="Mantenimiento, gomería y proveedores: el gasto de cada mes y los resultados del año."+(hay&&inf.gastos?" Cargado: "+inf.gastos+".":"");}
+ $("desc-gastos").textContent="Compras y proveedores: resultados del año y gasto de cada mes en mantenimiento, gomería y residuos."+(hay&&inf.gastos?" Cargado: "+inf.gastos+".":"");}
 pintarGastos();pintarInfo();
 // El acceso de administración no se muestra en el inicio: aparece solo entrando con #admin al final de la dirección.
 function verPuertaAdm(){var v=/^#admin$/i.test(location.hash);$("adm-door").hidden=!v;if(v)setTimeout(function(){try{$("pw-admin").focus();}catch(e){}},50);}
@@ -375,7 +375,7 @@ function clasificar(n){n=n.toLowerCase();if(n.indexOf("consumo")>=0&&n.indexOf("
 function leer(file){return new Promise(function(ok,no){var r=new FileReader();r.onload=function(){ok({n:file.name,b:a64(new Uint8Array(r.result))});};r.onerror=function(){no(r.error);};r.readAsArrayBuffer(file);});}
 function pintarGas(){var el=$("gas-estado"),hay=!!(LYSI.cajas&&LYSI.cajas.gastos);
  if(GAS.length)estado(el,"Para procesar: "+esc(GAS.map(function(x){return x.n;}).join(" · "))+". Reemplazan a lo publicado cuando publiques.","av");
- else estado(el,hay?"Gastos está publicado"+(LYSI.info&&LYSI.info.gastos?" ("+esc(LYSI.info.gastos)+")":"")+". Para actualizarlo, subí los dos Excel nuevos.":"Todavía no hay nada publicado en Gastos.");}
+ else estado(el,hay?"Resultados está publicado"+(LYSI.info&&LYSI.info.gastos?" ("+esc(LYSI.info.gastos)+")":"")+". Para actualizarlo, subí los dos Excel nuevos.":"Todavía no hay nada publicado en Resultados.");}
 $("gas-arch").addEventListener("change",function(ev){var fs=Array.prototype.slice.call(ev.target.files||[]);if(!fs.length)return;
  Promise.all(fs.map(leer)).then(function(xs){GAS=xs;invalidar();pintarGas();});});
 function invalidar(){RES=null;$("ver-previa-g").disabled=true;$("ver-previa").disabled=true;$("publicar").disabled=true;$("proc-res").innerHTML="";$("proc-estado").innerHTML="";sucio(true);}
@@ -418,7 +418,7 @@ function pintarRes(){var r=RES,h="";
     +(m.importado?(m.metodo==="ventana"?"Importado: ventana, km Filarus":"Importado: mes calendario, km Filarus"):m.fuente_odo+" odómetro, "+m.fuente_filarus+" Filarus"+(m.malla_anterior?"":" · sin malla del mes anterior"))+"</td></tr>";});
   h+="</tbody></table></div>";
   r.meses.forEach(function(m){if(m.investigar.length){h+='<h3 style="font-size:19px">A investigar en '+esc(m.nombre)+'</h3><ul class="hechos">';m.investigar.forEach(function(x){h+="<li><b>"+esc(x.unidad)+"</b>: "+esc(x.motivo)+(x.manual?" <span class=\"tag\">decisión registrada</span>":"")+"</li>";});h+="</ul>";}});}
- var g=r.gastos;if(g){h+='<h3 style="font-size:19px">Gastos y mantenimiento</h3>';g.errores.forEach(function(x){h+='<div class="estado err">'+esc(x)+"</div>";});
+ var g=r.gastos;if(g){h+='<h3 style="font-size:19px">Reporte de resultados</h3>';g.errores.forEach(function(x){h+='<div class="estado err">'+esc(x)+"</div>";});
   if(g.html){h+='<p class="nota">'+g.hojas+" hojas leídas · "+esc(g.descripcion)+". Control: el resumen de cada mes, tal como figura en el Excel.</p>";
    if(g.control){h+='<div class="tw"><table><thead><tr>'+g.control.cab.map(function(c){return"<th>"+esc(c)+"</th>";}).join("")+"</tr></thead><tbody>"+g.control.filas.map(function(f){return"<tr>"+f.map(function(c,i){return'<td'+(i?' class="r"':"")+">"+esc(c)+"</td>";}).join("")+"</tr>";}).join("")+"</tbody></table></div>";}}}
  $("proc-res").innerHTML=h;var ok=!!r.html&&!r.errores.length&&!(g&&(g.errores.length||!g.html));$("ver-previa-g").disabled=!(g&&g.html);
@@ -426,7 +426,7 @@ function pintarRes(){var r=RES,h="";
  $("ver-previa").disabled=!r.html;$("publicar").disabled=!ok;}
 $("procesar").addEventListener("click",procesar);
 $("ver-previa").addEventListener("click",function(){if(RES&&RES.html)verReporte(RES.html,"Combustible",true);});
-$("ver-previa-g").addEventListener("click",function(){if(RES&&RES.gastos&&RES.gastos.html)verReporte(RES.gastos.html,"Gastos y mantenimiento",true);});
+$("ver-previa-g").addEventListener("click",function(){if(RES&&RES.gastos&&RES.gastos.html)verReporte(RES.gastos.html,"Reporte de resultados",true);});
 function guardarArchivo(txt){var nombre="LYSI_Reportes.html";
  function bajar(){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:"text/html"}));a.download=nombre;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},2000);return"descargado";}
  if(window.showSaveFilePicker){return window.showSaveFilePicker({suggestedName:nombre,types:[{description:"Página web",accept:{"text/html":[".html"]}}]})
@@ -465,8 +465,8 @@ function publicar(){var el=$("pub-estado"),cc=$("cl-comb").value.trim(),ca=$("cl
  var hayG=!!((RES.gastos&&RES.gastos.html)||(LYSI.cajas&&LYSI.cajas.gastos));
  if(!cc||!ca){estado(el,"Las contraseñas de Combustible y de administración tienen que estar completas.","err");return;}
  if(cc===ca){estado(el,"La contraseña de administración tiene que ser distinta de la de Combustible.","err");return;}
- if(hayG&&!cg){estado(el,"Falta la contraseña de Gastos.","err");return;}
- if(hayG&&cg===ca){estado(el,"La contraseña de administración tiene que ser distinta de la de Gastos.","err");return;}
+ if(hayG&&!cg){estado(el,"Falta la contraseña de Resultados.","err");return;}
+ if(hayG&&cg===ca){estado(el,"La contraseña de administración tiene que ser distinta de la de Resultados.","err");return;}
  $("publicar").disabled=true;estado(el,"Cifrando y armando el archivo…");
  setTimeout(function(){
   cajaGastos(cg).then(function(cgx){ADM.claves.combustible=cc;ADM.claves.admin=ca;if(hayG)ADM.claves.gastos=cg;

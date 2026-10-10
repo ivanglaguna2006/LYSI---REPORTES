@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Carga el apartado Gastos y mantenimiento de LYSI Reportes desde la línea de comandos.
+"""Carga el apartado Reporte de resultados (gastos y mantenimiento) de LYSI Reportes desde la línea de comandos.
 
   python3 cargar_gastos.py <carpeta_con_los_dos_excel>            -> lee y muestra el control. NO publica.
   python3 cargar_gastos.py <carpeta_con_los_dos_excel> --publicar -> además reescribe datos.json.
@@ -8,7 +8,7 @@ La carpeta tiene los dos Excel de gastos tal como se generan: el reporte mensual
 resultados del año. Se reconocen por sus hojas, no por el nombre. La aplicación los muestra como están.
 Contraseñas, solo por variables de entorno (nunca se escriben en el repositorio):
   LYSI_ADMIN   contraseña de administración (obligatoria)
-  LYSI_GASTOS  contraseña con la que se abre Gastos. Solo hace falta la primera vez o para cambiarla.
+  LYSI_GASTOS  contraseña con la que se abre el Reporte de resultados. Solo hace falta la primera vez o para cambiarla.
 Después de --publicar hay que hacer commit y push de datos.json. No toca Combustible."""
 import os
 import sys
