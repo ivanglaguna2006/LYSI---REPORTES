@@ -4,11 +4,11 @@ Este repositorio aloja la app de reportes de LYSI (GitHub Pages):
 https://ivanglaguna2006.github.io/LYSI---REPORTES/
 
 - `index.html`: la app (pantalla de acceso, consulta y Administración). No tiene datos.
-- `originales.json`: los dos Excel del Reporte de resultados, **cifrados**; lo escribe `cargar_gastos.py`. La app lo baja solo cuando alguien pide el Excel original.
+- `originales.json`: los dos Excel del Informe de mantenimiento, **cifrados**; lo escribe `cargar_gastos.py`. La app lo baja solo cuando alguien pide el Excel original.
 - `datos.json`: los reportes y los archivos fuente, **cifrados**. Nunca editarlo a mano ni reemplazarlo por otra cosa: la app deja de abrir.
 - `motor/`: el código de cálculo (reglas del Prompt Maestro v4.7). Es el mismo que la app lleva adentro.
 - `cargar_mes.py`: carga un mes desde acá, con el mismo resultado que la pantalla de Administración.
-- `cargar_gastos.py`: carga el apartado Reporte de resultados a partir de los dos Excel de gastos.
+- `cargar_gastos.py`: carga el apartado Informe de mantenimiento a partir de los dos Excel de gastos.
 - `motor/gastos.py`: pasa esos dos Excel a página, tal como están (no recalcula nada).
 - `regenerar.py`: vuelve a armar Combustible con los archivos ya cargados, sin sumar ninguno. Se usa después de un cambio de software en `motor/`.
 
@@ -28,9 +28,9 @@ ReporteConsumos (tarjeta YPF), KmRecorridos (Filarus), Informe de combustible y 
 
 Requisitos de Python: pandas, openpyxl, cryptography.
 
-## Cargar el Reporte de resultados (gastos y mantenimiento)
+## Cargar el Informe de mantenimiento (gastos y mantenimiento)
 
-En la app el apartado se llama «Reporte de resultados»; tiene su propia contraseña y no toca Combustible. La app muestra los dos Excel que Ivo ya genera:
+En la app el apartado se llama «Informe de mantenimiento»; tiene su propia contraseña y no toca Combustible. La app muestra los dos Excel que Ivo ya genera:
 el reporte mensual (una hoja por mes, `REPORTE_MENSUAL_LYSI_...xlsx`) y el de resultados del año
 (`REPORTE_RESULTADOS_LYSI_...xlsx`). Cada carga reemplaza lo anterior: van siempre los dos archivos completos.
 
@@ -41,7 +41,7 @@ el reporte mensual (una hoja por mes, `REPORTE_MENSUAL_LYSI_...xlsx`) y el de re
 5. Con su OK: repetir con `--publicar`, y después commit y push de `datos.json` y `originales.json` a `main`
    (`git add datos.json originales.json`). `originales.json` son los dos Excel cifrados con la contraseña del
    apartado: es lo que la app ofrece como «Excel original».
-   La primera vez, o para cambiar la contraseña de Resultados, agregar `LYSI_GASTOS='<contraseña de gastos>'`.
+   La primera vez, o para cambiar la contraseña del Informe, agregar `LYSI_GASTOS='<contraseña de gastos>'`.
 6. Si el control avisa que hay hojas sin contenido, el Excel se guardó sin valores calculados: pedirle a Ivo
    que lo abra y lo guarde en Excel, y volver a cargarlo. No se publica así.
 

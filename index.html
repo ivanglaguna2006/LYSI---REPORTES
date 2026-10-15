@@ -309,7 +309,7 @@ th[aria-sort=descending]:after{content:" ▼";font-size:.72em}
 .estc.prep{background:var(--bg2);color:var(--tx2)}
 @media (max-width:640px){.tablero{margin-bottom:28px}.est-l table{font-size:15px}.est-l th,.est-l td{padding:12px 10px}.est-l th:first-child{padding-left:14px}.est-l tbody th{font-size:15.5px;width:36%}.est-l thead th{font-size:14px}.estc{font-size:13px;padding:4px 10px;gap:6px}.est-l small{font-size:12.5px}}
 @media print{.tablero{display:none}}
-/* Reporte de resultados: viene de Excel (títulos en mayúsculas, color por rubro). Se lleva al mismo sistema que Combustible. */
+/* Informe de mantenimiento: viene de Excel (títulos en mayúsculas, color por rubro). Se lleva al mismo sistema que Combustible. */
 .gst .tw{margin:8px 0 14px}
 .gst th{white-space:normal;text-align:center;vertical-align:bottom;min-width:62px;position:static;font-size:12px;letter-spacing:.04em;line-height:1.2}
 .gst th[style*="2E5233"],.gst h3.barra[style*="2E5233"]{background:var(--ink)!important}
@@ -390,9 +390,9 @@ details.gd .pt{display:inline-block;width:10px;height:10px;border-radius:50%;mar
 <div class="campo"><input id="pw-combustible" type="password" placeholder="Ingresá tu contraseña" autocomplete="new-password"><button type="button" class="ojo" aria-label="Mostrar la contraseña" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button></div>
 <button type="button" class="entrar">Acceder al reporte <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h15M13.5 6l6 6-6 6"/></svg></button></div>
 <p class="msj" id="msj-combustible" role="status"></p></div>
-<div class="puerta"><div class="pc"><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3.5" y="13" width="4.4" height="8" rx="1"/><rect x="9.8" y="8.5" width="4.4" height="12.5" rx="1"/><rect x="16.1" y="3.5" width="4.4" height="17.5" rx="1"/></svg></span><div><h3>Reporte de resultados</h3><p id="desc-gastos">Compras, proveedores y gastos de mantenimiento.</p>
+<div class="puerta"><div class="pc"><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3.5" y="13" width="4.4" height="8" rx="1"/><rect x="9.8" y="8.5" width="4.4" height="12.5" rx="1"/><rect x="16.1" y="3.5" width="4.4" height="17.5" rx="1"/></svg></span><div><h3>Informe de mantenimiento</h3><p id="desc-gastos">Compras, proveedores y gastos de mantenimiento.</p>
 <span class="per" id="per-gastos" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg><span></span></span></div></div>
-<div class="fm" data-caja="gastos" data-nombre="Reporte de resultados" id="fm-gastos" hidden><label for="pw-gastos">Contraseña del reporte</label>
+<div class="fm" data-caja="gastos" data-nombre="Informe de mantenimiento" id="fm-gastos" hidden><label for="pw-gastos">Contraseña del reporte</label>
 <div class="campo"><input id="pw-gastos" type="password" placeholder="Ingresá tu contraseña" autocomplete="new-password"><button type="button" class="ojo" aria-label="Mostrar la contraseña" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button></div>
 <button type="button" class="entrar">Acceder al reporte <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h15M13.5 6l6 6-6 6"/></svg></button></div><span class="pronto" id="pronto-gastos">En preparación</span>
 <p class="msj" id="msj-gastos" role="status"></p></div>
@@ -420,17 +420,17 @@ details.gd .pt{display:inline-block;width:10px;height:10px;border-radius:50%;mar
 <div class="anio"><label for="anio">Año</label><select id="anio"></select></div>
 <div class="meses" id="meses"></div>
 <div class="panel" id="panel" hidden></div></section>
-<section><h2>Reporte de resultados</h2>
-<p class="nota">Subí juntos los dos Excel del reporte de resultados tal como los generás: el reporte mensual (una hoja por mes) y el de resultados del año. La aplicación los muestra como están, no recalcula nada. Si no subís nada, Resultados queda como está publicado.</p>
+<section><h2>Informe de mantenimiento</h2>
+<p class="nota">Subí juntos los dos Excel del informe de mantenimiento tal como los generás: el reporte mensual (una hoja por mes) y el de resultados del año. La aplicación los muestra como están, no recalcula nada. Si no subís nada, Resultados queda como está publicado.</p>
 <div class="fila"><label for="gas-arch">Excel de resultados</label><input type="file" id="gas-arch" multiple accept=".xlsx,.xlsm"></div>
 <div id="gas-estado" role="status"></div></section>
 <section><h2>Procesá y revisá</h2>
 <p class="nota">El cálculo corre en esta computadora y necesita internet la primera vez de cada sesión (unos segundos). Los archivos no salen de acá.</p>
-<div class="fila"><button type="button" class="btn pri" id="procesar">Procesar todo</button><button type="button" class="btn" id="ver-previa" disabled>Ver vista previa</button><button type="button" class="btn" id="ver-previa-g" disabled>Vista previa de Resultados</button></div>
+<div class="fila"><button type="button" class="btn pri" id="procesar">Procesar todo</button><button type="button" class="btn" id="ver-previa" disabled>Ver vista previa</button><button type="button" class="btn" id="ver-previa-g" disabled>Vista previa del Informe</button></div>
 <div id="proc-estado" role="status"></div><div id="proc-res"></div></section>
 <section><h2>Publicá</h2>
 <p class="nota" id="pub-nota"></p>
-<div class="fila"><label for="cl-comb">Contraseña de Combustible</label><input type="text" id="cl-comb" autocomplete="off"><label for="cl-gas">Contraseña de Resultados</label><input type="text" id="cl-gas" autocomplete="off"><label for="cl-adm">Contraseña de administración</label><input type="text" id="cl-adm" autocomplete="off"></div>
+<div class="fila"><label for="cl-comb">Contraseña de Combustible</label><input type="text" id="cl-comb" autocomplete="off"><label for="cl-gas">Contraseña del Informe</label><input type="text" id="cl-gas" autocomplete="off"><label for="cl-adm">Contraseña de administración</label><input type="text" id="cl-adm" autocomplete="off"></div>
 <div class="fila"><button type="button" class="btn pri" id="publicar" disabled>Publicar</button><button type="button" class="btn" id="copia" disabled>Guardar una copia en archivo</button></div>
 <div id="pub-estado" role="status"></div></section>
 <section><h2>Dónde se publica</h2>
@@ -525,7 +525,7 @@ function pintarGastos(){var hay=!!(LYSI.cajas&&LYSI.cajas.gastos),inf=LYSI.info|
  var t=hay&&inf.gastos?String(inf.gastos).split(" · ")[0].replace(/ a ([a-záéíóú])/,function(m,l){return " – "+l.toUpperCase();}):"";periodo("gastos",t);
  $("cuantos").textContent=CARGADO?(hay?"2 reportes":"1 reporte"):"";pintarEstado();}
 // Estado de cada reporte mes por mes: el mes anterior (que ya tiene que estar cargado) y el mes en curso.
-// Combustible es mensual; Resultados es quincenal (el corte parcial del mes en curso se espera desde el 16).
+// Combustible es mensual; el Informe es quincenal (el corte parcial del mes en curso se espera desde el 16).
 function pintarEstado(){var el=$("estado");if(!CARGADO||FALLO||!LYSI.info){el.hidden=true;return;}
  var inf=LYSI.info,hoy=new Date(),y=hoy.getFullYear(),m=hoy.getMonth()+1,d=hoy.getDate(),act=y*12+m,ant=act-1;
  function nom(i){var yy=Math.floor((i-1)/12),mm=i-yy*12;return mayus(MESES[mm])+" "+yy;}
@@ -541,7 +541,7 @@ function pintarEstado(){var el=$("estado");if(!CARGADO||FALLO||!LYSI.info){el.hi
   return d>=16?["pend","Pendiente","Falta el corte del 16"]:["curso","En curso","Primer corte: 16 de "+MESES[m]];}
  var h='<table><thead><tr><th scope="col">Reporte</th><th scope="col">'+esc(nom(ant))+'</th><th scope="col">'+esc(nom(act))+"<small>mes en curso</small></th></tr></thead><tbody>"
   +'<tr><th scope="row">Combustible<small>Mensual</small></th>'+celda(eComb(ant))+celda(eComb(act))+"</tr>"
-  +'<tr><th scope="row">Reporte de resultados<small>Quincenal</small></th>'+celda(eRes(ant))+celda(eRes(act))+"</tr></tbody></table>";
+  +'<tr><th scope="row">Informe de mantenimiento<small>Quincenal</small></th>'+celda(eRes(ant))+celda(eRes(act))+"</tr></tbody></table>";
  $("est-l").innerHTML=h;$("est-hoy").textContent="Hoy: "+d+" de "+MESES[m]+" de "+y;el.hidden=false;}
 // Ver u ocultar la contraseña mientras se escribe.
 function ojo(inp,ver){inp.type=ver?"text":"password";var o=inp.parentNode.querySelector(".ojo");
@@ -648,7 +648,7 @@ window.addEventListener("resize",function(){medir();sombras();});
 // Solo cambia qué se muestra en el papel; al terminar, la pantalla queda como estaba.
 var IMP=null;
 function partesImp(ap){var ss=ap.querySelectorAll("section"),libre=false,i;
- // en Resultados, si la hoja ya abre con indicadores sueltos, el resumen son esos indicadores y sus notas
+ // en el Informe, si la hoja ya abre con indicadores sueltos, el resumen son esos indicadores y sus notas
  if(ap.classList.contains("gst"))for(i=0;i<ap.children.length;i++)if(ap.children[i].classList.contains("kpis"))libre=true;
  return {ss:ss,libre:libre};}
 function prepararImp(modo){terminarImp();cerrarZoom();var ap=cont.querySelector(".apartado:not([hidden])");if(!ap)return false;
@@ -797,7 +797,7 @@ function lista(xs,max){max=max||8;return xs.slice(0,max).join(", ")+(xs.length>m
 function cajaNov(tit,ls,pie){var d=document.createElement("div");d.className="nov";d.innerHTML="<h3>"+esc(tit)+"</h3><ul>"+ls.map(function(x){return"<li>"+x+"</li>";}).join("")+"</ul>"+(pie?"<p>"+esc(pie)+"</p>":"");return d;}
 function mesDeH1(ap){var h=ap.querySelector("h1"),w=h?norm(h.textContent).split(" ")[0]:"";return MESES.indexOf(w)>0?w:"";}
 function novedades(){var i,k;
- // Reporte de resultados: cada hoja de mes contra la del mes anterior
+ // Informe de mantenimiento: cada hoja de mes contra la del mes anterior
  var gs=cont.querySelectorAll(".apartado.gst"),prev=null;
  for(i=0;i<gs.length;i++){var ap=gs[i],mes=mesDeH1(ap);if(!mes){prev=null;continue;}
   var kp=ap.querySelector(".kpis"),act={mes:mes,k:{},top:null};if(!kp){prev=null;continue;}
@@ -886,7 +886,7 @@ document.addEventListener("click",function(ev){var c=ev.target.closest&&ev.targe
 document.addEventListener("keydown",function(ev){if(ev.key==="Escape"&&!$("ficha").hidden){ev.stopPropagation();cerrarFicha();return;}
  if((ev.key==="Enter"||ev.key===" ")&&ev.target&&ev.target.classList&&ev.target.classList.contains("ord")){ev.preventDefault();ordenar(ev.target);}},true);
 
-// ── Excel original del Reporte de resultados (se baja solo cuando se pide) ──
+// ── Excel original del Informe de mantenimiento (se baja solo cuando se pide) ──
 function hayOriginal(){return !!(CLAVE&&CLAVE.id==="gastos"&&LYSI.remoto&&LYSI.info&&LYSI.info.gastos_orig&&$("previa").hidden);}
 function original(cual){var msj=$("xls-msj");msj.hidden=true;var base=String(LYSI.remoto).replace(/[^\/]*$/,""),pw=CLAVE&&CLAVE.pw;
  fetch(base+"originales.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("http "+r.status);return r.json();})
@@ -953,7 +953,7 @@ function clasificar(n){n=n.toLowerCase();if(n.indexOf("consumo")>=0&&n.indexOf("
 function leer(file){return new Promise(function(ok,no){var r=new FileReader();r.onload=function(){ok({n:file.name,b:a64(new Uint8Array(r.result))});};r.onerror=function(){no(r.error);};r.readAsArrayBuffer(file);});}
 function pintarGas(){var el=$("gas-estado"),hay=!!(LYSI.cajas&&LYSI.cajas.gastos);
  if(GAS.length)estado(el,"Para procesar: "+esc(GAS.map(function(x){return x.n;}).join(" · "))+". Reemplazan a lo publicado cuando publiques.","av");
- else estado(el,hay?"Resultados está publicado"+(LYSI.info&&LYSI.info.gastos?" ("+esc(LYSI.info.gastos)+")":"")+". Para actualizarlo, subí los dos Excel nuevos.":"Todavía no hay nada publicado en Resultados.");}
+ else estado(el,hay?"El Informe de mantenimiento está publicado"+(LYSI.info&&LYSI.info.gastos?" ("+esc(LYSI.info.gastos)+")":"")+". Para actualizarlo, subí los dos Excel nuevos.":"Todavía no hay nada publicado en el Informe de mantenimiento.");}
 $("gas-arch").addEventListener("change",function(ev){var fs=Array.prototype.slice.call(ev.target.files||[]);if(!fs.length)return;
  Promise.all(fs.map(leer)).then(function(xs){GAS=xs;invalidar();pintarGas();});});
 function invalidar(){RES=null;$("ver-previa-g").disabled=true;$("ver-previa").disabled=true;$("publicar").disabled=true;$("proc-res").innerHTML="";$("proc-estado").innerHTML="";sucio(true);}
@@ -996,7 +996,7 @@ function pintarRes(){var r=RES,h="";
     +(m.importado?(m.metodo==="ventana"?"Importado: ventana, km Filarus":"Importado: mes calendario, km Filarus"):m.fuente_odo+" odómetro, "+m.fuente_filarus+" Filarus"+(m.malla_anterior?"":" · sin malla del mes anterior"))+"</td></tr>";});
   h+="</tbody></table></div>";
   r.meses.forEach(function(m){if(m.investigar.length){h+='<h3 style="font-size:19px">A investigar en '+esc(m.nombre)+'</h3><ul class="hechos">';m.investigar.forEach(function(x){h+="<li><b>"+esc(x.unidad)+"</b>: "+esc(x.motivo)+(x.manual?" <span class=\"tag\">decisión registrada</span>":"")+"</li>";});h+="</ul>";}});}
- var g=r.gastos;if(g){h+='<h3 style="font-size:19px">Reporte de resultados</h3>';g.errores.forEach(function(x){h+='<div class="estado err">'+esc(x)+"</div>";});
+ var g=r.gastos;if(g){h+='<h3 style="font-size:19px">Informe de mantenimiento</h3>';g.errores.forEach(function(x){h+='<div class="estado err">'+esc(x)+"</div>";});
   if(g.html){h+='<p class="nota">'+g.hojas+" hojas leídas · "+esc(g.descripcion)+". Control: el resumen de cada mes, tal como figura en el Excel.</p>";
    if(g.control){h+='<div class="tw"><table><thead><tr>'+g.control.cab.map(function(c){return"<th>"+esc(c)+"</th>";}).join("")+"</tr></thead><tbody>"+g.control.filas.map(function(f){return"<tr>"+f.map(function(c,i){return'<td'+(i?' class="r"':"")+">"+esc(c)+"</td>";}).join("")+"</tr>";}).join("")+"</tbody></table></div>";}}}
  $("proc-res").innerHTML=h;var ok=!!r.html&&!r.errores.length&&!(g&&(g.errores.length||!g.html));$("ver-previa-g").disabled=!(g&&g.html);
@@ -1004,7 +1004,7 @@ function pintarRes(){var r=RES,h="";
  $("ver-previa").disabled=!r.html;$("publicar").disabled=!ok;}
 $("procesar").addEventListener("click",procesar);
 $("ver-previa").addEventListener("click",function(){if(RES&&RES.html)verReporte(RES.html,"Combustible",true);});
-$("ver-previa-g").addEventListener("click",function(){if(RES&&RES.gastos&&RES.gastos.html)verReporte(RES.gastos.html,"Reporte de resultados",true);});
+$("ver-previa-g").addEventListener("click",function(){if(RES&&RES.gastos&&RES.gastos.html)verReporte(RES.gastos.html,"Informe de mantenimiento",true);});
 function guardarArchivo(txt){var nombre="LYSI_Reportes.html";
  function bajar(){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:"text/html"}));a.download=nombre;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},2000);return"descargado";}
  if(window.showSaveFilePicker){return window.showSaveFilePicker({suggestedName:nombre,types:[{description:"Página web",accept:{"text/html":[".html"]}}]})
@@ -1043,8 +1043,8 @@ function publicar(){var el=$("pub-estado"),cc=$("cl-comb").value.trim(),ca=$("cl
  var hayG=!!((RES.gastos&&RES.gastos.html)||(LYSI.cajas&&LYSI.cajas.gastos));
  if(!cc||!ca){estado(el,"Las contraseñas de Combustible y de administración tienen que estar completas.","err");return;}
  if(cc===ca){estado(el,"La contraseña de administración tiene que ser distinta de la de Combustible.","err");return;}
- if(hayG&&!cg){estado(el,"Falta la contraseña de Resultados.","err");return;}
- if(hayG&&cg===ca){estado(el,"La contraseña de administración tiene que ser distinta de la de Resultados.","err");return;}
+ if(hayG&&!cg){estado(el,"Falta la contraseña del Informe de mantenimiento.","err");return;}
+ if(hayG&&cg===ca){estado(el,"La contraseña de administración tiene que ser distinta de la del Informe de mantenimiento.","err");return;}
  $("publicar").disabled=true;estado(el,"Cifrando y armando el archivo…");
  setTimeout(function(){
   cajaGastos(cg).then(function(cgx){ADM.claves.combustible=cc;ADM.claves.admin=ca;if(hayG)ADM.claves.gastos=cg;
