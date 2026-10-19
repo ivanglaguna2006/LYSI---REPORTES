@@ -12,6 +12,20 @@ https://ivanglaguna2006.github.io/LYSI---REPORTES/
 - `cargar_gastos.py`: carga el apartado Informe de mantenimiento a partir de los dos Excel de gastos.
 - `motor/gastos.py`: pasa esos dos Excel a página, tal como están (no recalcula nada).
 - `regenerar.py`: vuelve a armar Combustible con los archivos ya cargados, sin sumar ninguno. Se usa después de un cambio de software en `motor/`.
+- `motor/renpre.py`: el cruce de remitos contra declaraciones RENPRE (herramienta «Declaraciones RENPRE» del inicio). Corre en el navegador con Pyodide (instala `xlrd` aparte para el .xls) y también desde la consola con `control_renpre.py`.
+- `control_renpre.py`: `python3 control_renpre.py <remitos.xlsx> <declaraciones.xls>` imprime el control en texto (`--html x.html` guarda la pantalla). No publica nada.
+
+## Control RENPRE
+
+La herramienta no guarda datos ni pide contraseña: la persona sube el Excel de remitos del mes (hoja «Remitos»,
+encabezados en la fila 6, filas pendientes en amarillo; el archivo original, porque Google Drive y las
+conversiones pierden los colores) y el export de transacciones del RENPRE (.xls), toca «Procesar» y el
+resultado se abre como un reporte con pestañas Resumen, Con problemas, Para revisar, Bien declarados y Sin
+remito. Las reglas (origen esperado por cliente, familias de producto, stopwords, aliases, tolerancia de
+cantidad) están en `REGLAS` dentro de `motor/renpre.py`; la especificación completa está en el chat del
+proyecto «LYSI app» (documento «Control RENPRE — Especificación del cruce remitos vs. declaraciones»).
+Si Ivo pasa los dos archivos por acá, se corre `control_renpre.py` y se le muestra el texto tal como sale;
+no se corrigen datos ni se toca el archivo de remitos.
 
 ## Cargar un mes cuando Ivo pasa los archivos
 

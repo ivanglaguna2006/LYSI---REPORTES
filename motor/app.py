@@ -190,11 +190,15 @@ CSS_HOJAS = r"""
 .hoja{padding-top:0}.hoja>.tablero{padding-top:0}
 .hoja>.rdh:not(:first-child){margin-top:34px}
 .puertas.herrs{grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr))}
-.puerta.herr .pc{border-bottom:0;margin-bottom:0;padding-bottom:22px}
-.puerta.herr .ico{background:var(--bg2);color:var(--tx2)}
-.puerta.herr .per{background:var(--bg2);color:var(--tx2)}
-.puerta.herr .per svg{color:var(--tx2)}
+.puerta.herr .ico{background:#EEF3FA;color:#274562}
+.puerta.herr .per{background:#EEF3FA;color:#274562}
+.puerta.herr .per svg{color:#274562}
 .puerta.herr .pronto{margin-bottom:14px}
+#salir-herr{margin-left:auto}
+#herr-barra{background:var(--lima0);color:var(--ink);border-bottom:2px solid var(--lima2);padding:8px 20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:14.5px}
+#herr-barra button{font:600 15px var(--ti);padding:8px 16px;border-radius:8px;border:1px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer}
+@media (min-width:701px){#herr .slot{grid-template-columns:minmax(210px,1fr) minmax(180px,1.6fr) auto auto}}
+@media print{#herr-barra{display:none!important}}
 @media (max-width:900px){.hojas{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 30px),transparent)}}
 @media (max-width:640px){.estc{white-space:normal;text-align:left}.hojas{margin:0 -16px 22px;padding:0 16px}.hojas .hl{display:none}.hojas button{font-size:16px;padding:11px 14px 9px}.hoja>.rdh:not(:first-child){margin-top:26px}}
 @media (pointer:coarse){.hojas button{min-height:44px}}
@@ -231,10 +235,11 @@ PUERTA_GASTOS = r"""<div class="puerta"><div class="pc"><span class="ico"><svg v
 <button type="button" class="entrar">Acceder al reporte <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h15M13.5 6l6 6-6 6"/></svg></button></div><span class="pronto" id="pronto-gastos">En preparación</span>
 <p class="msj" id="msj-gastos" role="status"></p></div>"""
 
-# Herramienta: procesa archivos, no es un reporte con contraseña. Todavía en preparación.
+# Herramienta: procesa archivos en el navegador, no es un reporte con contraseña.
 HERRAMIENTA_RENPRE = r"""<div class="puerta herr"><div class="pc"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5l-5-5Z"/><path d="M14 3.5v5h5M8.5 12.5h7M8.5 16h4"/><path d="M15.5 17.5l1.6 1.6 3.2-3.4"/></svg></span><div><h3>Declaraciones RENPRE</h3><p>Procesador de las declaraciones para el Registro Nacional de Precursores Químicos.</p>
-<span class="per"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l7.5 3v5.3c0 4.3-3 7.6-7.5 8.7-4.5-1.1-7.5-4.4-7.5-8.7V6.5l7.5-3Z"/><path d="M9 12l2 2 4-4"/></svg><span>Herramienta del área</span></span></div></div>
-<span class="pronto">En preparación</span></div>"""
+<span class="per"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l7.5 3v5.3c0 4.3-3 7.6-7.5 8.7-4.5-1.1-7.5-4.4-7.5-8.7V6.5l7.5-3Z"/><path d="M9 12l2 2 4-4"/></svg><span>Cruza remitos contra lo declarado</span></span></div></div>
+<div class="fm"><button type="button" class="entrar" id="abrir-renpre">Abrir la herramienta <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h15M13.5 6l6 6-6 6"/></svg></button></div>
+<p class="msj" role="status"></p></div>"""
 
 AREAS = [
     {"id": "admin-control", "nombre": "Administración y control", "estado": True,
@@ -267,7 +272,8 @@ HTML_APP = r"""
 <div id="app" hidden><a class="saltar" href="#contenido">Saltar al contenido</a><div class="cab"><div class="in"><span class="logo"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg></span><span class="donde" id="donde"></span><button id="bus-btn" class="bt busb" type="button" aria-label="Buscar en este reporte" aria-controls="bus-barra" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span>Buscar</span></button><div class="imp"><button id="imp-btn" class="bt" type="button" aria-label="Descargar en Excel, imprimir o guardar en PDF" aria-controls="imp-menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8.5V3.5h10v5M7 17H5a1.5 1.5 0 0 1-1.5-1.5v-5A2 2 0 0 1 5.5 8.5h13a2 2 0 0 1 2 2v5A1.5 1.5 0 0 1 19 17h-2"/><rect x="7" y="13.5" width="10" height="7" rx="1"/></svg><span>Descargar / Imprimir</span></button><div id="imp-menu" hidden><button type="button" data-imp="resumen">Solo el resumen<small>Para imprimir o guardar en PDF: la primera sección</small></button><button type="button" data-imp="todo">Todo lo de esta pestaña<small>Todas las secciones, con los detalles abiertos</small></button><hr><button type="button" data-xls="esta">Excel de esta pestaña<small>Las tablas y los indicadores que estás viendo</small></button><button type="button" data-xls="todo">Excel de todo el reporte<small>Una hoja por cada pestaña</small></button><button type="button" data-orig="resultados" hidden>Excel original: resultados del año<small>El archivo tal como se generó, con su formato</small></button><button type="button" data-orig="mensual" hidden>Excel original: mes a mes<small>El archivo tal como se generó, con su formato</small></button><p id="xls-msj" role="status" hidden></p></div></div><button id="salir" type="button">Cerrar</button></div>
 <div class="tabs" id="tabs" role="navigation" aria-label="Apartados"></div>
 <div id="bus-barra" hidden><input id="bus" type="search" placeholder="Buscar patente, interno, chofer o proveedor…" aria-label="Buscar en este reporte" autocomplete="off"><div id="bus-res" hidden></div></div>
-<div id="previa" hidden><b>Vista previa.</b> Así va a quedar; todavía no está publicado. <button type="button" id="volver-adm">Volver a administración</button></div></div>
+<div id="previa" hidden><b>Vista previa.</b> Así va a quedar; todavía no está publicado. <button type="button" id="volver-adm">Volver a administración</button></div>
+<div id="herr-barra" hidden><b>Control RENPRE.</b> <span id="herr-barra-t"></span> <button type="button" id="herr-otros">Procesar otros archivos</button></div></div>
 <div class="imp-cab"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg><div><b>Logística y Servicios Integrales</b><span id="imp-tit"></span></div><span class="f" id="imp-fecha"></span></div>
 <main id="contenido" tabindex="-1"></main>
 <div id="ficha" hidden role="dialog" aria-modal="true" aria-labelledby="ficha-t"><div class="fi"><header><h2 id="ficha-t"></h2><button type="button" class="bt" id="ficha-x">Cerrar</button></header><div id="ficha-c"></div></div></div></div>
@@ -299,6 +305,23 @@ HTML_APP = r"""
 <div class="fila"><label for="gh-o">Cuenta de GitHub</label><input type="text" id="gh-o" size="18" autocomplete="off"><label for="gh-r">Repositorio</label><input type="text" id="gh-r" size="18" autocomplete="off"><label for="gh-t">Token</label><input type="password" id="gh-t" size="30" autocomplete="new-password"></div>
 <div class="fila"><button type="button" class="btn" id="gh-probar">Guardar y probar la conexión</button></div>
 <div id="gh-estado" role="status"></div></section>
+</main></div>
+"""
+
+HTML_HERR = r"""
+<div id="herr" class="adm" hidden><div class="cab"><div class="in"><span class="logo"><svg class="lgm" viewBox="0 0 960 920" role="img" aria-label="LYSI"><use href="#lg"/></svg></span><span class="donde">Declaraciones RENPRE</span><button id="salir-herr" class="bt" type="button">Cerrar</button></div></div>
+<main class="pasos">
+<header class="aph"><h1>Control de declaraciones RENPRE</h1>
+<p>Subís el archivo de remitos del mes y el de declaraciones tal como baja del RENPRE. La herramienta cruza uno contra otro y te dice qué está mal y qué hacer en cada caso. Los archivos no salen de esta computadora.</p></header>
+<section><h2>Subí los dos archivos del mes</h2>
+<p class="nota">Remitos: el Excel del mes con la hoja «Remitos» y las filas pendientes de control en amarillo. Tiene que ser el archivo original: si pasó por Google Drive o se convirtió, se pierden los colores. Declaraciones: el export de transacciones del RENPRE (.xls).</p>
+<div class="slot"><div class="q">Remitos del mes<small>MM_-_REMITOS_MES.xlsx</small></div><div class="e" id="herr-rem-e">Sin cargar</div><input type="file" accept=".xlsx,.xlsm" id="herr-rem" aria-label="Archivo de remitos"><span></span></div>
+<div class="slot"><div class="q">Declaraciones del RENPRE<small>MM-transacciones-MES.xls</small></div><div class="e" id="herr-dec-e">Sin cargar</div><input type="file" accept=".xls,.xlsx,.csv" id="herr-dec" aria-label="Archivo de declaraciones"><span></span></div>
+</section>
+<section><h2>Procesá y revisá</h2>
+<p class="nota">El cruce corre en esta computadora y necesita internet la primera vez de cada sesión (unos segundos, para bajar el motor de cálculo). El resultado se abre como un reporte: se puede buscar, imprimir y bajar en Excel con una hoja por pestaña.</p>
+<div class="fila"><button type="button" class="btn pri" id="herr-procesar" disabled>Procesar</button><button type="button" class="btn" id="herr-ver" disabled>Ver el último resultado</button></div>
+<div id="herr-estado" role="status"></div></section>
 </main></div>
 """
 
@@ -431,7 +454,7 @@ function espiar(){if(ESP)return;ESP=1;(window.requestAnimationFrame||setTimeout)
    var d=ls[i].offsetLeft-nav.offsetLeft-(nav.clientWidth-ls[i].offsetWidth)/2;try{nav.scrollTo({left:d,behavior:QUIETO?"auto":"smooth"});}catch(e){nav.scrollLeft=d;}}else ls[i].removeAttribute("aria-current");}}},16);}
 window.addEventListener("scroll",espiar,{passive:true});
 function verReporte(htmlTxt,nombre,previa){cont.innerHTML=htmlTxt;realzar();herramientas();var t=cont.querySelector("template[data-tabs]");$("tabs").innerHTML=t?t.innerHTML:"";$("donde").textContent=nombre;
- $("previa").hidden=!previa;acceso.hidden=true;adm.hidden=true;app.hidden=false;
+ $("previa").hidden=!previa;$("herr-barra").hidden=true;acceso.hidden=true;adm.hidden=true;herr.hidden=true;app.hidden=false;
  mostrar((cont.querySelector("[data-inicio]")||{getAttribute:function(){return"";}}).getAttribute("data-inicio"),true);}
 document.addEventListener("click",function(ev){var c=ev.target.closest&&ev.target.closest.bind(ev.target);if(!c)return;
  var b=c("[data-ir]");if(b){mostrar(b.getAttribute("data-ir"),true);return;}
@@ -456,7 +479,7 @@ Array.prototype.forEach.call(document.querySelectorAll("[data-caja]"),function(f
  puerta(fm.querySelector("input"),fm.querySelector(".entrar"),$("msj-"+id),function(pw){
   if(!LYSI.cajas||!LYSI.cajas[id])return Promise.reject(new Error("todavía no hay reportes publicados"));
   return abrir(LYSI.cajas[id],pw).then(function(h){ORIGEN=fm;VISTOS[id]={h:h,n:fm.getAttribute("data-nombre")};CLAVE={id:id,pw:pw};verReporte(h,fm.getAttribute("data-nombre"),false);});});});
-function cerrarTodo(){terminarImp();menuImp(false);cerrarZoom();cerrarFicha();barraBus(false);CLAVE=null;IDX=null;cont.innerHTML="";$("tabs").innerHTML="";app.hidden=true;adm.hidden=true;acceso.hidden=false;ADM=null;RES=null;
+function cerrarTodo(){terminarImp();menuImp(false);cerrarZoom();cerrarFicha();barraBus(false);CLAVE=null;IDX=null;cont.innerHTML="";$("tabs").innerHTML="";app.hidden=true;adm.hidden=true;herr.hidden=true;$("herr-barra").hidden=true;acceso.hidden=false;ADM=null;RES=null;
  // al cerrar no queda ninguna contraseña ni el token escritos en la página
  ["cl-comb","cl-gas","cl-adm","gh-t"].forEach(function(k){var x=$(k);if(x)x.value="";});
  document.title=TITULO;window.scrollTo(0,0);var o=ORIGEN&&ORIGEN.querySelector(".entrar");ORIGEN=null;if(o)try{o.focus({preventScroll:true});}catch(e){}}
@@ -878,6 +901,34 @@ function publicar(){var el=$("pub-estado"),cc=$("cl-comb").value.trim(),ca=$("cl
      hecho((como==="guardado"?"Publicado y guardado.":"Publicado. El archivo nuevo quedó en Descargas como LYSI_Reportes.html.")+" Reemplazá con ese archivo el que abren todos; el anterior queda desactualizado.");});});});})
   .catch(function(e){$("publicar").disabled=false;estado(el,e&&e.name==="AbortError"?"No se guardó: cancelaste la ventana de guardado.":"No se pudo publicar: "+esc(String(e&&e.message||e)),"err");});},40);}
 $("publicar").addEventListener("click",publicar);
+// ───────────── Herramienta: control de declaraciones RENPRE (corre en el navegador, no guarda nada) ─────────────
+var herr=$("herr"),HERR={rem:null,dec:null,res:null},XLRD=false;
+function abrirHerr(){acceso.hidden=true;app.hidden=true;adm.hidden=true;herr.hidden=false;$("herr-barra").hidden=true;pintarHerr();window.scrollTo(0,0);medir();}
+function pintarHerr(){[["herr-rem-e",HERR.rem],["herr-dec-e",HERR.dec]].forEach(function(x){var el=$(x[0]),f=x[1];el.textContent=f?f.n+" ("+num(f.b.length*0.75/1024)+" KB)":"Sin cargar";el.className="e"+(f?" si":"");});
+ $("herr-procesar").disabled=!(HERR.rem&&HERR.dec);$("herr-ver").disabled=!HERR.res;}
+$("abrir-renpre").addEventListener("click",abrirHerr);
+$("salir-herr").addEventListener("click",cerrarTodo);
+$("herr-otros").addEventListener("click",function(){terminarImp();menuImp(false);cerrarFicha();barraBus(false);app.hidden=true;$("herr-barra").hidden=true;cont.innerHTML="";$("tabs").innerHTML="";herr.hidden=false;document.title=TITULO;window.scrollTo(0,0);medir();});
+["herr-rem","herr-dec"].forEach(function(id){$(id).addEventListener("change",function(ev){var f=ev.target.files&&ev.target.files[0];if(!f)return;
+ leer(f).then(function(x){if(id==="herr-rem")HERR.rem=x;else HERR.dec=x;HERR.res=null;$("herr-estado").innerHTML="";pintarHerr();});});});
+function extension(n){var m=/\.([A-Za-z0-9]+)$/.exec(n||"");return m?m[1].toLowerCase():"xls";}
+function procesarHerr(){var el=$("herr-estado");$("herr-procesar").disabled=true;estado(el,"Preparando el motor de cálculo… la primera vez tarda unos segundos.");
+ cargarPyodide().then(function(p){if(XLRD)return p;estado(el,"Bajando el lector de archivos .xls…");return p.runPythonAsync("import micropip\nawait micropip.install('xlrd')").then(function(){XLRD=true;return p;});})
+  .then(function(p){estado(el,"Cruzando remitos contra declaraciones…");return new Promise(function(ok){setTimeout(ok,60);}).then(function(){
+    p.runPython("import shutil,os\nshutil.rmtree('/renpre',ignore_errors=True)\nos.makedirs('/renpre')");
+    var rd="/renpre/remitos."+extension(HERR.rem.n),dd="/renpre/declaraciones."+extension(HERR.dec.n);
+    p.FS.writeFile(rd,b64(HERR.rem.b));p.FS.writeFile(dd,b64(HERR.dec.b));
+    p.globals.set("RENPRE_ARGS",p.toPy([rd,dd,HERR.rem.n,HERR.dec.n]));
+    return JSON.parse(p.runPython("from motor import renpre\nrenpre.procesar_json(*RENPRE_ARGS)"));});})
+  .then(function(r){$("herr-procesar").disabled=false;
+    if(r.errores&&r.errores.length){estado(el,r.errores.map(esc).join("<br>"),"err");HERR.res=null;pintarHerr();return;}
+    HERR.res=r;pintarHerr();verHerr();})
+  .catch(function(err){$("herr-procesar").disabled=false;var m=String(err&&err.message||err);
+   estado(el,m.indexOf("sin conexión")>=0||m.indexOf("fetch")>=0||m.indexOf("Failed")>=0?"No se pudo descargar el motor de cálculo. Revisá la conexión a internet y probá de nuevo.":"No se pudo procesar: "+esc(m.slice(-600)),"err");});}
+function verHerr(){var r=HERR.res;if(!r)return;verReporte(r.html,"Declaraciones RENPRE",false);
+ $("herr-barra-t").textContent=(r.mes?mayus(r.mes)+" · ":"")+"remitos: "+HERR.rem.n+" · declaraciones: "+HERR.dec.n;$("herr-barra").hidden=false;medir();}
+$("herr-procesar").addEventListener("click",procesarHerr);$("herr-ver").addEventListener("click",verHerr);
+window.__lysi.herr=HERR;
 })();
 """
 
@@ -886,7 +937,7 @@ def fuentes_py():
     """Código del motor que viaja dentro de la aplicación para correr en el navegador."""
     base = os.path.dirname(__file__)
     out = {}
-    for n in ["__init__", "config", "fuentes", "calculo", "render", "armado", "gastos"]:
+    for n in ["__init__", "config", "fuentes", "calculo", "render", "armado", "gastos", "renpre"]:
         out[f"motor/{n}.py"] = open(os.path.join(base, n + ".py"), encoding="utf-8").read()
     return out
 
@@ -904,7 +955,7 @@ def construir(datos):
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-60 -80 1080 1080'%3E%3Crect x='-60' y='-80' width='1080' height='1080' rx='190' fill='%23fff'/%3E%3Cpath fill='%231A1A1A' fill-rule='evenodd' d='M385 689C384 688 385 686 392 673C395 669 398 663 400 660C411 640 437 601 439 600C440 600 449 600 484 600C538 600 545 599 558 597C611 588 642 548 629 500C625 484 615 468 602 456C597 453 598 452 611 446C638 435 667 429 693 429C702 429 701 428 706 438C724 476 730 519 721 560C707 622 654 670 585 683C582 684 580 684 579 684C569 686 547 689 529 689C513 690 386 690 385 689ZM118 587C118 587 118 531 118 462C118 394 118 271 118 188C118 38 118 38 119 37C120 36 215 36 216 38C217 38 217 477 216 480C216 480 213 484 209 488C178 517 152 546 126 580C120 588 119 588 119 588C118 588 118 588 118 587ZM520 410C512 405 512 405 528 400C544 394 555 391 573 388C586 385 592 384 604 383C615 382 616 382 617 382C617 382 617 383 616 383C615 383 606 385 603 386C580 390 561 396 546 402C544 403 541 404 538 405C535 406 531 408 529 409C524 411 524 411 520 410ZM406 356C384 343 372 335 356 320C333 298 313 267 306 238C284 151 336 68 427 45C442 41 453 39 472 37C484 36 691 36 692 38C693 39 693 126 692 127C691 128 691 128 587 128C472 128 474 128 462 130C412 138 386 175 400 216C406 235 422 252 447 266C449 267 453 269 454 270C457 271 473 280 489 288C494 290 508 298 520 304C568 328 564 325 549 326C544 326 538 327 536 327C533 328 528 328 525 329C493 332 451 343 416 356C411 358 410 358 406 356Z'/%3E%3Cpath fill='%2394C337' fill-rule='evenodd' d='M291 897C289 896 283 886 278 880C277 878 274 874 273 872C271 870 269 867 269 866C268 865 266 863 266 862C264 860 263 858 262 856C260 854 257 850 255 846C252 843 250 839 250 838C249 837 248 836 247 835C247 834 244 831 242 827C238 821 235 817 231 811C230 810 227 806 225 802C222 799 220 795 219 793C216 790 216 789 217 786C218 784 219 780 220 778C220 777 221 775 222 773C222 772 223 770 224 769C224 768 225 766 225 765C226 764 226 763 226 763C226 763 227 761 228 759C228 757 230 754 230 753C231 751 232 748 234 746C240 732 244 724 246 719C250 711 254 704 256 701C257 699 259 695 260 692C262 688 264 686 264 685C264 684 266 682 267 680C268 678 270 675 271 673C272 671 274 668 275 666C276 664 277 663 277 662C278 662 278 660 279 658C280 657 282 653 284 650C286 647 289 643 289 642C293 637 309 613 314 605C318 600 333 580 337 575C338 573 340 571 341 570C342 568 344 566 345 564C347 563 348 561 349 560C350 559 352 557 354 554C356 552 358 549 359 548C361 546 366 541 370 536C372 535 375 531 378 528C392 513 406 499 416 491C418 489 421 486 422 485C423 484 426 482 428 480C429 479 433 476 436 474C450 463 462 454 475 446C477 444 480 442 482 441C483 440 486 439 487 438C488 438 491 436 493 435C497 433 500 431 508 427C511 425 527 417 530 416C531 415 534 414 537 413C540 412 543 410 544 410C545 409 548 408 550 408C552 407 554 406 556 406C557 405 559 404 561 404C562 403 565 402 566 402C568 401 570 401 572 400C573 400 576 399 576 399C580 398 588 395 594 394C596 394 598 393 600 393C601 393 604 392 606 392C609 391 611 391 612 390C613 390 615 390 616 390C618 390 626 389 628 389C635 387 678 387 686 389C687 389 692 390 695 390C696 390 698 390 700 391C702 391 705 392 707 392C710 393 715 394 719 394C721 395 727 396 728 397C728 397 729 397 730 398C732 398 734 399 737 400C739 400 742 401 744 402C746 402 748 403 750 404C752 405 755 406 757 407C764 410 780 417 785 420C786 421 789 422 791 423C796 426 811 436 817 440C819 442 822 444 824 445C826 447 830 450 838 458C849 467 868 486 875 494C876 496 878 498 879 499C882 503 888 510 890 511C890 512 892 514 893 516C894 517 896 520 897 522C899 523 900 526 901 527C903 529 908 536 912 542C913 544 915 547 916 548C918 551 919 553 919 554C919 555 914 550 910 545C909 543 906 540 901 534C888 517 869 498 852 483C850 482 848 480 847 480C847 479 845 478 843 476C841 475 838 472 835 470C833 469 829 466 828 465C824 462 818 459 808 453C800 448 787 441 784 440C783 440 782 440 781 439C780 439 779 438 778 438C777 438 775 437 774 436C772 436 770 435 768 434C767 434 764 433 762 432C754 430 745 427 740 426C739 426 736 426 735 425C733 425 730 424 724 424C723 424 721 423 719 423C711 421 681 422 672 423C670 423 667 424 665 424C662 424 659 425 658 425C656 426 654 426 652 426C651 427 649 427 648 427C648 428 646 428 644 428C643 428 640 429 637 430C635 431 632 432 631 432C629 432 628 433 627 433C626 434 623 435 621 436C618 436 615 438 614 438C612 439 610 440 608 441C597 445 576 456 563 465C548 475 544 478 532 488C531 489 528 491 527 492C515 502 493 524 482 536C480 539 476 542 475 544C474 545 471 548 469 551C467 553 464 556 463 558C461 560 458 564 456 566C455 568 452 571 451 572C447 578 441 586 438 589C437 591 436 593 435 594C434 595 431 600 421 614C416 622 414 625 410 630C410 631 407 635 406 638C404 640 402 643 402 643C401 645 395 655 393 658C391 661 390 664 388 668C385 673 383 677 381 680C380 682 377 686 376 690C374 693 372 696 371 697C368 703 344 750 344 752C344 752 342 756 340 760C338 765 336 769 336 770C336 770 335 772 334 775C333 777 332 780 331 782C331 783 330 784 329 786C329 787 328 788 328 789C328 790 327 792 326 794C325 796 324 798 324 799C324 799 324 800 323 801C323 802 322 804 322 804C322 805 321 807 320 809C320 811 318 814 317 817C316 820 315 824 314 825C314 827 313 830 312 831C312 832 311 834 311 834C311 835 310 836 310 836C310 837 310 838 310 839C308 844 305 854 304 857C304 858 303 860 303 861C303 861 302 863 302 865C301 868 298 879 297 883C297 884 297 886 296 887C296 888 296 890 296 891C295 893 295 894 294 895C294 898 292 899 291 897ZM177 736C177 735 175 733 174 730C172 728 170 726 170 725C168 721 163 714 162 712C161 711 157 705 152 698C147 691 142 682 139 679C137 676 134 671 132 668C128 663 126 660 123 654C120 650 107 631 104 627C102 623 101 625 116 604C118 601 122 596 123 594C125 591 128 588 129 586C131 584 133 582 134 580C137 576 139 573 142 570C143 568 146 565 147 563C149 561 152 558 153 556C155 554 158 551 160 548C162 545 164 543 164 543C164 543 166 542 168 540C180 525 204 501 219 487C230 477 232 476 234 473C236 472 238 470 240 469C242 467 245 465 247 463C249 461 253 458 256 456C258 454 261 451 262 450C263 450 267 447 271 444C275 441 280 437 283 435C285 434 288 431 290 430C294 427 315 413 321 410C323 409 326 406 329 405C332 404 335 402 336 401C337 400 340 398 343 397C347 394 376 380 382 377C384 376 387 375 389 374C392 373 394 372 395 372C396 371 397 370 399 370C404 368 407 366 412 365C414 364 418 362 421 361C423 360 427 359 429 358C431 358 435 356 437 356C439 355 442 354 443 354C444 354 446 353 447 353C449 352 455 350 456 350C457 350 459 349 462 348C464 348 467 347 469 346C476 345 480 344 483 343C485 342 487 342 488 342C488 342 490 342 492 341C497 340 504 338 508 338C510 338 513 337 514 337C516 337 518 336 520 336C522 336 525 335 527 335C529 335 533 334 536 334C540 334 544 333 545 333C554 332 554 332 584 332C609 332 613 332 615 332C619 333 620 333 627 334C630 334 635 335 636 335C638 335 641 336 643 336C645 336 647 336 648 337C649 337 651 338 653 338C655 338 657 338 659 339C660 339 663 340 664 340C666 340 668 341 670 341C671 341 674 342 676 343C679 343 682 344 683 344C684 345 687 345 688 346C691 346 696 348 699 349C700 350 704 351 707 352C713 354 722 357 732 361C735 362 738 364 738 364C742 365 773 382 776 384C777 385 778 386 778 386C782 388 801 401 806 405C807 406 809 408 810 408C812 409 814 411 815 412C816 413 818 415 820 416C821 417 824 420 826 422C828 424 831 427 833 428C835 430 848 443 852 448C854 449 856 452 857 453C860 456 864 461 866 464C867 464 869 467 871 469C874 474 881 483 884 487C885 489 886 491 887 492C888 492 889 495 890 496C891 498 893 502 895 504C899 510 903 517 905 522C906 524 908 526 908 527C910 529 914 537 914 537C914 539 912 538 910 535C908 531 903 522 902 521C902 520 901 519 900 518C899 517 897 513 894 510C892 507 890 503 889 502C888 502 887 499 885 497C884 496 882 493 880 491C879 490 876 486 874 484C873 482 869 478 867 476C861 469 847 455 842 450C838 446 834 443 831 441C830 440 828 438 826 437C824 435 818 430 811 425C805 421 793 413 787 410C772 402 771 401 769 400C768 400 766 399 764 398C762 397 760 396 759 396C758 395 755 394 753 394C746 391 735 387 732 386C730 386 729 385 728 385C728 385 727 385 725 384C724 384 722 384 721 383C720 383 718 382 717 382C716 382 714 381 713 381C712 381 710 380 708 380C707 380 705 380 704 379C703 379 700 378 699 378C696 378 694 378 689 377C688 377 684 376 682 376C679 376 675 375 673 375C659 374 618 374 610 375C609 376 606 376 604 376C600 376 596 377 592 378C590 378 588 378 588 378C586 378 580 379 568 382C564 382 561 383 546 387C543 388 537 390 526 394C520 396 512 398 510 399C508 400 507 400 507 400C507 400 505 401 503 402C501 403 499 404 498 404C497 404 495 405 494 406C492 407 490 408 489 408C488 408 483 411 478 413C473 415 468 417 468 417C468 417 444 430 441 432C440 432 439 433 437 434C435 435 416 446 412 449C411 450 410 451 409 451C406 453 405 454 400 458C397 460 392 463 390 464C387 466 384 468 382 470C381 471 378 473 376 474C374 476 371 478 369 480C368 481 365 483 364 484C362 485 359 488 357 490C355 492 352 494 352 494C350 495 349 497 340 504C327 516 302 541 294 550C293 552 291 554 289 556C288 558 285 561 284 562C283 564 281 566 280 566C276 571 275 573 273 575C272 577 270 579 269 581C262 590 251 604 241 620C237 625 234 631 232 632C231 634 230 636 229 637C226 643 221 651 216 660C207 676 206 680 200 693C196 701 195 703 193 707C193 708 192 710 191 711C191 712 190 715 189 717C186 726 181 736 181 737C180 738 178 737 177 736Z'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
-<style>{P.CSS}{CSS_ADM}{CSS_GAS}{CSS_HOJAS}</style></head><body>{HTML_CUERPO.replace("<!--HOJAS-->", inicio_html())}{HTML_APP}
+<style>{P.CSS}{CSS_ADM}{CSS_GAS}{CSS_HOJAS}</style></head><body>{HTML_CUERPO.replace("<!--HOJAS-->", inicio_html())}{HTML_APP}{HTML_HERR}
 <script id="py" type="application/json">{py}</script>
 <script id="datos">window.LYSI=/*D0*/{d}/*D1*/;</script>
 <script>var PLANTILLA=document.documentElement.outerHTML;var LYSI=window.LYSI;
