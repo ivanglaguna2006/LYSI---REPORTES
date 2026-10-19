@@ -4,6 +4,7 @@ Este repositorio aloja la app de reportes de LYSI (GitHub Pages):
 https://ivanglaguna2006.github.io/LYSI---REPORTES/
 
 - `index.html`: la app (pantalla de acceso, consulta y Administración). No tiene datos.
+- La pantalla de inicio tiene una **hoja por área** (pestañas bajo el título). Hoy hay una sola, «Administración y control», con el Informe de combustible, el Informe de mantenimiento y, en «Herramientas», el procesador de Declaraciones RENPRE (en preparación). Para sumar un área se agrega una entrada en `AREAS` (`motor/app.py`) y se regenera `index.html`; las tarjetas de reporte conservan sus ids porque el JavaScript los usa tal cual.
 - `originales.json`: los dos Excel del Informe de mantenimiento, **cifrados**; lo escribe `cargar_gastos.py`. La app lo baja solo cuando alguien pide el Excel original.
 - `datos.json`: los reportes y los archivos fuente, **cifrados**. Nunca editarlo a mano ni reemplazarlo por otra cosa: la app deja de abrir.
 - `motor/`: el código de cálculo (reglas del Prompt Maestro v4.7). Es el mismo que la app lleva adentro.
