@@ -4,13 +4,74 @@
 Cifrado: PBKDF2-HMAC-SHA256 -> clave AES-256-CTR + clave HMAC-SHA256 (cifrar y después autenticar).
 Sin la contraseña el archivo no contiene ningún dato legible."""
 import os
+import re
 import gzip
 import base64
 import hmac
 import hashlib
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-ITER = 120000
+# Iteraciones de PBKDF2. 600 000 es la recomendación vigente de OWASP para PBKDF2-HMAC-SHA256 (2023).
+# Cada caja guarda sus propias iteraciones ("n"), así que lo ya publicado sigue abriendo.
+ITER = 600000
+
+# Política de contraseñas. La seguridad del sitio es exactamente la fuerza de las contraseñas: el archivo
+# cifrado es público y se puede atacar sin límite de intentos, así que una contraseña corta o previsible
+# no sirve por más cifrado que haya. Misma regla en la app (motor/app.py, función fuerza).
+MINIMO = 14
+PROHIBIDAS = ["lysi", "logistica", "combustible", "mantenimiento", "admin", "reporte", "informe", "gastos",
+              "contrase", "password", "clave", "camion", "scania", "ypf", "filarus", "renpre", "qwerty", "asdf",
+              "123456", "abcdef", "transporte", "empresa"]
+PALABRAS = """abeja abrigo aceite acero acorde agua aguila ajo alamo alba alce alfombra alga almendra altar alto amapola ambar anillo anis antena arado arbol arco arena arpa arroz asado astro atlas aurora avena azul bahia balcon ballena balsa banco bandera barco barro baston bata batuta bebida becerro beso biblia bigote bisagra blanco bloque boca bola bolsa bombilla bonito bosque bota botella brazo breve brillo brisa bronce bruma buey bufanda buho burbuja buzon caballo cabana cabello cabra cacao cadena cafe caja calle calma camino campana campo canasta cancion canela canoa cantera capa carbon carpa carreta carro carta casa cascada castor cebolla cedro ceniza centro cepillo cera cerca cereza cerro cesta chaleco chicle chimenea chispa ciclo cielo cinta circo ciruela cisne clavo cobre coche cocina codo cohete cola colina collar color cometa comida concha conejo copa coral corcho cordero corona corral correo cortina cosecha costa crema cristal cuadro cubo cuchara cuello cuenco cuerda cuerno cuervo cueva cumbre cuna dado dama danza dardo datil dedal dedo delfin delta diente dique disco doble domingo dorado dragon duende dulce duna edificio elefante enano encina eneldo enero envase equipo erizo escala escoba escudo esfera espejo espiga espuma estatua estrella estufa fabrica faro farol felpa feria fiesta figura filtro final firma flauta flecha flor foca fogata fondo foro fosforo fragua fraile frasco fresa fresco frio fruta fuego fuente fuerte gacela galaxia galleta gallo ganso garza gato gaviota gemelo girasol globo gorra gota granizo grillo grua grupo guante guinda guitarra habano hacha hada halcon harina hebilla helado helecho heno hermano hielo hierro higo hilo himno hoja hongo hormiga horno huerta hueso huevo humo iglesia iman imperio indice insecto invierno isla jabon jade jamon jardin jarra jazmin jinete jirafa joya juego jueves jugo junco junio laguna lampara lana lancha lapiz laurel lava lazo leche lechuza lengua leon letra libro licor lima limon lince lino lirio llama llanta llave lluvia lobo lomo loro lucero luna lupa luz madera madre maiz maleta mango manta manzana mapa mar marfil marmol martes martillo melon mente mesa metal miel miercoles mimbre mirlo mochila moneda monte morado mosca motor muelle mundo muro musgo musica nacar naranja nave nevada nido niebla nieve nogal norte nota nube nudo nuez oasis oboe ocaso oceano olivo olla olmo onda oro orquidea oruga oso ostra oveja padre paja pajaro paleta palma paloma pan panal pantano papel parra pasto pato pavo pecho peine pelota pera perla perro pez piano piedra pierna pimienta pino pintura pipa pista plata plato playa pluma polen polvo pomelo portal pozo pradera prisma puente puerta puerto pulpo puma punto quemado queso quilla quinua radio raiz rama rana rastro raton rayo red regalo reina reloj remo repollo reptil resina reto rienda rio risa roble roca rocio rodilla rojo ropa rosa rueda ruido rumbo sabana sabio sal salon salto sandia sapo sardina sauce seda sello selva semana semilla senda siesta silla sirena sol sombra sopa sorbete suela sueno sur tabaco tabla taller tambor tapa taza teatro techo tela templo tenedor tierra tigre tijera timon tinta toalla tomate tomillo torre tortuga trebol tren trigo trompa trueno tulipan tunel turbina umbral unicornio urbano uva vaca valle vapor vela velero venado verano verde vereda vidrio viento vinagre vino violin visera volcan vuelo yegua yema yunque yute zafiro zanja zapato zorro zumo""".split()
+
+
+def _plano(t):
+    import unicodedata
+    return unicodedata.normalize("NFKD", t).encode("ascii", "ignore").decode().lower()
+
+
+def fuerza(pw):
+    """Evalúa una contraseña: (sirve, nivel, motivo). nivel: debil | aceptable | fuerte."""
+    import math
+    pw = pw or ""
+    if len(pw) < MINIMO:
+        return False, "debil", "Tiene que tener al menos %d caracteres: lo más cómodo es una frase de 5 o 6 palabras." % MINIMO
+    p = _plano(pw)
+    for x in PROHIBIDAS:
+        if x in p.replace(" ", "").replace("-", "").replace("_", ""):
+            return False, "debil", "No puede contener palabras previsibles como «%s»." % x
+    if re.search(r"(19|20)\d\d", p):
+        return False, "debil", "Evitá años y fechas: son lo primero que se prueba."
+    if re.search(r"(.)\1{3,}", p) or len(set(p)) <= 4:
+        return False, "debil", "Tiene demasiados caracteres repetidos."
+    partes = [x for x in re.split(r"[\s\-_.,/]+", p) if len(x) >= 2]
+    if len(partes) >= 4:
+        # frase: ~10 bits por palabra (vocabulario de unas mil palabras), más algo por números y mayúsculas
+        bits = len(partes) * 10 + (4 if re.search(r"\d", pw) else 0) + (2 if re.search(r"[A-Z]", pw) else 0)
+    else:
+        # contraseña "de caracteres": tamaño del alfabeto usado, descontado porque nadie elige al azar
+        pool = sum([26 if re.search(r"[a-z]", pw) else 0, 26 if re.search(r"[A-Z]", pw) else 0,
+                    10 if re.search(r"\d", pw) else 0, 33 if re.search(r"[^A-Za-z0-9]", pw) else 0]) or 26
+        bits = len(pw) * math.log2(pool) * 0.8
+    if bits < 42:
+        return False, "debil", "Es previsible: sumá palabras o caracteres, o generá una frase."
+    if bits < 60:
+        return True, "aceptable", "Sirve. Una palabra más la haría fuerte."
+    return True, "fuerte", "Fuerte."
+
+
+def avisar(nombre, pw):
+    """Imprime un aviso si la contraseña no cumple la política (no corta el proceso: la cambia Ivo desde la app)."""
+    ok, nivel, motivo = fuerza(pw)
+    if not ok:
+        print("AVISO: la contraseña %s es débil (%s). Conviene cambiarla desde Administración en la app." % (nombre, motivo))
+    return ok
+
+
+def frase():
+    """Genera una frase de 6 palabras al azar más dos dígitos (~61 bits de entropía)."""
+    import secrets
+    return "-".join(secrets.choice(PALABRAS) for _ in range(6)) + "-" + str(secrets.randbelow(90) + 10)
 
 
 def cifrar(texto, clave, z=False):
@@ -293,7 +354,7 @@ function b64(s){var bin=atob(s),o=new Uint8Array(bin.length),i;for(i=0;i<bin.len
 function utf8(s){if(window.TextEncoder)return new TextEncoder().encode(s);var u=unescape(encodeURIComponent(s)),o=new Uint8Array(u.length),i;for(i=0;i<u.length;i++)o[i]=u.charCodeAt(i);return o;}
 function derivar(pw,salt,it){
  return new Promise(function(ok){var listo=false;function puro(){if(listo)return;listo=true;ok(pbkdf2(utf8(pw),salt,it,64));}
-  try{if(window.crypto&&crypto.subtle&&crypto.subtle.importKey){var t=setTimeout(puro,2500);
+  try{if(window.crypto&&crypto.subtle&&crypto.subtle.importKey){var t=setTimeout(puro,2500+Math.round(it/100));
    crypto.subtle.importKey("raw",utf8(pw),"PBKDF2",false,["deriveBits"]).then(function(k){return crypto.subtle.deriveBits({name:"PBKDF2",salt:salt,iterations:it,hash:"SHA-256"},k,512);})
    .then(function(b){if(listo)return;listo=true;clearTimeout(t);ok(new Uint8Array(b));},function(){clearTimeout(t);puro();});return;}}catch(e){}
   puro();});}

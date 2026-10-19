@@ -29,6 +29,7 @@ def main():
     clave = os.environ.get("LYSI_ADMIN")
     if not clave:
         sys.exit("Falta la contraseña de administración en la variable de entorno LYSI_ADMIN.")
+    P.avisar("de administración", clave)
     ruta = os.path.join(AQUI, "datos.json")
     datos = json.load(open(ruta, encoding="utf-8"))
     try:
@@ -62,6 +63,10 @@ def main():
         sys.exit("\nFalta definir la contraseña de Gastos: pasala en la variable de entorno LYSI_GASTOS.")
     if cg == clave:
         sys.exit("\nLa contraseña de Gastos tiene que ser distinta de la de administración.")
+    if os.environ.get("LYSI_GASTOS"):
+        ok, _, motivo = P.fuerza(cg)
+        if not ok:
+            sys.exit("\nNo se publica: la contraseña nueva de Gastos es débil (%s). Usá una frase de 5 o 6 palabras." % motivo)
     adm.setdefault("claves", {})["gastos"] = cg
     nuevo = dict(datos)
     nuevo["cajas"] = dict(datos.get("cajas", {}))

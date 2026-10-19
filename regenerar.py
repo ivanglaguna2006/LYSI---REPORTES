@@ -47,6 +47,7 @@ def main():
     clave = os.environ.get("LYSI_ADMIN")
     if not clave:
         sys.exit("Falta la contraseña de administración en la variable de entorno LYSI_ADMIN.")
+    P.avisar("de administración", clave)
     ruta = os.path.join(AQUI, "datos.json")
     datos = json.load(open(ruta, encoding="utf-8"))
     try:

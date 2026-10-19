@@ -60,6 +60,14 @@ el reporte mensual (una hoja por mes, `REPORTE_MENSUAL_LYSI_...xlsx`) y el de re
 6. Si el control avisa que hay hojas sin contenido, el Excel se guardó sin valores calculados: pedirle a Ivo
    que lo abra y lo guarde en Excel, y volver a cargarlo. No se publica así.
 
+## Seguridad
+
+- GitHub Pages sirve solo texto cifrado: `datos.json` y `originales.json` van con AES-256-CTR + HMAC-SHA256, clave derivada con PBKDF2-HMAC-SHA256 (`motor/portal.py`). Cada caja guarda sus iteraciones en `n`; lo nuevo se cifra con `P.ITER` (600 000, OWASP 2023) y lo viejo sigue abriendo.
+- **La fuerza de las contraseñas es toda la seguridad del sitio**: el archivo cifrado es público y se puede atacar sin límite de intentos. Política única en `P.fuerza` (Python) y `fuerza` (JavaScript de la app): mínimo 14 caracteres, sin palabras previsibles (lysi, combustible, admin, años…), y una estimación de entropía. La app no publica con una contraseña que no cumpla; «Generar» arma una frase de 6 palabras al azar (`P.frase()` hace lo mismo desde la consola).
+- Los scripts de consola solo avisan si la de administración es débil (no cortan la carga mensual); una `LYSI_GASTOS` nueva que no cumpla sí se rechaza. Cambiar una contraseña se hace desde Administración en la app: Procesar todo y Publicar vuelve a cifrar todo con las nuevas y con las iteraciones actuales.
+- Cambiar una contraseña no protege las versiones anteriores de `datos.json`, que quedan en el historial público del repositorio cifradas con la contraseña de ese momento.
+- Pendientes (ver el plan de seguridad del proyecto «LYSI app»): claves envueltas para que la caja de administración no contenga las otras contraseñas ni el token en claro; cierre automático por inactividad; Pyodide en un Web Worker aislado con integridad (SRI); token de GitHub fine-grained acotado a este repositorio; eventualmente una capa de acceso externa (Cloudflare Access o repositorio privado).
+
 ## Reglas
 
 - No inventar ni corregir datos: si el control muestra un error de archivo (export equivocado, fechas de otro mes), se lo informa a Ivo y no se publica.

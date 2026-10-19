@@ -48,6 +48,7 @@ CSS_ADM = r"""
 .fila{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
 .estado{padding:10px 13px;border-left:4px solid var(--lima);background:var(--lima0);border-radius:0 6px 6px 0;max-width:1100px;margin:10px 0;font-size:14.5px}
 .estado.err{border-left-color:#C62828;background:#FDECEA}
+.claves{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));margin:8px 0}.cl label{display:block;font-size:.9em;margin-bottom:4px}.clc{display:flex;gap:6px}.clc input{flex:1;min-width:0}.btn.gen{padding:6px 10px}.fz{display:block;min-height:1.2em;margin-top:4px;font-size:.85em;color:#6B7066}.fz.debil{color:#C62828}.fz.aceptable{color:#B26A00}.fz.fuerte{color:#2E7D32}
 .estado.av{border-left-color:#E65100;background:#FFF7E0}
 .sucio{display:inline-block;background:#E65100;color:#fff;font:600 13px var(--cu);letter-spacing:0;padding:3px 9px;border-radius:3px;margin-left:10px;vertical-align:middle}
 @media (max-width:700px){.slot{grid-template-columns:1fr}}
@@ -297,7 +298,8 @@ HTML_APP = r"""
 <div id="proc-estado" role="status"></div><div id="proc-res"></div></section>
 <section><h2>Publicá</h2>
 <p class="nota" id="pub-nota"></p>
-<div class="fila"><label for="cl-comb">Contraseña del Informe de combustible</label><input type="text" id="cl-comb" autocomplete="off"><label for="cl-gas">Contraseña del Informe</label><input type="text" id="cl-gas" autocomplete="off"><label for="cl-adm">Contraseña de administración</label><input type="text" id="cl-adm" autocomplete="off"></div>
+<div class="claves"><div class="cl"><label for="cl-comb">Contraseña del Informe de combustible</label><div class="clc"><input type="text" id="cl-comb" autocomplete="off" spellcheck="false"><button type="button" class="btn gen" data-gen="cl-comb" title="Generar una frase al azar">Generar</button></div><small class="fz" id="fz-cl-comb" role="status"></small></div><div class="cl"><label for="cl-gas">Contraseña del Informe de mantenimiento</label><div class="clc"><input type="text" id="cl-gas" autocomplete="off" spellcheck="false"><button type="button" class="btn gen" data-gen="cl-gas" title="Generar una frase al azar">Generar</button></div><small class="fz" id="fz-cl-gas" role="status"></small></div><div class="cl"><label for="cl-adm">Contraseña de administración</label><div class="clc"><input type="text" id="cl-adm" autocomplete="off" spellcheck="false"><button type="button" class="btn gen" data-gen="cl-adm" title="Generar una frase al azar">Generar</button></div><small class="fz" id="fz-cl-adm" role="status"></small></div></div>
+<p class="nota">Las contraseñas son la única protección del sitio: el archivo publicado está cifrado, pero es público y se puede atacar sin límite de intentos. Lo seguro es una frase de 5 o 6 palabras al azar («Generar» arma una). No se publica con contraseñas cortas o previsibles, y cada cambio de contraseña vuelve a cifrar todo con la nueva.</p>
 <div class="fila"><button type="button" class="btn pri" id="publicar" disabled>Publicar</button><button type="button" class="btn" id="copia" disabled>Guardar una copia en archivo</button></div>
 <div id="pub-estado" role="status"></div></section>
 <section><h2>Dónde se publica</h2>
@@ -329,7 +331,24 @@ JS_UI = r"""
 function b64(s){var bin=atob(s),o=new Uint8Array(bin.length),i;for(i=0;i<bin.length;i++)o[i]=bin.charCodeAt(i);return o;}
 function a64(u){var s="",i;for(i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s);}
 function azar(n){var o=new Uint8Array(n);if(window.crypto&&crypto.getRandomValues)crypto.getRandomValues(o);else for(var i=0;i<n;i++)o[i]=Math.floor(Math.random()*256);return o;}
-function cifrar(texto,pw,z){var salt=azar(16),iv=azar(16),n=LYSI.iter||120000;
+// Iteraciones de PBKDF2 para todo lo que se cifra desde acá (OWASP 2023). Las decide la app, no datos.json.
+var ITER_APP=600000;
+var MINIMO=14,PROHIBIDAS=["lysi","logistica","combustible","mantenimiento","admin","reporte","informe","gastos","contrase","password","clave","camion","scania","ypf","filarus","renpre","qwerty","asdf","123456","abcdef","transporte","empresa"];
+var PALABRAS="abeja abrigo aceite acero acorde agua aguila ajo alamo alba alce alfombra alga almendra altar alto amapola ambar anillo anis antena arado arbol arco arena arpa arroz asado astro atlas aurora avena azul bahia balcon ballena balsa banco bandera barco barro baston bata batuta bebida becerro beso biblia bigote bisagra blanco bloque boca bola bolsa bombilla bonito bosque bota botella brazo breve brillo brisa bronce bruma buey bufanda buho burbuja buzon caballo cabana cabello cabra cacao cadena cafe caja calle calma camino campana campo canasta cancion canela canoa cantera capa carbon carpa carreta carro carta casa cascada castor cebolla cedro ceniza centro cepillo cera cerca cereza cerro cesta chaleco chicle chimenea chispa ciclo cielo cinta circo ciruela cisne clavo cobre coche cocina codo cohete cola colina collar color cometa comida concha conejo copa coral corcho cordero corona corral correo cortina cosecha costa crema cristal cuadro cubo cuchara cuello cuenco cuerda cuerno cuervo cueva cumbre cuna dado dama danza dardo datil dedal dedo delfin delta diente dique disco doble domingo dorado dragon duende dulce duna edificio elefante enano encina eneldo enero envase equipo erizo escala escoba escudo esfera espejo espiga espuma estatua estrella estufa fabrica faro farol felpa feria fiesta figura filtro final firma flauta flecha flor foca fogata fondo foro fosforo fragua fraile frasco fresa fresco frio fruta fuego fuente fuerte gacela galaxia galleta gallo ganso garza gato gaviota gemelo girasol globo gorra gota granizo grillo grua grupo guante guinda guitarra habano hacha hada halcon harina hebilla helado helecho heno hermano hielo hierro higo hilo himno hoja hongo hormiga horno huerta hueso huevo humo iglesia iman imperio indice insecto invierno isla jabon jade jamon jardin jarra jazmin jinete jirafa joya juego jueves jugo junco junio laguna lampara lana lancha lapiz laurel lava lazo leche lechuza lengua leon letra libro licor lima limon lince lino lirio llama llanta llave lluvia lobo lomo loro lucero luna lupa luz madera madre maiz maleta mango manta manzana mapa mar marfil marmol martes martillo melon mente mesa metal miel miercoles mimbre mirlo mochila moneda monte morado mosca motor muelle mundo muro musgo musica nacar naranja nave nevada nido niebla nieve nogal norte nota nube nudo nuez oasis oboe ocaso oceano olivo olla olmo onda oro orquidea oruga oso ostra oveja padre paja pajaro paleta palma paloma pan panal pantano papel parra pasto pato pavo pecho peine pelota pera perla perro pez piano piedra pierna pimienta pino pintura pipa pista plata plato playa pluma polen polvo pomelo portal pozo pradera prisma puente puerta puerto pulpo puma punto quemado queso quilla quinua radio raiz rama rana rastro raton rayo red regalo reina reloj remo repollo reptil resina reto rienda rio risa roble roca rocio rodilla rojo ropa rosa rueda ruido rumbo sabana sabio sal salon salto sandia sapo sardina sauce seda sello selva semana semilla senda siesta silla sirena sol sombra sopa sorbete suela sueno sur tabaco tabla taller tambor tapa taza teatro techo tela templo tenedor tierra tigre tijera timon tinta toalla tomate tomillo torre tortuga trebol tren trigo trompa trueno tulipan tunel turbina umbral unicornio urbano uva vaca valle vapor vela velero venado verano verde vereda vidrio viento vinagre vino violin visera volcan vuelo yegua yema yunque yute zafiro zanja zapato zorro zumo".split(" ");
+function plano(t){t=String(t||"").toLowerCase();try{t=t.normalize("NFKD").replace(/[\u0300-\u036f]/g,"");}catch(e){}return t;}
+// Misma política que motor/portal.py (fuerza): sirve / nivel / motivo.
+function fuerza(pw){pw=pw||"";if(pw.length<MINIMO)return{ok:false,nivel:"debil",motivo:"Tiene que tener al menos "+MINIMO+" caracteres: lo más cómodo es una frase de 5 o 6 palabras."};
+ var p=plano(pw),q=p.replace(/[\s\-_]/g,""),i;for(i=0;i<PROHIBIDAS.length;i++)if(q.indexOf(PROHIBIDAS[i])>=0)return{ok:false,nivel:"debil",motivo:"No puede contener palabras previsibles como «"+PROHIBIDAS[i]+"»."};
+ if(/(19|20)\d\d/.test(p))return{ok:false,nivel:"debil",motivo:"Evitá años y fechas: son lo primero que se prueba."};
+ var dist={};for(i=0;i<p.length;i++)dist[p[i]]=1;if(/(.)\1{3,}/.test(p)||Object.keys(dist).length<=4)return{ok:false,nivel:"debil",motivo:"Tiene demasiados caracteres repetidos."};
+ var partes=p.split(/[\s\-_.,\/]+/).filter(function(x){return x.length>=2;}),bits;
+ if(partes.length>=4)bits=partes.length*10+(/\d/.test(pw)?4:0)+(/[A-Z]/.test(pw)?2:0);
+ else{var pool=(/[a-z]/.test(pw)?26:0)+(/[A-Z]/.test(pw)?26:0)+(/\d/.test(pw)?10:0)+(/[^A-Za-z0-9]/.test(pw)?33:0);bits=pw.length*Math.log2(pool||26)*0.8;}
+ if(bits<42)return{ok:false,nivel:"debil",motivo:"Es previsible: sumá palabras o caracteres, o generá una frase."};
+ if(bits<60)return{ok:true,nivel:"aceptable",motivo:"Sirve. Una palabra más la haría fuerte."};
+ return{ok:true,nivel:"fuerte",motivo:"Fuerte."};}
+function frase(){var r=azar(7),o=[],i;for(i=0;i<6;i++)o.push(PALABRAS[r[i]%PALABRAS.length]);return o.join("-")+"-"+(10+r[6]%90);}
+function cifrar(texto,pw,z){var salt=azar(16),iv=azar(16),n=ITER_APP;
  var pd=z?new Response(new Blob([texto]).stream().pipeThrough(new CompressionStream("gzip"))).arrayBuffer().then(function(b){return new Uint8Array(b);}):Promise.resolve(utf8(texto));
  return pd.then(function(datos){return derivar(pw,salt,n).then(function(dk){var ct=ctr(dk.subarray(0,32),iv,datos),m=new Uint8Array(16+ct.length);m.set(iv);m.set(ct,16);
   var c={s:a64(salt),i:a64(iv),t:a64(hmac(hmacEst(dk.subarray(32)),m)),c:a64(ct),n:n};if(z)c.z=1;return c;});});}
@@ -760,7 +779,11 @@ function sucio(v){SUCIO=v;$("sucio").hidden=!v;}
 window.addEventListener("beforeunload",function(ev){if(SUCIO){ev.preventDefault();ev.returnValue="";}});
 puerta($("pw-admin"),$("btn-admin"),$("msj-admin"),function(pw){
  return abrir(LYSI.admin,pw).then(function(txt){ADM=JSON.parse(txt);ADM.fuentes=ADM.fuentes||{};ADM.ajustes=ADM.ajustes||{};ADM.importados=ADM.importados||{};ADM.claves=ADM.claves||{};ADM.claves.admin=pw;abrirAdm();});});
-function abrirAdm(){acceso.hidden=true;app.hidden=true;adm.hidden=false;$("cl-comb").value=ADM.claves.combustible||"";$("cl-adm").value=ADM.claves.admin||"";$("cl-gas").value=ADM.claves.gastos||"";GAS=[];$("gas-arch").value="";pintarGas();$("ver-previa-g").disabled=true;
+var CL_IDS=["cl-comb","cl-gas","cl-adm"];
+function pintarFz(id){(id?[id]:CL_IDS).forEach(function(k){var v=$(k).value.trim(),e=$("fz-"+k);if(!v){e.textContent="";e.className="fz";return;}var f=fuerza(v);e.textContent=(f.nivel==="debil"?"Débil: ":f.nivel==="aceptable"?"Aceptable. ":"")+f.motivo;e.className="fz "+f.nivel;});}
+CL_IDS.forEach(function(k){$(k).addEventListener("input",function(){pintarFz(k);});});
+document.addEventListener("click",function(ev){var b=ev.target.closest&&ev.target.closest("[data-gen]");if(!b)return;var k=b.getAttribute("data-gen");$(k).value=frase();pintarFz(k);$(k).focus();});
+function abrirAdm(){acceso.hidden=true;app.hidden=true;adm.hidden=false;$("cl-comb").value=ADM.claves.combustible||"";$("cl-adm").value=ADM.claves.admin||"";$("cl-gas").value=ADM.claves.gastos||"";pintarFz();GAS=[];$("gas-arch").value="";pintarGas();$("ver-previa-g").disabled=true;
  var hoy=new Date(),y0=hoy.getFullYear(),ys={},k,sel=$("anio"),o="";ys[y0]=1;for(k in ADM.fuentes)ys[k.slice(0,4)]=1;ys[y0-1]=1;
  Object.keys(ys).sort().forEach(function(y){o+='<option value="'+y+'"'+(String(y)===String(y0)?" selected":"")+">"+y+"</option>";});sel.innerHTML=o;
  MES=null;$("panel").hidden=true;pintarMeses();pintarDestino();$("gh-estado").innerHTML="";$("copia").disabled=!LYSI.cajas;$("proc-estado").innerHTML="";$("proc-res").innerHTML="";$("pub-estado").innerHTML="";$("ver-previa").disabled=true;$("publicar").disabled=true;sucio(false);window.scrollTo(0,0);medir();}
@@ -887,12 +910,14 @@ function publicar(){var el=$("pub-estado"),cc=$("cl-comb").value.trim(),ca=$("cl
  if(cc===ca){estado(el,"La contraseña de administración tiene que ser distinta de la del Informe de combustible.","err");return;}
  if(hayG&&!cg){estado(el,"Falta la contraseña del Informe de mantenimiento.","err");return;}
  if(hayG&&cg===ca){estado(el,"La contraseña de administración tiene que ser distinta de la del Informe de mantenimiento.","err");return;}
+ var chk=[["cl-comb",cc,"del Informe de combustible"],["cl-adm",ca,"de administración"]];if(hayG)chk.push(["cl-gas",cg,"del Informe de mantenimiento"]);
+ for(var ci=0;ci<chk.length;ci++){var fz=fuerza(chk[ci][1]);if(!fz.ok){estado(el,"La contraseña "+chk[ci][2]+" no sirve: "+esc(fz.motivo)+" No se publicó nada.","err");$(chk[ci][0]).focus();return;}}
  $("publicar").disabled=true;estado(el,"Cifrando y armando el archivo…");
  setTimeout(function(){
   cajaGastos(cg).then(function(cgx){ADM.claves.combustible=cc;ADM.claves.admin=ca;if(hayG)ADM.claves.gastos=cg;
    return cifrar(RES.html,cc).then(function(c1){return cifrar(JSON.stringify(ADM),ca).then(function(c2){
     var cajas={},k;for(k in (LYSI.cajas||{}))cajas[k]=LYSI.cajas[k];cajas.combustible=c1;if(cgx)cajas.gastos=cgx;
-    var nuevo={v:LYSI.v,iter:LYSI.iter,pyodide:LYSI.pyodide,cajas:cajas,admin:c2,info:{meses:RES.meses.map(function(m){return m.nombre;}),ids:RES.meses.filter(function(m){return !m.importado;}).map(function(m){return m.id;}),generado:RES.generado,reglas:RES.reglas}};
+    var nuevo={v:LYSI.v,iter:ITER_APP,pyodide:LYSI.pyodide,cajas:cajas,admin:c2,info:{meses:RES.meses.map(function(m){return m.nombre;}),ids:RES.meses.filter(function(m){return !m.importado;}).map(function(m){return m.id;}),generado:RES.generado,reglas:RES.reglas}};
     var dg=(RES.gastos&&RES.gastos.html)?RES.gastos.descripcion:(LYSI.info&&LYSI.info.gastos);if(cgx&&dg){nuevo.info.gastos=dg;var df=(RES.gastos&&RES.gastos.html)?RES.generado:(LYSI.info&&LYSI.info.gastos_fecha);if(df)nuevo.info.gastos_fecha=df;if(!(RES.gastos&&RES.gastos.html)&&LYSI.info&&LYSI.info.gastos_orig)nuevo.info.gastos_orig=LYSI.info.gastos_orig;}
     if(LYSI.remoto)nuevo.remoto=LYSI.remoto;var g=gh();
     function hecho(txt){LYSI=nuevo;window.LYSI=nuevo;pintarInfo();pintarGastos();pintarMeses();GAS=[];$("gas-arch").value="";pintarGas();sucio(false);$("publicar").disabled=false;$("copia").disabled=false;estado(el,txt);}
