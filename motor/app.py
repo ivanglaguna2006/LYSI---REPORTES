@@ -189,9 +189,9 @@ HTML_CUERPO = r"""
 <section class="tablero" id="estado" hidden><div class="rdh"><h2>Estado de los reportes</h2><span id="est-hoy"></span></div><div class="est-l" id="est-l"></div></section>
 <div class="rdh"><h2>Reportes disponibles</h2><span id="cuantos"></span></div>
 <div class="puertas">
-<div class="puerta"><div class="pc"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20.5V5.5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15M3.5 20.5h13M7.5 7h5v4.5h-5zM15 9.5h1.5a2 2 0 0 1 2 2v4.2a1.4 1.4 0 0 0 2.8 0V8.8L18.6 6"/></svg></span><div><h3>Combustible</h3><p id="desc-combustible">Consumos mensuales y evaluación anual de la flota.</p>
+<div class="puerta"><div class="pc"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20.5V5.5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15M3.5 20.5h13M7.5 7h5v4.5h-5zM15 9.5h1.5a2 2 0 0 1 2 2v4.2a1.4 1.4 0 0 0 2.8 0V8.8L18.6 6"/></svg></span><div><h3>Informe de combustible</h3><p id="desc-combustible">Consumos mensuales y evaluación anual de la flota.</p>
 <span class="per" id="per-combustible" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg><span></span></span></div></div>
-<div class="fm" data-caja="combustible" data-nombre="Combustible"><label for="pw-combustible">Contraseña del reporte</label>
+<div class="fm" data-caja="combustible" data-nombre="Informe de combustible"><label for="pw-combustible">Contraseña del reporte</label>
 <div class="campo"><input id="pw-combustible" type="password" placeholder="Ingresá tu contraseña" autocomplete="new-password"><button type="button" class="ojo" aria-label="Mostrar la contraseña" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button></div>
 <button type="button" class="entrar">Acceder al reporte <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h15M13.5 6l6 6-6 6"/></svg></button></div>
 <p class="msj" id="msj-combustible" role="status"></p></div>
@@ -235,7 +235,7 @@ HTML_CUERPO = r"""
 <div id="proc-estado" role="status"></div><div id="proc-res"></div></section>
 <section><h2>Publicá</h2>
 <p class="nota" id="pub-nota"></p>
-<div class="fila"><label for="cl-comb">Contraseña de Combustible</label><input type="text" id="cl-comb" autocomplete="off"><label for="cl-gas">Contraseña del Informe</label><input type="text" id="cl-gas" autocomplete="off"><label for="cl-adm">Contraseña de administración</label><input type="text" id="cl-adm" autocomplete="off"></div>
+<div class="fila"><label for="cl-comb">Contraseña del Informe de combustible</label><input type="text" id="cl-comb" autocomplete="off"><label for="cl-gas">Contraseña del Informe</label><input type="text" id="cl-gas" autocomplete="off"><label for="cl-adm">Contraseña de administración</label><input type="text" id="cl-adm" autocomplete="off"></div>
 <div class="fila"><button type="button" class="btn pri" id="publicar" disabled>Publicar</button><button type="button" class="btn" id="copia" disabled>Guardar una copia en archivo</button></div>
 <div id="pub-estado" role="status"></div></section>
 <section><h2>Dónde se publica</h2>
@@ -292,7 +292,7 @@ function pintarEstado(){var el=$("estado");if(!CARGADO||FALLO||!LYSI.info){el.hi
   if(gi>=x)return["ok","Corte cargado","Cierra el 1 de "+MESES[m<12?m+1:1]];
   return d>=16?["pend","Pendiente","Falta el corte del 16"]:["curso","En curso","Primer corte: 16 de "+MESES[m]];}
  var h='<table><thead><tr><th scope="col">Reporte</th><th scope="col">'+esc(nom(ant))+'</th><th scope="col">'+esc(nom(act))+"<small>mes en curso</small></th></tr></thead><tbody>"
-  +'<tr><th scope="row">Combustible<small>Mensual</small></th>'+celda(eComb(ant))+celda(eComb(act))+"</tr>"
+  +'<tr><th scope="row">Informe de combustible<small>Mensual</small></th>'+celda(eComb(ant))+celda(eComb(act))+"</tr>"
   +'<tr><th scope="row">Informe de mantenimiento<small>Quincenal</small></th>'+celda(eRes(ant))+celda(eRes(act))+"</tr></tbody></table>";
  $("est-l").innerHTML=h;$("est-hoy").textContent="Hoy: "+d+" de "+MESES[m]+" de "+y;el.hidden=false;}
 // Ver u ocultar la contraseña mientras se escribe.
@@ -755,7 +755,7 @@ function pintarRes(){var r=RES,h="";
  estado($("proc-estado"),ok?"Listo: "+r.meses.length+" mes(es) armados. Revisá el control de abajo y la vista previa antes de publicar.":(r.html?"Se calculó, pero hay archivos con problemas. Corregilos antes de publicar.":"Todavía no hay ningún mes que se pueda calcular."),ok?"":"err");
  $("ver-previa").disabled=!r.html;$("publicar").disabled=!ok;}
 $("procesar").addEventListener("click",procesar);
-$("ver-previa").addEventListener("click",function(){if(RES&&RES.html)verReporte(RES.html,"Combustible",true);});
+$("ver-previa").addEventListener("click",function(){if(RES&&RES.html)verReporte(RES.html,"Informe de combustible",true);});
 $("ver-previa-g").addEventListener("click",function(){if(RES&&RES.gastos&&RES.gastos.html)verReporte(RES.gastos.html,"Informe de mantenimiento",true);});
 function guardarArchivo(txt){var nombre="LYSI_Reportes.html";
  function bajar(){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:"text/html"}));a.download=nombre;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},2000);return"descargado";}
@@ -794,7 +794,7 @@ function cajaGastos(cg){var g=RES.gastos,vieja=LYSI.cajas&&LYSI.cajas.gastos,ant
 function publicar(){var el=$("pub-estado"),cc=$("cl-comb").value.trim(),ca=$("cl-adm").value.trim(),cg=$("cl-gas").value.trim();
  var hayG=!!((RES.gastos&&RES.gastos.html)||(LYSI.cajas&&LYSI.cajas.gastos));
  if(!cc||!ca){estado(el,"Las contraseñas de Combustible y de administración tienen que estar completas.","err");return;}
- if(cc===ca){estado(el,"La contraseña de administración tiene que ser distinta de la de Combustible.","err");return;}
+ if(cc===ca){estado(el,"La contraseña de administración tiene que ser distinta de la del Informe de combustible.","err");return;}
  if(hayG&&!cg){estado(el,"Falta la contraseña del Informe de mantenimiento.","err");return;}
  if(hayG&&cg===ca){estado(el,"La contraseña de administración tiene que ser distinta de la del Informe de mantenimiento.","err");return;}
  $("publicar").disabled=true;estado(el,"Cifrando y armando el archivo…");
