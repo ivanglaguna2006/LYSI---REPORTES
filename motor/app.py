@@ -966,16 +966,18 @@ function accesos(id,pw){var u=ADM.usuarios||{},ks=Object.keys(u).filter(function
 function htmlGastos(){var g=RES.gastos,vieja=LYSI.cajas&&LYSI.cajas.gastos;
  if(g&&g.html)return Promise.resolve(g.html);if(!vieja)return Promise.resolve(null);
  var ant=llaveVieja("gastos",vieja);if(!ant)return Promise.reject(new Error("no se puede abrir lo publicado del Informe de mantenimiento con las llaves guardadas"));
- return abrir(vieja,ant);}
+ return abrir(vieja,ant).catch(function(e){throw new Error(e&&e.message==="clave"?"lo publicado del Informe de mantenimiento no abre con la contraseña de Mantenimiento guardada en Administración. Subí de nuevo los dos Excel del Informe (sección Informe de mantenimiento) y volvé a procesar y publicar.":"no se pudo abrir lo publicado del Informe de mantenimiento ("+(e&&e.message||e)+")");});}
 function cajaGastos(cg){return htmlGastos().then(function(h){if(!h)return null;return cifrar(h,llaveDe("gastos",cg),true);});}
 // Excel originales del Informe de mantenimiento: viven en originales.json cifrados con la llave de Gastos.
 // Cuando la llave cambia (contraseña nueva, rotación de maestra, cambio de modo) hay que re-sellarlos y subirlos también.
 function originalesNuevos(cg){var inf=LYSI.info||{};if(!LYSI.remoto||!inf.gastos_orig||!inf.gastos_orig.length||!(LYSI.cajas&&LYSI.cajas.gastos))return Promise.resolve(null);
  var base=String(LYSI.remoto).replace(/[^\/]*$/,""),ant=llaveVieja("gastos",LYSI.cajas.gastos),nueva=llaveDe("gastos",cg);
  if(typeof ant==="string"&&ant===nueva)return Promise.resolve(null); // misma contraseña, modo antiguo: no hace falta tocarlos
- if(!ant)return Promise.reject(new Error("no se puede abrir los Excel originales con las llaves guardadas"));
- return fetch(base+"originales.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("no se pudo bajar originales.json (http "+r.status+")");return r.json();})
-  .then(function(o){var ks=Object.keys(o||{}),out={};return ks.reduce(function(pr,t){return pr.then(function(){return abrir(o[t].c,ant).then(function(txt){return cifrar(txt,nueva).then(function(c){out[t]={n:o[t].n,c:c};});});});},Promise.resolve()).then(function(){return out;});});}
+ if(!ant)return Promise.resolve({_sin:inf.gastos_orig.slice()});
+ // si algún original no abre con la llave guardada, no frena la publicación: queda afuera y se avisa
+ return fetch(base+"originales.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("http "+r.status);return r.json();})
+  .then(function(o){var ks=Object.keys(o||{}),out={},sin=[];return ks.reduce(function(pr,t){return pr.then(function(){return abrir(o[t].c,ant).then(function(txt){return cifrar(txt,nueva).then(function(c){out[t]={n:o[t].n,c:c};});}).catch(function(){sin.push(t);});});},Promise.resolve()).then(function(){if(sin.length)out._sin=sin;return out;});})
+  .catch(function(e){return {_sin:inf.gastos_orig.slice(),_err:String(e&&e.message||e)};});}
 function publicar(){var el=$("pub-estado"),cc=$("cl-comb").value.trim(),ca=$("cl-adm").value.trim(),cg=$("cl-gas").value.trim();
  var hayG=!!((RES.gastos&&RES.gastos.html)||(LYSI.cajas&&LYSI.cajas.gastos));
  if(!cc||!ca){estado(el,"Las contraseñas de Combustible y de administración tienen que estar completas.","err");return;}
@@ -996,12 +998,15 @@ function publicar(){var el=$("pub-estado"),cc=$("cl-comb").value.trim(),ca=$("cl
     var cajas={},k;for(k in (LYSI.cajas||{}))cajas[k]=LYSI.cajas[k];cajas.combustible=c1;if(cgx)cajas.gastos=cgx;
     var nuevo={v:conMails()?3:2,iter:ITER_APP,pyodide:LYSI.pyodide,cajas:cajas,admin:c2,info:{meses:RES.meses.map(function(m){return m.nombre;}),ids:RES.meses.filter(function(m){return !m.importado;}).map(function(m){return m.id;}),generado:RES.generado,reglas:RES.reglas}};
     var dg=(RES.gastos&&RES.gastos.html)?RES.gastos.descripcion:(LYSI.info&&LYSI.info.gastos);if(cgx&&dg){nuevo.info.gastos=dg;var df=(RES.gastos&&RES.gastos.html)?RES.generado:(LYSI.info&&LYSI.info.gastos_fecha);if(df)nuevo.info.gastos_fecha=df;if(!(RES.gastos&&RES.gastos.html)&&LYSI.info&&LYSI.info.gastos_orig)nuevo.info.gastos_orig=LYSI.info.gastos_orig;}
+    var AVISO="";if(ORIG&&ORIG._sin){var sin=ORIG._sin;delete ORIG._sin;delete ORIG._err;var quedan=(nuevo.info.gastos_orig||[]).filter(function(t){return sin.indexOf(t)<0;});
+     if(quedan.length)nuevo.info.gastos_orig=quedan;else delete nuevo.info.gastos_orig;if(!Object.keys(ORIG).length)ORIG=null;
+     AVISO=" Aviso: los Excel originales del Informe de mantenimiento ("+sin.join(", ")+") no se pudieron abrir con la contraseña guardada y quedaron fuera; para volver a ofrecerlos hay que cargarlos de nuevo con cargar_gastos.py.";}
     if(conMails())nuevo.accesos=acc;if(LYSI.remoto)nuevo.remoto=LYSI.remoto;var g=gh();
     function hecho(txt){LYSI=nuevo;window.LYSI=nuevo;pintarInfo();pintarGastos();pintarMeses();GAS=[];$("gas-arch").value="";pintarGas();sucio(false);$("publicar").disabled=false;$("copia").disabled=false;estado(el,txt);}
-    if(g){estado(el,"Subiendo al sitio…");return subirGitHub(g,nuevo,ORIG).then(function(){hecho("Publicado en el sitio. En uno o dos minutos lo ve todo el que entre al link.");});}
+    if(g){estado(el,"Subiendo al sitio…");return subirGitHub(g,nuevo,ORIG).then(function(){hecho("Publicado en el sitio. En uno o dos minutos lo ve todo el que entre al link."+AVISO);});}
     return guardarArchivo(archivoCompleto(nuevo)).then(function(como){
-     hecho((como==="guardado"?"Publicado y guardado.":"Publicado. El archivo nuevo quedó en Descargas como LYSI_Reportes.html.")+" Reemplazá con ese archivo el que abren todos; el anterior queda desactualizado.");});});});})
-  .catch(function(e){$("publicar").disabled=false;estado(el,e&&e.name==="AbortError"?"No se guardó: cancelaste la ventana de guardado.":"No se pudo publicar: "+esc(String(e&&e.message||e)),"err");});},40);}
+     hecho((como==="guardado"?"Publicado y guardado.":"Publicado. El archivo nuevo quedó en Descargas como LYSI_Reportes.html.")+" Reemplazá con ese archivo el que abren todos; el anterior queda desactualizado."+AVISO);});});});})
+  .catch(function(e){$("publicar").disabled=false;estado(el,e&&e.name==="AbortError"?"No se guardó: cancelaste la ventana de guardado.":"No se pudo publicar: "+esc(String(e&&e.message==="clave"?"una contraseña guardada no abre lo publicado (clave)":(e&&e.message||e))),"err");});},40);}
 $("publicar").addEventListener("click",publicar);
 // ───────────── Herramienta: control de declaraciones RENPRE (corre en el navegador, no guarda nada) ─────────────
 var herr=$("herr"),HERR={rem:null,dec:null,res:null},XLRD=false;
