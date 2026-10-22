@@ -14,6 +14,7 @@ CSS_ADM = r"""
 .adm-door{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:18px 22px 10px;margin-top:26px;display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;color:var(--tx2);font-size:15px}
 .adm-door span{flex:1 1 220px}
 .adm-door input{font:inherit;padding:10px 13px;border:1px solid #8A8F84;background:#fff;color:var(--tx);border-radius:8px;width:230px}
+.adm-door .campo-adm{position:relative;margin:0;width:270px;max-width:100%;flex:0 0 auto}.adm-door .campo-adm input{width:100%;padding-right:44px;font-size:inherit}.adm-door .campo-adm button.ojo{position:absolute;right:3px;top:50%;transform:translateY(-50%);width:38px;height:38px;padding:0;margin:0;border:0;border-radius:6px;background:none;color:var(--tx2);box-shadow:none}.adm-door .campo-adm button.ojo svg{width:20px;height:20px}
 .adm-door button{font:600 15px var(--ti);padding:10px 18px;border:1px solid var(--lima);border-radius:8px;background:var(--lima);color:var(--ink);cursor:pointer}
 .adm-door input::placeholder{color:#6B7066}
 .adm-door .msj{flex-basis:100%;margin:0}
@@ -215,7 +216,7 @@ HTML_CUERPO = r"""
 <p class="sub">Elegí tu área y consultá sus reportes y herramientas.</p>
 <!--HOJAS-->
 <div class="adm-door" id="adm-door" hidden><span>Administración: cargar los archivos de un mes y publicar.</span>
-<input id="pw-admin" type="password" placeholder="Contraseña de administración" aria-label="Contraseña de administración" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore data-bwignore><button type="button" id="btn-admin">Administrar</button>
+<span class="campo campo-adm"><input id="pw-admin" type="password" placeholder="Contraseña de administración" aria-label="Contraseña de administración" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore data-bwignore><button type="button" class="ojo" aria-label="Mostrar la contraseña" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button></span><button type="button" id="btn-admin">Administrar</button>
 <p class="msj" id="msj-admin" role="status"></p></div>
 <p class="pie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><path d="M12 14.5v2.5"/></svg><span id="pie">Cada reporte tiene una contraseña independiente.</span></p></div>
 <footer class="fin"><span>LYSI · Plataforma de reportes</span><span id="actualizado"></span></footer></div>
