@@ -657,13 +657,20 @@ verPuertaAdm();window.addEventListener("hashchange",verPuertaAdm);
   if(n>=5){n=0;var d=$("adm-door");d.hidden=!d.hidden;if(!d.hidden){d.scrollIntoView({block:"center"});setTimeout(function(){try{$("pw-admin").focus();}catch(e){}},50);}}});})();
 var LISTO=Promise.resolve();
 function cargarDatos(){FALLO=false;var pie=$("pie"),r0=$("reintentar");if(r0)r0.remove();pie.parentNode.classList.remove("err");pie.textContent="Cargando los reportes…";pintarGastos();
- LISTO=fetch(LYSI.remoto+"?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("http "+r.status);return r.json();})
+ LISTO=fetch(LYSI.remoto+"?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("http "+r.status);ETAG=r.headers.get("ETag")||"";return r.json();})
   .then(function(d){d.remoto=LYSI.remoto;LYSI=d;window.LYSI=d;CARGADO=true;pintarInfo();pintarGastos();})
   .catch(function(e){FALLO=true;pintarGastos();pie.parentNode.classList.add("err");pie.textContent="No se pudieron cargar los reportes ("+(e&&e.message||e)+"). Revisá la conexión.";
    var b=document.createElement("button");b.type="button";b.id="reintentar";b.className="bt";b.textContent="Reintentar";b.addEventListener("click",cargarDatos);pie.parentNode.appendChild(b);
    throw new Error("sin datos");});
  LISTO.catch(function(){});}
 if(LYSI.remoto)cargarDatos();
+// Antes de cada ingreso se vuelven a bajar los datos: una pestaña abierta desde antes de una baja o un cambio
+// de contraseña no puede validar contra una lista vieja. Si el servidor dice que no cambiaron (304), no baja nada.
+var ETAG="";
+function refrescar(){if(!LYSI.remoto||!CARGADO)return Promise.resolve();var h={};if(ETAG)h["If-None-Match"]=ETAG;
+ return fetch(LYSI.remoto+"?t="+Date.now(),{cache:"no-store",headers:h}).then(function(r){if(r.status===304)return null;if(!r.ok)throw new Error("http "+r.status);ETAG=r.headers.get("ETag")||"";return r.json();})
+  .then(function(d){if(!d)return;d.remoto=LYSI.remoto;LYSI=d;window.LYSI=d;pintarInfo();pintarGastos();})
+  .catch(function(){/* sin conexión: se valida con lo que hay cargado */});}
 function medir(){var cs=document.querySelectorAll(".cab"),i;for(i=0;i<cs.length;i++)if(cs[i].offsetHeight)document.documentElement.style.setProperty("--cabh",cs[i].offsetHeight+"px");}
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(medir);
 // Tablas más anchas que la pantalla: se desvanecen a la derecha mientras quede algo por ver.
@@ -721,7 +728,7 @@ function puerta(inp,btn,msj,accion,ml){
  function entrar(){if(btn.disabled)return;var pw=(inp.value||"").trim(),mail=ml?mailPlano(ml.value):"";if(!pw){mal("Escribí la contraseña.",true);inp.focus();return;}
   if(ml&&!ml.parentNode.hidden&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){mal("Escribí tu mail habilitado.");ml.focus();return;}
   inp.removeAttribute("aria-invalid");btn.disabled=true;msj.style.color="var(--tx2)";msj.textContent="Abriendo…";
-  setTimeout(function(){var pr;try{pr=LISTO.then(function(){return accion(pw,mail);});}catch(err){pr=Promise.reject(err);}
+  setTimeout(function(){var pr;try{pr=LISTO.then(refrescar).then(function(){return accion(pw,mail);});}catch(err){pr=Promise.reject(err);}
    pr.then(function(){inp.value="";if(ml)ml.value="";ojo(inp,false);msj.textContent="";btn.disabled=false;})
     .catch(function(err){btn.disabled=false;var m=err&&err.message;
      if(m==="clave"){mal("Mail o contraseña incorrectos. Probá de nuevo.",true);inp.select();}
