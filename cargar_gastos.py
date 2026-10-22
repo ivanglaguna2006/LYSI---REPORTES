@@ -70,7 +70,7 @@ def main():
     adm.setdefault("claves", {})["gastos"] = cg
     nuevo = dict(datos)
     nuevo["cajas"] = dict(datos.get("cajas", {}))
-    nuevo["cajas"]["gastos"] = P.cifrar(r["html"], cg, z=True)
+    k = P.sellar(nuevo, adm, "gastos", r["html"], z=True)
     nuevo["admin"] = P.cifrar(json.dumps(adm, ensure_ascii=False), clave)
     nuevo["info"] = dict(datos.get("info", {}))
     nuevo["info"]["gastos"] = r["descripcion"]
@@ -79,7 +79,7 @@ def main():
     orig = {}
     for t, nombre in r["archivos"].items():
         with open(os.path.join(args[0], nombre), "rb") as fh:
-            orig[t] = {"n": nombre, "c": P.cifrar(base64.b64encode(fh.read()).decode(), cg)}
+            orig[t] = {"n": nombre, "c": P.cifrar(base64.b64encode(fh.read()).decode(), k or cg)}
     nuevo["info"]["gastos_orig"] = sorted(orig)
     ruta_o = os.path.join(AQUI, "originales.json")
     with open(ruta_o + ".tmp", "w", encoding="utf-8") as fh:

@@ -112,7 +112,7 @@ def main():
         return
     nuevo = dict(datos)
     nuevo["cajas"] = dict(datos.get("cajas", {}))
-    nuevo["cajas"]["combustible"] = P.cifrar(r["html"], adm["claves"]["combustible"])
+    P.sellar(nuevo, adm, "combustible", r["html"])
     nuevo["admin"] = P.cifrar(json.dumps(adm, ensure_ascii=False), clave)
     nuevo["info"] = {"meses": [m["nombre"] for m in r["meses"]], "ids": [m["id"] for m in r["meses"] if not m.get("importado")],
                      "generado": datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-3))).strftime("%d/%m/%Y %H:%M"),

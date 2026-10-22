@@ -74,10 +74,23 @@ def frase():
     return "-".join(secrets.choice(PALABRAS) for _ in range(6)) + "-" + str(secrets.randbelow(90) + 10)
 
 
+def _derivar(clave, salt, n):
+    """clave str -> PBKDF2 con n iteraciones; clave bytes (64) -> se usa directa, n = 0 (clave maestra al azar)."""
+    if isinstance(clave, (bytes, bytearray)):
+        if len(clave) != 64:
+            raise ValueError("la clave maestra tiene que tener 64 bytes")
+        return bytes(clave)
+    return hashlib.pbkdf2_hmac("sha256", clave.encode("utf-8"), salt, n, 64)
+
+
 def cifrar(texto, clave, z=False):
-    """z=True: comprime (gzip) antes de cifrar; se usa en los apartados pesados (Gastos)."""
+    """z=True: comprime (gzip) antes de cifrar; se usa en los apartados pesados (Gastos).
+    clave: contraseña (str) o clave maestra (bytes de 64)."""
+    if not clave:
+        raise ValueError("clave vacía: no se cifra nada sin contraseña")
     salt, iv = os.urandom(16), os.urandom(16)
-    dk = hashlib.pbkdf2_hmac("sha256", clave.encode("utf-8"), salt, ITER, 64)
+    n = 0 if isinstance(clave, (bytes, bytearray)) else ITER
+    dk = _derivar(clave, salt, n)
     enc = Cipher(algorithms.AES(dk[:32]), modes.CTR(iv)).encryptor()
     datos = texto.encode("utf-8")
     if z:
@@ -85,7 +98,7 @@ def cifrar(texto, clave, z=False):
     ct = enc.update(datos) + enc.finalize()
     tag = hmac.new(dk[32:], iv + ct, hashlib.sha256).digest()
     b = lambda x: base64.b64encode(x).decode()
-    caja = {"s": b(salt), "i": b(iv), "t": b(tag), "c": b(ct), "n": ITER}
+    caja = {"s": b(salt), "i": b(iv), "t": b(tag), "c": b(ct), "n": n}
     if z:
         caja["z"] = 1
     return caja
@@ -96,7 +109,10 @@ def descifrar(caja, clave):
     """Inverso de cifrar(). Lanza ValueError si la contraseña no corresponde."""
     b = base64.b64decode
     salt, iv, tag, ct = b(caja["s"]), b(caja["i"]), b(caja["t"]), b(caja["c"])
-    dk = hashlib.pbkdf2_hmac("sha256", clave.encode("utf-8"), salt, int(caja.get("n", ITER)), 64)
+    n = int(caja.get("n", ITER))
+    if (n == 0) != isinstance(clave, (bytes, bytearray)):
+        raise ValueError("contraseña incorrecta")
+    dk = _derivar(clave, salt, n)
     if not hmac.compare_digest(hmac.new(dk[32:], iv + ct, hashlib.sha256).digest(), tag):
         raise ValueError("contraseña incorrecta")
     dec = Cipher(algorithms.AES(dk[:32]), modes.CTR(iv)).decryptor()
@@ -104,6 +120,83 @@ def descifrar(caja, clave):
     if caja.get("z"):
         datos = gzip.decompress(datos)
     return datos.decode("utf-8")
+
+
+# ── Accesos por mail ───────────────────────────────────────────────────────────────────────
+# Cada reporte se cifra con una clave maestra al azar (64 bytes). Esa clave se guarda, por cada mail
+# habilitado, envuelta con PBKDF2(mail + "\n" + contraseña del reporte). Sin un par mail + contraseña
+# válido no hay forma de descifrar nada, ni editando la app: el mail no es un chequeo, es parte de la llave.
+# adm["usuarios"] = {mail: ["combustible", "gastos"]}; adm["maestras"] = {reporte: clave maestra en base64}.
+# Si adm no tiene "usuarios", se sigue cifrando a la antigua (solo contraseña): es el modo previo a la migración.
+
+def mail_plano(m):
+    return (m or "").strip().lower()
+
+
+def id_mail(m):
+    """Identificador público del mail dentro de datos.json (no deja el mail legible)."""
+    return base64.urlsafe_b64encode(hashlib.sha256(("lysi-acceso:" + mail_plano(m)).encode("utf-8")).digest()).decode()[:22]
+
+
+def maestra(adm, reporte):
+    """Clave maestra NUEVA del reporte (bytes). Se rota en cada publicación: quien tuvo la anterior
+    (por ejemplo alguien dado de baja) no puede abrir lo que se publique de ahora en más."""
+    m = adm.setdefault("maestras", {})
+    m[reporte] = base64.b64encode(os.urandom(64)).decode()
+    return base64.b64decode(m[reporte])
+
+
+def maestra_actual(adm, reporte):
+    """Clave maestra con la que está cifrado lo publicado (bytes) o None en modo antiguo."""
+    v = (adm.get("maestras") or {}).get(reporte)
+    return base64.b64decode(v) if v else None
+
+
+def accesos(adm, reporte):
+    """Cajas de acceso del reporte: una por mail habilitado, con la clave maestra envuelta en mail + contraseña."""
+    pw = (adm.get("claves") or {}).get(reporte)
+    if not pw:
+        raise ValueError("falta la contraseña del reporte %s" % reporte)
+    k = adm["maestras"][reporte]
+    out = {}
+    for mail, reps in (adm.get("usuarios") or {}).items():
+        if reporte in (reps or []):
+            out[id_mail(mail)] = cifrar(k, mail_plano(mail) + "\n" + pw)
+    # el mail es parte de la llave, no un chequeo; pero la contraseña del reporte es compartida:
+    # dar de baja a alguien = quitar su mail Y cambiar la contraseña del reporte (la maestra rota sola)
+    return out
+
+
+def sellar(nuevo, adm, reporte, texto, z=False):
+    """Cifra el contenido de un reporte y arma sus accesos. Devuelve la clave maestra usada (bytes) o None en modo antiguo."""
+    nuevo.setdefault("cajas", {})
+    if not adm.get("usuarios"):
+        adm.pop("usuarios", None)
+        adm.pop("maestras", None)
+        nuevo["cajas"][reporte] = cifrar(texto, adm["claves"][reporte], z)
+        nuevo.pop("accesos", None)
+        nuevo["v"] = 2
+        return None
+    k = maestra(adm, reporte)
+    nuevo["cajas"][reporte] = cifrar(texto, k, z)
+    acc = accesos(adm, reporte)
+    if not acc:
+        raise ValueError("no hay ningún mail habilitado para %s: nadie podría entrar. Habilitalos desde Administración en la app." % reporte)
+    nuevo.setdefault("accesos", {})[reporte] = acc
+    nuevo["v"] = 3
+    return k
+
+
+def abrir_reporte(datos, reporte, mail, pw):
+    """Abre un reporte como lo hace la app: con accesos por mail, o con la contraseña sola si todavía no migró."""
+    acc = (datos.get("accesos") or {}).get(reporte)
+    if not acc:
+        return descifrar(datos["cajas"][reporte], pw)
+    caja = acc.get(id_mail(mail))
+    if not caja:
+        raise ValueError("mail no habilitado")
+    k = base64.b64decode(descifrar(caja, mail_plano(mail) + "\n" + pw))
+    return descifrar(datos["cajas"][reporte], k)
 
 
 CSS = r"""
@@ -353,11 +446,20 @@ function ctr(key,iv,data){var w=expandir(key),c=new Uint8Array(iv),ks=new Uint8A
 function b64(s){var bin=atob(s),o=new Uint8Array(bin.length),i;for(i=0;i<bin.length;i++)o[i]=bin.charCodeAt(i);return o;}
 function utf8(s){if(window.TextEncoder)return new TextEncoder().encode(s);var u=unescape(encodeURIComponent(s)),o=new Uint8Array(u.length),i;for(i=0;i<u.length;i++)o[i]=u.charCodeAt(i);return o;}
 function derivar(pw,salt,it){
+ if(pw instanceof Uint8Array){if(it!==0||pw.length!==64)return Promise.reject(new Error("clave"));return Promise.resolve(pw);}
+ if(it===0)return Promise.reject(new Error("clave"));
  return new Promise(function(ok){var listo=false;function puro(){if(listo)return;listo=true;ok(pbkdf2(utf8(pw),salt,it,64));}
   try{if(window.crypto&&crypto.subtle&&crypto.subtle.importKey){var t=setTimeout(puro,2500+Math.round(it/100));
    crypto.subtle.importKey("raw",utf8(pw),"PBKDF2",false,["deriveBits"]).then(function(k){return crypto.subtle.deriveBits({name:"PBKDF2",salt:salt,iterations:it,hash:"SHA-256"},k,512);})
    .then(function(b){if(listo)return;listo=true;clearTimeout(t);ok(new Uint8Array(b));},function(){clearTimeout(t);puro();});return;}}catch(e){}
   puro();});}
+function mailPlano(m){return String(m||"").trim().toLowerCase();}
+function idMail(m){var h=sha256(utf8("lysi-acceso:"+mailPlano(m))),s="",i;for(i=0;i<h.length;i++)s+=String.fromCharCode(h[i]);return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").slice(0,22);}
+// Abre un reporte: con accesos por mail (la clave maestra viene envuelta en mail + contraseña) o, si todavía no migró, con la contraseña sola.
+function abrirReporte(datos,id,mail,pw){var acc=datos.accesos&&datos.accesos[id];
+ if(!acc)return abrir(datos.cajas[id],pw).then(function(h){return{h:h,k:null};});
+ var caja=acc[idMail(mail)];if(!caja)return Promise.reject(new Error("mail"));
+ return abrir(caja,mailPlano(mail)+"\n"+pw).then(function(kb){var k=b64(kb);return abrir(datos.cajas[id],k).then(function(h){return{h:h,k:k};});});}
 function abrir(caja,pw){var salt=b64(caja.s),iv=b64(caja.i),tag=b64(caja.t),ct=b64(caja.c);
  return derivar(pw,salt,caja.n).then(function(dk){var m=new Uint8Array(16+ct.length);m.set(iv);m.set(ct,16);var t=hmac(hmacEst(dk.subarray(32)),m),d=0,i;for(i=0;i<32;i++)d|=t[i]^tag[i];
   if(d)throw new Error("clave");var o=ctr(dk.subarray(0,32),iv,ct);return caja.z?inflar(o):new TextDecoder().decode(o);});}

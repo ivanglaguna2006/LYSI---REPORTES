@@ -48,6 +48,7 @@ CSS_ADM = r"""
 .fila{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
 .estado{padding:10px 13px;border-left:4px solid var(--lima);background:var(--lima0);border-radius:0 6px 6px 0;max-width:1100px;margin:10px 0;font-size:14.5px}
 .estado.err{border-left-color:#C62828;background:#FDECEA}
+.chk{display:inline-flex;align-items:center;gap:5px;font-size:.92em}.us{border-collapse:collapse;margin-top:8px;font-size:.93em}.us th,.us td{padding:6px 10px;border-bottom:1px solid var(--ln);text-align:left}.us td.c{text-align:center}.us .q{background:none;border:0;color:#C62828;cursor:pointer;font:inherit}.us tbody:empty+tfoot{display:table-footer-group}
 .claves{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));margin:8px 0}.cl label{display:block;font-size:.9em;margin-bottom:4px}.clc{display:flex;gap:6px}.clc input{flex:1;min-width:0}.btn.gen{padding:6px 10px}.fz{display:block;min-height:1.2em;margin-top:4px;font-size:.85em;color:#6B7066}.fz.debil{color:#C62828}.fz.aceptable{color:#B26A00}.fz.fuerte{color:#2E7D32}
 .estado.av{border-left-color:#E65100;background:#FFF7E0}
 .sucio{display:inline-block;background:#E65100;color:#fff;font:600 13px var(--cu);letter-spacing:0;padding:3px 9px;border-radius:3px;margin-left:10px;vertical-align:middle}
@@ -214,7 +215,7 @@ HTML_CUERPO = r"""
 <p class="sub">Elegí tu área y consultá sus reportes y herramientas.</p>
 <!--HOJAS-->
 <div class="adm-door" id="adm-door" hidden><span>Administración: cargar los archivos de un mes y publicar.</span>
-<input id="pw-admin" type="password" placeholder="Contraseña de administración" aria-label="Contraseña de administración" autocomplete="new-password"><button type="button" id="btn-admin">Administrar</button>
+<input id="pw-admin" type="password" placeholder="Contraseña de administración" aria-label="Contraseña de administración" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore data-bwignore><button type="button" id="btn-admin">Administrar</button>
 <p class="msj" id="msj-admin" role="status"></p></div>
 <p class="pie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><path d="M12 14.5v2.5"/></svg><span id="pie">Cada reporte tiene una contraseña independiente.</span></p></div>
 <footer class="fin"><span>LYSI · Plataforma de reportes</span><span id="actualizado"></span></footer></div>
@@ -224,15 +225,19 @@ HTML_CUERPO = r"""
 # Cada tarjeta de reporte conserva sus ids (desc-, per-, fm-, pw-, msj-) porque el JavaScript los usa tal cual.
 PUERTA_COMBUSTIBLE = r"""<div class="puerta"><div class="pc"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20.5V5.5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15M3.5 20.5h13M7.5 7h5v4.5h-5zM15 9.5h1.5a2 2 0 0 1 2 2v4.2a1.4 1.4 0 0 0 2.8 0V8.8L18.6 6"/></svg></span><div><h3>Informe de combustible</h3><p id="desc-combustible">Consumos mensuales y evaluación anual de la flota.</p>
 <span class="per" id="per-combustible" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg><span></span></span></div></div>
-<div class="fm" data-caja="combustible" data-nombre="Informe de combustible"><label for="pw-combustible">Contraseña del reporte</label>
-<div class="campo"><input id="pw-combustible" type="password" placeholder="Ingresá tu contraseña" autocomplete="new-password"><button type="button" class="ojo" aria-label="Mostrar la contraseña" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button></div>
+<div class="fm" data-caja="combustible" data-nombre="Informe de combustible"><label for="ml-combustible" class="lml" hidden>Tu mail</label>
+<div class="campo campo-ml" hidden><input id="ml-combustible" type="email" inputmode="email" placeholder="Tu mail habilitado" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-bwignore></div>
+<label for="pw-combustible">Contraseña del reporte</label>
+<div class="campo"><input id="pw-combustible" type="password" placeholder="Ingresá tu contraseña" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore data-bwignore><button type="button" class="ojo" aria-label="Mostrar la contraseña" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button></div>
 <button type="button" class="entrar">Acceder al reporte <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h15M13.5 6l6 6-6 6"/></svg></button></div>
 <p class="msj" id="msj-combustible" role="status"></p></div>"""
 
 PUERTA_GASTOS = r"""<div class="puerta"><div class="pc"><span class="ico"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3.5" y="13" width="4.4" height="8" rx="1"/><rect x="9.8" y="8.5" width="4.4" height="12.5" rx="1"/><rect x="16.1" y="3.5" width="4.4" height="17.5" rx="1"/></svg></span><div><h3>Informe de mantenimiento</h3><p id="desc-gastos">Compras, proveedores y gastos de mantenimiento.</p>
 <span class="per" id="per-gastos" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg><span></span></span></div></div>
-<div class="fm" data-caja="gastos" data-nombre="Informe de mantenimiento" id="fm-gastos" hidden><label for="pw-gastos">Contraseña del reporte</label>
-<div class="campo"><input id="pw-gastos" type="password" placeholder="Ingresá tu contraseña" autocomplete="new-password"><button type="button" class="ojo" aria-label="Mostrar la contraseña" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button></div>
+<div class="fm" data-caja="gastos" data-nombre="Informe de mantenimiento" id="fm-gastos" hidden><label for="ml-gastos" class="lml" hidden>Tu mail</label>
+<div class="campo campo-ml" hidden><input id="ml-gastos" type="email" inputmode="email" placeholder="Tu mail habilitado" autocomplete="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-bwignore></div>
+<label for="pw-gastos">Contraseña del reporte</label>
+<div class="campo"><input id="pw-gastos" type="password" placeholder="Ingresá tu contraseña" autocomplete="one-time-code" data-lpignore="true" data-1p-ignore data-bwignore><button type="button" class="ojo" aria-label="Mostrar la contraseña" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></button></div>
 <button type="button" class="entrar">Acceder al reporte <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h15M13.5 6l6 6-6 6"/></svg></button></div><span class="pronto" id="pronto-gastos">En preparación</span>
 <p class="msj" id="msj-gastos" role="status"></p></div>"""
 
@@ -296,6 +301,11 @@ HTML_APP = r"""
 <p class="nota">El cálculo corre en esta computadora y necesita internet la primera vez de cada sesión (unos segundos). Los archivos no salen de acá.</p>
 <div class="fila"><button type="button" class="btn pri" id="procesar">Procesar todo</button><button type="button" class="btn" id="ver-previa" disabled>Ver vista previa</button><button type="button" class="btn" id="ver-previa-g" disabled>Vista previa del Informe</button></div>
 <div id="proc-estado" role="status"></div><div id="proc-res"></div></section>
+<section><h2>Quién puede entrar</h2>
+<p class="nota">Cada persona entra con su mail y la contraseña del reporte. El mail no es un simple chequeo: forma parte de la llave con la que se cifra el acceso, así que un mail que no esté acá no puede abrir nada aunque tenga la contraseña. Como la contraseña del reporte es compartida, para dar de baja a alguien hay que <b>quitar su mail y cambiar la contraseña del reporte</b> en el mismo paso; con eso lo anterior se vuelve a cifrar con una llave nueva y esa persona no puede entrar más.</p>
+<div class="fila"><label for="us-mail">Mail</label><input type="email" id="us-mail" size="32" autocomplete="off" placeholder="nombre@empresa.com"><label class="chk"><input type="checkbox" id="us-comb" checked> Informe de combustible</label><label class="chk"><input type="checkbox" id="us-gas"> Informe de mantenimiento</label><button type="button" class="btn" id="us-agregar">Agregar</button></div>
+<div id="us-estado" role="status"></div>
+<table class="us" id="us-tabla"><thead><tr><th>Mail</th><th>Combustible</th><th>Mantenimiento</th><th></th></tr></thead><tbody></tbody></table></section>
 <section><h2>Publicá</h2>
 <p class="nota" id="pub-nota"></p>
 <div class="claves"><div class="cl"><label for="cl-comb">Contraseña del Informe de combustible</label><div class="clc"><input type="text" id="cl-comb" autocomplete="off" spellcheck="false"><button type="button" class="btn gen" data-gen="cl-comb" title="Generar una frase al azar">Generar</button></div><small class="fz" id="fz-cl-comb" role="status"></small></div><div class="cl"><label for="cl-gas">Contraseña del Informe de mantenimiento</label><div class="clc"><input type="text" id="cl-gas" autocomplete="off" spellcheck="false"><button type="button" class="btn gen" data-gen="cl-gas" title="Generar una frase al azar">Generar</button></div><small class="fz" id="fz-cl-gas" role="status"></small></div><div class="cl"><label for="cl-adm">Contraseña de administración</label><div class="clc"><input type="text" id="cl-adm" autocomplete="off" spellcheck="false"><button type="button" class="btn gen" data-gen="cl-adm" title="Generar una frase al azar">Generar</button></div><small class="fz" id="fz-cl-adm" role="status"></small></div></div>
@@ -348,12 +358,13 @@ function fuerza(pw){pw=pw||"";if(pw.length<MINIMO)return{ok:false,nivel:"debil",
  if(bits<60)return{ok:true,nivel:"aceptable",motivo:"Sirve. Una palabra más la haría fuerte."};
  return{ok:true,nivel:"fuerte",motivo:"Fuerte."};}
 function frase(){var r=azar(7),o=[],i;for(i=0;i<6;i++)o.push(PALABRAS[r[i]%PALABRAS.length]);return o.join("-")+"-"+(10+r[6]%90);}
-function cifrar(texto,pw,z){var salt=azar(16),iv=azar(16),n=ITER_APP;
+function cifrar(texto,pw,z){if(!(pw instanceof Uint8Array)&&!(typeof pw==="string"&&pw.length))return Promise.reject(new Error("clave vacía"));var salt=azar(16),iv=azar(16),n=(pw instanceof Uint8Array)?0:ITER_APP;
  var pd=z?new Response(new Blob([texto]).stream().pipeThrough(new CompressionStream("gzip"))).arrayBuffer().then(function(b){return new Uint8Array(b);}):Promise.resolve(utf8(texto));
  return pd.then(function(datos){return derivar(pw,salt,n).then(function(dk){var ct=ctr(dk.subarray(0,32),iv,datos),m=new Uint8Array(16+ct.length);m.set(iv);m.set(ct,16);
   var c={s:a64(salt),i:a64(iv),t:a64(hmac(hmacEst(dk.subarray(32)),m)),c:a64(ct),n:n};if(z)c.z=1;return c;});});}
 window.__lysi={sha256:sha256,pbkdf2:pbkdf2,ctr:ctr,hmac:hmac,hmacEst:hmacEst,abrir:abrir,cifrar:cifrar};
 
+var VISTOS={},CLAVE=null,IDX=null,HALL=[];
 var $=function(id){return document.getElementById(id);};
 var acceso=$("acceso"),app=$("app"),adm=$("adm"),cont=$("contenido");
 var MESES=["","enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
@@ -364,9 +375,12 @@ function mayus(s){s=String(s||"");return s.charAt(0).toUpperCase()+s.slice(1);}
 function periodo(id,txt){var c=$("per-"+id);c.hidden=!txt;c.lastChild.textContent=txt||"";}
 var CARGADO=!LYSI.remoto,FALLO=false,PYO_URL=LYSI.pyodide,TITULO=document.title,ORIGEN=null;
 var QUIETO=!!(window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches);
-function pintarInfo(){var inf=LYSI.info||{},ms=inf.meses||[],t="";
+function pintarAcceso(){Array.prototype.forEach.call(document.querySelectorAll("[data-caja]"),function(fm){var id=fm.getAttribute("data-caja"),con=!!(LYSI.accesos&&LYSI.accesos[id]);
+ fm.querySelector(".lml").hidden=!con;fm.querySelector(".campo-ml").hidden=!con;});
+ if(CARGADO)$("pie").textContent=LYSI.accesos?"Acceso con tu mail habilitado y la contraseña del reporte.":"Cada reporte tiene una contraseña independiente.";}
+function pintarInfo(){pintarAcceso();var inf=LYSI.info||{},ms=inf.meses||[],t="";
  if(ms.length){var x=ms[0].split(" "),y=ms[ms.length-1].split(" ");t=ms.length>1?mayus(x[0])+(x[1]&&x[1]!==y[1]?" "+x[1]:"")+" – "+mayus(y[0])+(y[1]?" "+y[1]:""):mayus(ms[0]);}
- periodo("combustible",t);if(CARGADO)$("pie").textContent="Cada reporte tiene una contraseña independiente.";
+ periodo("combustible",t);
  var g=/^(\d\d)\/(\d\d)\/(\d{4})/.exec(inf.generado||"");$("actualizado").textContent=g?"Actualizado el "+Number(g[1])+" de "+MESES[Number(g[2])]+" de "+g[3]:"";
  $("reglas").textContent=inf.reglas||"";}
 // Mientras los datos se están bajando la tarjeta dice «Cargando…»; «En preparación» es solo para un reporte que todavía no existe.
@@ -480,14 +494,16 @@ document.addEventListener("click",function(ev){var c=ev.target.closest&&ev.targe
  // las secciones se recorren sin ensuciar la dirección ni el botón «Atrás»
  var a=c(".subnav a");if(a){var s=document.getElementById((a.getAttribute("href")||"").slice(1));if(s){ev.preventDefault();s.scrollIntoView({block:"start",behavior:QUIETO?"auto":"smooth"});enfocar(s.querySelector("h2"));}return;}
  if(c(".saltar")){ev.preventDefault();enfocar(cont);}});
-function puerta(inp,btn,msj,accion){
+function puerta(inp,btn,msj,accion,ml){
  function mal(t,inv){msj.style.color="";msj.textContent=t;if(inv)inp.setAttribute("aria-invalid","true");}
- function entrar(){if(btn.disabled)return;var pw=(inp.value||"").trim();if(!pw){mal("Escribí la contraseña.",true);inp.focus();return;}
+ function entrar(){if(btn.disabled)return;var pw=(inp.value||"").trim(),mail=ml?mailPlano(ml.value):"";if(!pw){mal("Escribí la contraseña.",true);inp.focus();return;}
+  if(ml&&!ml.parentNode.hidden&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){mal("Escribí tu mail habilitado.");ml.focus();return;}
   inp.removeAttribute("aria-invalid");btn.disabled=true;msj.style.color="var(--tx2)";msj.textContent="Abriendo…";
-  setTimeout(function(){var pr;try{pr=LISTO.then(function(){return accion(pw);});}catch(err){pr=Promise.reject(err);}
-   pr.then(function(){inp.value="";ojo(inp,false);msj.textContent="";btn.disabled=false;})
+  setTimeout(function(){var pr;try{pr=LISTO.then(function(){return accion(pw,mail);});}catch(err){pr=Promise.reject(err);}
+   pr.then(function(){inp.value="";if(ml)ml.value="";ojo(inp,false);msj.textContent="";btn.disabled=false;})
     .catch(function(err){btn.disabled=false;var m=err&&err.message;
-     if(m==="clave"){mal("Contraseña incorrecta. Probá de nuevo.",true);inp.select();}
+     if(m==="clave"){mal("Mail o contraseña incorrectos. Probá de nuevo.",true);inp.select();}
+     else if(m==="mail"){mal("Mail o contraseña incorrectos. Probá de nuevo.",true);inp.select();}
      else if(m==="sin datos"){mal("Todavía no se pudieron cargar los reportes. Tocá «Reintentar» al pie de la página.");}
      else if(m==="viejo"){mal("Tu navegador es antiguo para este reporte. Actualizalo o abrilo con Chrome, Edge o Safari al día.");}
      else{mal("No se pudo abrir el reporte ("+(m||err)+"). Recargá la página y probá de nuevo.");}});},40);}
@@ -495,12 +511,25 @@ function puerta(inp,btn,msj,accion){
  inp.addEventListener("input",function(){inp.removeAttribute("aria-invalid");});
  btn.addEventListener("click",entrar);inp.addEventListener("keydown",function(ev){if(ev.key==="Enter"||ev.keyCode===13){ev.preventDefault();entrar();}});}
 Array.prototype.forEach.call(document.querySelectorAll("[data-caja]"),function(fm){var id=fm.getAttribute("data-caja");
- puerta(fm.querySelector("input"),fm.querySelector(".entrar"),$("msj-"+id),function(pw){
+ puerta($("pw-"+id),fm.querySelector(".entrar"),$("msj-"+id),function(pw,mail){
   if(!LYSI.cajas||!LYSI.cajas[id])return Promise.reject(new Error("todavía no hay reportes publicados"));
-  return abrir(LYSI.cajas[id],pw).then(function(h){ORIGEN=fm;VISTOS[id]={h:h,n:fm.getAttribute("data-nombre")};CLAVE={id:id,pw:pw};verReporte(h,fm.getAttribute("data-nombre"),false);});});});
-function cerrarTodo(){terminarImp();menuImp(false);cerrarZoom();cerrarFicha();barraBus(false);CLAVE=null;IDX=null;cont.innerHTML="";$("tabs").innerHTML="";app.hidden=true;adm.hidden=true;herr.hidden=true;$("herr-barra").hidden=true;acceso.hidden=false;ADM=null;RES=null;
+  return abrirReporte(LYSI,id,mail,pw).then(function(r){ORIGEN=fm;VISTOS[id]={h:r.h,n:fm.getAttribute("data-nombre")};
+   // en memoria queda la clave del reporte (al azar), no lo que escribió la persona
+   CLAVE={id:id,k:r.k||pw};verReporte(r.h,fm.getAttribute("data-nombre"),false);actividad();});},$("ml-"+id));});
+// ── Sesión: se cierra sola a los 15 minutos sin actividad; al cerrar no queda nada descifrado en memoria ──
+var INACTIVO=15*60*1000,ULT=0,TIM=null;
+function actividad(){ULT=Date.now();}
+function vencida(){return acceso.hidden&&ULT&&Date.now()-ULT>INACTIVO;}
+function expirar(){cerrarTodo();$("pie").textContent="La sesión se cerró por inactividad. Volvé a ingresar.";}
+function vigilar(){if(TIM)return;TIM=setInterval(function(){if(vencida())expirar();},30000);
+ // si la pestaña vuelve del fondo (o la computadora del reposo) se controla al instante
+ document.addEventListener("visibilitychange",function(){if(!document.hidden&&vencida())expirar();});}
+
+["click","keydown","scroll","touchstart","pointermove"].forEach(function(ev){document.addEventListener(ev,function(){if(acceso.hidden)ULT=Date.now();},{passive:true});});
+vigilar();
+function cerrarTodo(){terminarImp();menuImp(false);cerrarZoom();cerrarFicha();barraBus(false);CLAVE=null;IDX=null;VISTOS={};HALL=[];ULT=0;cont.innerHTML="";$("tabs").innerHTML="";app.hidden=true;adm.hidden=true;herr.hidden=true;$("herr-barra").hidden=true;acceso.hidden=false;ADM=null;RES=null;
  // al cerrar no queda ninguna contraseña ni el token escritos en la página
- ["cl-comb","cl-gas","cl-adm","gh-t"].forEach(function(k){var x=$(k);if(x)x.value="";});
+ ["cl-comb","cl-gas","cl-adm","gh-t","us-mail","gas-arch","herr-rem","herr-dec"].forEach(function(k){var x=$(k);if(x)try{x.value="";}catch(e){}});GAS=[];NUEVAS={};
  document.title=TITULO;window.scrollTo(0,0);var o=ORIGEN&&ORIGEN.querySelector(".entrar");ORIGEN=null;if(o)try{o.focus({preventScroll:true});}catch(e){}}
 $("salir").addEventListener("click",function(){if(!$("previa").hidden){volverAdm();return;}cerrarTodo();});
 window.addEventListener("resize",function(){medir();sombras();});
@@ -608,7 +637,6 @@ document.addEventListener("click",function(ev){var b=ev.target.closest&&ev.targe
 window.__lysi.excel={filasDe:filasDe,numero:numero};
 // ───────────── Herramientas de lectura: buscador, ficha por unidad, novedades del mes, orden y filtro de tablas ─────────────
 // No cambian ningún dato publicado: trabajan sobre lo que ya está en pantalla.
-var VISTOS={},CLAVE=null,IDX=null,HALL=[];
 function norm(t){t=String(t||"").toLowerCase();try{t=t.normalize("NFD").replace(/[̀-ͯ]/g,"");}catch(e){}return t.replace(/\s+/g," ").trim();}
 function nombreAp(ap){var b=ap.querySelector(".chips [aria-current=true]"),h=ap.querySelector("h1"),t=b?limpio(b):h?limpio(h):ap.id;return t.length>44?t.slice(0,42)+"…":t;}
 function posic(tr){var o=[],p=0,k;for(k=0;k<tr.cells.length;k++){o.push(p);p+=tr.cells[k].colSpan||1;}return o.join(",");}
@@ -749,7 +777,7 @@ document.addEventListener("keydown",function(ev){if(ev.key==="Escape"&&!$("ficha
 
 // ── Excel original del Informe de mantenimiento (se baja solo cuando se pide) ──
 function hayOriginal(){return !!(CLAVE&&CLAVE.id==="gastos"&&LYSI.remoto&&LYSI.info&&LYSI.info.gastos_orig&&$("previa").hidden);}
-function original(cual){var msj=$("xls-msj");msj.hidden=true;var base=String(LYSI.remoto).replace(/[^\/]*$/,""),pw=CLAVE&&CLAVE.pw;
+function original(cual){var msj=$("xls-msj");msj.hidden=true;var base=String(LYSI.remoto).replace(/[^\/]*$/,""),pw=CLAVE&&CLAVE.k;
  fetch(base+"originales.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("http "+r.status);return r.json();})
   .then(function(o){var x=o&&o[cual];if(!x)throw new Error("no está cargado");return abrir(x.c,pw).then(function(t){var a=document.createElement("a");
     a.href=URL.createObjectURL(new Blob([b64(t)],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));a.download=x.n||("LYSI "+cual+".xlsx");document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},4000);});})
@@ -783,7 +811,21 @@ var CL_IDS=["cl-comb","cl-gas","cl-adm"];
 function pintarFz(id){(id?[id]:CL_IDS).forEach(function(k){var v=$(k).value.trim(),e=$("fz-"+k);if(!v){e.textContent="";e.className="fz";return;}var f=fuerza(v);e.textContent=(f.nivel==="debil"?"Débil: ":f.nivel==="aceptable"?"Aceptable. ":"")+f.motivo;e.className="fz "+f.nivel;});}
 CL_IDS.forEach(function(k){$(k).addEventListener("input",function(){pintarFz(k);});});
 document.addEventListener("click",function(ev){var b=ev.target.closest&&ev.target.closest("[data-gen]");if(!b)return;var k=b.getAttribute("data-gen");$(k).value=frase();pintarFz(k);$(k).focus();});
-function abrirAdm(){acceso.hidden=true;app.hidden=true;adm.hidden=false;$("cl-comb").value=ADM.claves.combustible||"";$("cl-adm").value=ADM.claves.admin||"";$("cl-gas").value=ADM.claves.gastos||"";pintarFz();GAS=[];$("gas-arch").value="";pintarGas();$("ver-previa-g").disabled=true;
+function usuarios(){ADM.usuarios=ADM.usuarios||{};return ADM.usuarios;}
+function pintarUs(){var u=ADM?usuarios():{},tb=$("us-tabla").querySelector("tbody"),ks=Object.keys(u).sort(),h="";
+ if(!ks.length)h='<tr><td colspan="4" class="nota">Todavía no hay ningún mail habilitado. Hasta que agregues al menos uno, los reportes se abren solo con la contraseña, como hasta ahora.</td></tr>';
+ ks.forEach(function(m){var r=u[m]||[];h+='<tr><td>'+esc(m)+'</td><td class="c"><input type="checkbox" data-us="'+esc(m)+'" data-rep="combustible"'+(r.indexOf("combustible")>=0?" checked":"")+' aria-label="Combustible para '+esc(m)+'"></td><td class="c"><input type="checkbox" data-us="'+esc(m)+'" data-rep="gastos"'+(r.indexOf("gastos")>=0?" checked":"")+' aria-label="Mantenimiento para '+esc(m)+'"></td><td><button type="button" class="q" data-quitar="'+esc(m)+'">Quitar</button></td></tr>';});
+ tb.innerHTML=h;}
+$("us-agregar").addEventListener("click",function(){var m=mailPlano($("us-mail").value),el=$("us-estado");
+ if(!/^[\x21-\x7e]+@[\x21-\x7e]+\.[A-Za-z0-9-]+$/.test(m)||m.indexOf("@")!==m.lastIndexOf("@")){estado(el,"Escribí un mail válido (sin acentos ni caracteres especiales).","err");return;}
+ var r=[];if($("us-comb").checked)r.push("combustible");if($("us-gas").checked)r.push("gastos");
+ if(!r.length){estado(el,"Marcá al menos un reporte.","err");return;}
+ usuarios()[m]=r;$("us-mail").value="";el.innerHTML="";pintarUs();sucio(true);});
+$("us-mail").addEventListener("keydown",function(ev){if(ev.key==="Enter"){ev.preventDefault();$("us-agregar").click();}});
+$("us-tabla").addEventListener("change",function(ev){var c=ev.target;if(!c.getAttribute||!c.getAttribute("data-us"))return;var m=c.getAttribute("data-us"),rp=c.getAttribute("data-rep"),r=usuarios()[m]||[];
+ r=r.filter(function(x){return x!==rp;});if(c.checked)r.push(rp);usuarios()[m]=r;sucio(true);});
+$("us-tabla").addEventListener("click",function(ev){var b=ev.target.closest&&ev.target.closest("[data-quitar]");if(!b)return;delete usuarios()[b.getAttribute("data-quitar")];pintarUs();sucio(true);});
+function abrirAdm(){actividad();acceso.hidden=true;app.hidden=true;adm.hidden=false;pintarUs();$("cl-comb").value=ADM.claves.combustible||"";$("cl-adm").value=ADM.claves.admin||"";$("cl-gas").value=ADM.claves.gastos||"";pintarFz();GAS=[];$("gas-arch").value="";pintarGas();$("ver-previa-g").disabled=true;
  var hoy=new Date(),y0=hoy.getFullYear(),ys={},k,sel=$("anio"),o="";ys[y0]=1;for(k in ADM.fuentes)ys[k.slice(0,4)]=1;ys[y0-1]=1;
  Object.keys(ys).sort().forEach(function(y){o+='<option value="'+y+'"'+(String(y)===String(y0)?" selected":"")+">"+y+"</option>";});sel.innerHTML=o;
  MES=null;$("panel").hidden=true;pintarMeses();pintarDestino();$("gh-estado").innerHTML="";$("copia").disabled=!LYSI.cajas;$("proc-estado").innerHTML="";$("proc-res").innerHTML="";$("pub-estado").innerHTML="";$("ver-previa").disabled=true;$("publicar").disabled=true;sucio(false);window.scrollTo(0,0);medir();}
@@ -890,20 +932,49 @@ $("gh-probar").addEventListener("click",function(){var el=$("gh-estado"),g={o:$(
    if(!(j.permissions&&j.permissions.push)){estado(el,"El token entra al repositorio pero no puede escribir. Tiene que tener permiso de escritura sobre el contenido.","err");return;}
    ADM.github=g;sucio(true);pintarDestino();estado(el,"Conexión correcta con "+esc(j.full_name)+" ("+(j.private?"privado":"público")+"). Queda guardada al publicar.");});})
   .catch(function(e){estado(el,"No se pudo conectar con GitHub: "+esc(String(e&&e.message||e)),"err");});});
-function subirGitHub(g,nuevo){var cuerpo=a64(utf8(JSON.stringify(nuevo))),ruta="/contents/"+(g.p||"datos.json");
+function subirArchivo(g,ruta,texto,msg){var cuerpo=a64(utf8(texto));ruta="/contents/"+ruta;
  return ghApi(g,ruta).then(function(r){return r.status===404?null:r.json().then(function(j){if(!r.ok)throw new Error(j.message||r.status);return j.sha;});})
-  .then(function(sha){var b={message:"Publicación "+nuevo.info.generado+": "+nuevo.info.meses.join(", "),content:cuerpo};if(sha)b.sha=sha;
-   return ghApi(g,ruta,{method:"PUT",body:JSON.stringify(b)});})
+  .then(function(sha){var b={message:msg,content:cuerpo};if(sha)b.sha=sha;return ghApi(g,ruta,{method:"PUT",body:JSON.stringify(b)});})
   .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error("GitHub ("+r.status+"): "+(j.message||""));return j;});});}
+function subirGitHub(g,nuevo,orig){var msg="Publicación "+nuevo.info.generado+": "+nuevo.info.meses.join(", "),d=g.p||"datos.json";
+ // primero los originales (si cambió la llave de Gastos), después datos.json: si algo falla a mitad, lo publicado sigue abriendo con lo anterior
+ var pr=orig?subirArchivo(g,d.replace(/[^\/]*$/,"")+"originales.json",JSON.stringify(orig),msg+" (Excel originales)"):Promise.resolve();
+ return pr.then(function(){return subirArchivo(g,d,JSON.stringify(nuevo),msg);});}
 function archivoCompleto(nuevo){var c={},k;for(k in nuevo)if(k!=="remoto")c[k]=nuevo[k];var a=PLANTILLA.indexOf("/*D0*/"),b=PLANTILLA.indexOf("/*D1*/");
  return "<!doctype html>\n"+PLANTILLA.slice(0,a+6)+JSON.stringify(c)+PLANTILLA.slice(b);}
 $("copia").addEventListener("click",function(){var el=$("pub-estado");if(!LYSI.cajas){return;}
  guardarArchivo(archivoCompleto(LYSI)).then(function(como){estado(el,"Copia "+(como==="guardado"?"guardada":"descargada en Descargas")+". Es un archivo completo que abre sin internet, con lo último publicado.");})
   .catch(function(e){if(!(e&&e.name==="AbortError"))estado(el,"No se pudo guardar la copia: "+esc(String(e&&e.message||e)),"err");});});
-function cajaGastos(cg){var g=RES.gastos,vieja=LYSI.cajas&&LYSI.cajas.gastos,ant=ADM.claves.gastos;
- if(g&&g.html)return cifrar(g.html,cg,true);
- if(vieja&&ant&&cg!==ant)return abrir(vieja,ant).then(function(h){return cifrar(h,cg,true);});
- return Promise.resolve(vieja||null);}
+// Clave maestra de un reporte: al azar, 64 bytes; se guarda en la caja de administración (base64).
+// Clave maestra de un reporte: al azar, 64 bytes, guardada en la caja de administración (base64).
+// Se ROTA en cada publicación: quien tuvo la anterior no abre lo que se publique de ahora en más.
+var NUEVAS={};
+function maestraActual(id){return (ADM.maestras&&ADM.maestras[id])?b64(ADM.maestras[id]):null;}
+function maestraNueva(id){if(!NUEVAS[id])NUEVAS[id]=a64(azar(64));return b64(NUEVAS[id]);}
+function fijarMaestras(){ADM.maestras=ADM.maestras||{};Object.keys(NUEVAS).forEach(function(id){ADM.maestras[id]=NUEVAS[id];});}
+function conMails(){return !!(ADM.usuarios&&Object.keys(ADM.usuarios).length);}
+// llave con la que se cifra AHORA el reporte: la maestra nueva (modo mails) o la contraseña nueva (modo antiguo)
+function llaveDe(id,pwNueva){return conMails()?maestraNueva(id):pwNueva;}
+// llave con la que está cifrado lo PUBLICADO: maestra actual si la caja es n=0, si no la contraseña guardada
+function llaveVieja(id,caja){return (caja&&caja.n===0)?maestraActual(id):ADM.claves[id];}
+// Accesos del reporte: la clave maestra envuelta, por cada mail habilitado, con mail + "\n" + contraseña del reporte.
+function accesos(id,pw){var u=ADM.usuarios||{},ks=Object.keys(u).filter(function(m){return (u[m]||[]).indexOf(id)>=0;}),out={};
+ if(!ks.length)return Promise.reject(new Error("no hay ningún mail habilitado para el "+(id==="gastos"?"Informe de mantenimiento":"Informe de combustible")+": nadie podría entrar."));
+ var k=NUEVAS[id];return ks.reduce(function(pr,m){return pr.then(function(){return cifrar(k,mailPlano(m)+"\n"+pw).then(function(c){out[idMail(m)]=c;});});},Promise.resolve()).then(function(){return out;});}
+// HTML actual de Gastos: el recién procesado, o el publicado (abierto con la llave vigente)
+function htmlGastos(){var g=RES.gastos,vieja=LYSI.cajas&&LYSI.cajas.gastos;
+ if(g&&g.html)return Promise.resolve(g.html);if(!vieja)return Promise.resolve(null);
+ var ant=llaveVieja("gastos",vieja);if(!ant)return Promise.reject(new Error("no se puede abrir lo publicado del Informe de mantenimiento con las llaves guardadas"));
+ return abrir(vieja,ant);}
+function cajaGastos(cg){return htmlGastos().then(function(h){if(!h)return null;return cifrar(h,llaveDe("gastos",cg),true);});}
+// Excel originales del Informe de mantenimiento: viven en originales.json cifrados con la llave de Gastos.
+// Cuando la llave cambia (contraseña nueva, rotación de maestra, cambio de modo) hay que re-sellarlos y subirlos también.
+function originalesNuevos(cg){var inf=LYSI.info||{};if(!LYSI.remoto||!inf.gastos_orig||!inf.gastos_orig.length||!(LYSI.cajas&&LYSI.cajas.gastos))return Promise.resolve(null);
+ var base=String(LYSI.remoto).replace(/[^\/]*$/,""),ant=llaveVieja("gastos",LYSI.cajas.gastos),nueva=llaveDe("gastos",cg);
+ if(typeof ant==="string"&&ant===nueva)return Promise.resolve(null); // misma contraseña, modo antiguo: no hace falta tocarlos
+ if(!ant)return Promise.reject(new Error("no se puede abrir los Excel originales con las llaves guardadas"));
+ return fetch(base+"originales.json?t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("no se pudo bajar originales.json (http "+r.status+")");return r.json();})
+  .then(function(o){var ks=Object.keys(o||{}),out={};return ks.reduce(function(pr,t){return pr.then(function(){return abrir(o[t].c,ant).then(function(txt){return cifrar(txt,nueva).then(function(c){out[t]={n:o[t].n,c:c};});});});},Promise.resolve()).then(function(){return out;});});}
 function publicar(){var el=$("pub-estado"),cc=$("cl-comb").value.trim(),ca=$("cl-adm").value.trim(),cg=$("cl-gas").value.trim();
  var hayG=!!((RES.gastos&&RES.gastos.html)||(LYSI.cajas&&LYSI.cajas.gastos));
  if(!cc||!ca){estado(el,"Las contraseñas de Combustible y de administración tienen que estar completas.","err");return;}
@@ -914,21 +985,26 @@ function publicar(){var el=$("pub-estado"),cc=$("cl-comb").value.trim(),ca=$("cl
  for(var ci=0;ci<chk.length;ci++){var fz=fuerza(chk[ci][1]);if(!fz.ok){estado(el,"La contraseña "+chk[ci][2]+" no sirve: "+esc(fz.motivo)+" No se publicó nada.","err");$(chk[ci][0]).focus();return;}}
  $("publicar").disabled=true;estado(el,"Cifrando y armando el archivo…");
  setTimeout(function(){
-  cajaGastos(cg).then(function(cgx){ADM.claves.combustible=cc;ADM.claves.admin=ca;if(hayG)ADM.claves.gastos=cg;
-   return cifrar(RES.html,cc).then(function(c1){return cifrar(JSON.stringify(ADM),ca).then(function(c2){
+  if(conMails()){var u=ADM.usuarios,ok1=Object.keys(u).some(function(m){return u[m].indexOf("combustible")>=0;}),ok2=!hayG||Object.keys(u).some(function(m){return u[m].indexOf("gastos")>=0;});
+   if(!ok1||!ok2){estado(el,"Hay mails habilitados pero ninguno puede entrar al "+(!ok1?"Informe de combustible":"Informe de mantenimiento")+": agregá al menos uno o quitá todos para volver al acceso solo con contraseña.","err");$("publicar").disabled=false;return;}}
+  NUEVAS={};if(!conMails()){delete ADM.usuarios;}
+  var ORIG=null;
+  originalesNuevos(cg).then(function(o){ORIG=o;return cajaGastos(cg);}).then(function(cgx){ADM.claves.combustible=cc;ADM.claves.admin=ca;if(hayG)ADM.claves.gastos=cg;
+   return cifrar(RES.html,llaveDe("combustible",cc)).then(function(c1){
+    var acc={};return (conMails()?accesos("combustible",cc).then(function(a){acc.combustible=a;return hayG&&cgx?accesos("gastos",cg).then(function(b){acc.gastos=b;}):null;}):Promise.resolve()).then(function(){if(conMails())fijarMaestras();else delete ADM.maestras;return cifrar(JSON.stringify(ADM),ca);}).then(function(c2){
     var cajas={},k;for(k in (LYSI.cajas||{}))cajas[k]=LYSI.cajas[k];cajas.combustible=c1;if(cgx)cajas.gastos=cgx;
-    var nuevo={v:LYSI.v,iter:ITER_APP,pyodide:LYSI.pyodide,cajas:cajas,admin:c2,info:{meses:RES.meses.map(function(m){return m.nombre;}),ids:RES.meses.filter(function(m){return !m.importado;}).map(function(m){return m.id;}),generado:RES.generado,reglas:RES.reglas}};
+    var nuevo={v:conMails()?3:2,iter:ITER_APP,pyodide:LYSI.pyodide,cajas:cajas,admin:c2,info:{meses:RES.meses.map(function(m){return m.nombre;}),ids:RES.meses.filter(function(m){return !m.importado;}).map(function(m){return m.id;}),generado:RES.generado,reglas:RES.reglas}};
     var dg=(RES.gastos&&RES.gastos.html)?RES.gastos.descripcion:(LYSI.info&&LYSI.info.gastos);if(cgx&&dg){nuevo.info.gastos=dg;var df=(RES.gastos&&RES.gastos.html)?RES.generado:(LYSI.info&&LYSI.info.gastos_fecha);if(df)nuevo.info.gastos_fecha=df;if(!(RES.gastos&&RES.gastos.html)&&LYSI.info&&LYSI.info.gastos_orig)nuevo.info.gastos_orig=LYSI.info.gastos_orig;}
-    if(LYSI.remoto)nuevo.remoto=LYSI.remoto;var g=gh();
+    if(conMails())nuevo.accesos=acc;if(LYSI.remoto)nuevo.remoto=LYSI.remoto;var g=gh();
     function hecho(txt){LYSI=nuevo;window.LYSI=nuevo;pintarInfo();pintarGastos();pintarMeses();GAS=[];$("gas-arch").value="";pintarGas();sucio(false);$("publicar").disabled=false;$("copia").disabled=false;estado(el,txt);}
-    if(g){estado(el,"Subiendo al sitio…");return subirGitHub(g,nuevo).then(function(){hecho("Publicado en el sitio. En uno o dos minutos lo ve todo el que entre al link.");});}
+    if(g){estado(el,"Subiendo al sitio…");return subirGitHub(g,nuevo,ORIG).then(function(){hecho("Publicado en el sitio. En uno o dos minutos lo ve todo el que entre al link.");});}
     return guardarArchivo(archivoCompleto(nuevo)).then(function(como){
      hecho((como==="guardado"?"Publicado y guardado.":"Publicado. El archivo nuevo quedó en Descargas como LYSI_Reportes.html.")+" Reemplazá con ese archivo el que abren todos; el anterior queda desactualizado.");});});});})
   .catch(function(e){$("publicar").disabled=false;estado(el,e&&e.name==="AbortError"?"No se guardó: cancelaste la ventana de guardado.":"No se pudo publicar: "+esc(String(e&&e.message||e)),"err");});},40);}
 $("publicar").addEventListener("click",publicar);
 // ───────────── Herramienta: control de declaraciones RENPRE (corre en el navegador, no guarda nada) ─────────────
 var herr=$("herr"),HERR={rem:null,dec:null,res:null},XLRD=false;
-function abrirHerr(){acceso.hidden=true;app.hidden=true;adm.hidden=true;herr.hidden=false;$("herr-barra").hidden=true;pintarHerr();window.scrollTo(0,0);medir();}
+function abrirHerr(){actividad();acceso.hidden=true;app.hidden=true;adm.hidden=true;herr.hidden=false;$("herr-barra").hidden=true;pintarHerr();window.scrollTo(0,0);medir();}
 function pintarHerr(){[["herr-rem-e",HERR.rem],["herr-dec-e",HERR.dec]].forEach(function(x){var el=$(x[0]),f=x[1];el.textContent=f?f.n+" ("+num(f.b.length*0.75/1024)+" KB)":"Sin cargar";el.className="e"+(f?" si":"");});
  $("herr-procesar").disabled=!(HERR.rem&&HERR.dec);$("herr-ver").disabled=!HERR.res;}
 $("abrir-renpre").addEventListener("click",abrirHerr);
