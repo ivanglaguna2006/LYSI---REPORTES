@@ -4,7 +4,7 @@ Este repositorio aloja la app de reportes de LYSI (GitHub Pages):
 https://ivanglaguna2006.github.io/LYSI---REPORTES/
 
 - `index.html`: la app (pantalla de acceso, consulta y Administración). No tiene datos.
-- La pantalla de inicio tiene una **hoja por área** (pestañas bajo el título). Hoy hay una sola, «Administración y control», con el Informe de combustible, el Informe de mantenimiento y, en «Herramientas», el procesador de Declaraciones RENPRE (en preparación). Para sumar un área se agrega una entrada en `AREAS` (`motor/app.py`) y se regenera `index.html`; las tarjetas de reporte conservan sus ids porque el JavaScript los usa tal cual.
+- La pantalla de inicio tiene una **hoja por área** (pestañas bajo el título). Hoy hay una sola, «Administración y control», con el Informe de combustible, el Informe de mantenimiento y, en «Herramientas», el procesador de Declaraciones RENPRE y la Circulación nocturna. Para sumar un área se agrega una entrada en `AREAS` (`motor/app.py`) y se regenera `index.html`; las tarjetas de reporte conservan sus ids porque el JavaScript los usa tal cual.
 - `originales.json`: los dos Excel del Informe de mantenimiento, **cifrados**; lo escribe `cargar_gastos.py`. La app lo baja solo cuando alguien pide el Excel original.
 - `datos.json`: los reportes y los archivos fuente, **cifrados**. Nunca editarlo a mano ni reemplazarlo por otra cosa: la app deja de abrir.
 - `motor/`: el código de cálculo (reglas del Prompt Maestro v4.7). Es el mismo que la app lleva adentro.
@@ -14,6 +14,22 @@ https://ivanglaguna2006.github.io/LYSI---REPORTES/
 - `regenerar.py`: vuelve a armar Combustible con los archivos ya cargados, sin sumar ninguno. Se usa después de un cambio de software en `motor/`.
 - `motor/renpre.py`: el cruce de remitos contra declaraciones RENPRE (herramienta «Declaraciones RENPRE» del inicio). Corre en el navegador con Pyodide (instala `xlrd` aparte para el .xls) y también desde la consola con `control_renpre.py`.
 - `control_renpre.py`: `python3 control_renpre.py <remitos.xlsx> <declaraciones.xls>` imprime el control en texto (`--html x.html` guarda la pantalla). No publica nada.
+- `motor/nocturna.py`: completa la planilla de circulación nocturna (herramienta «Circulación nocturna» del inicio). Corre en el navegador con Pyodide y desde la consola con `control_nocturna.py`.
+- `control_nocturna.py`: `python3 control_nocturna.py <planilla.xlsx> [salida.xlsx]` guarda `<planilla>_procesado.xlsx` validado contra el original. No publica nada.
+
+## Circulación nocturna
+
+La herramienta no guarda datos ni pide contraseña: la persona sube el Excel de circulaciones nocturnas (encabezados en la
+fila 1: Fecha, Movil, Flota, Chofer, CNFechaHoraInicio, CNFechaHoraFin, Duración, Distancia KM, Autorizado, Observaciones,
+MINUTOS AUTORIZADOS, MINUTOS NO AUTORIZADOS, MINUTOS OPERATIVOS, OBSERVACIONES2; se ubican por nombre normalizado), toca
+«Procesar» y se descarga el mismo archivo con el sufijo `_procesado` y cinco columnas completadas. Reglas: Observaciones =
+TRAFICO si el inicio está entre 23:00:00 y 03:29:59 (cruza la medianoche), INICIO DE JORNADA en el resto, corte 03:30 estricto;
+Autorizado = SI; Duración < 29 → MINUTOS AUTORIZADOS, ≥ 29 → MINUTOS OPERATIVOS; MINUTOS NO AUTORIZADOS siempre vacía; la
+duración se usa tal cual (nunca fin − inicio). Filas vacías, «NO HAY REPORTE» o sin inicio/duración válidos quedan intactas.
+Fuera de esas columnas nada cambia (se abre y guarda con openpyxl; se rechazan .xlsm y hojas con gráficos o imágenes) y
+`verificar()` compara el resultado con el original antes de entregarlo. Cada ~15 días Ivo vuelve a subir la planilla ya
+procesada con filas nuevas: se recalcula completa. La especificación está en el proyecto «LYSI app» (documento «Circulación
+nocturna — Especificación»). Si Ivo pasa la planilla por acá, se corre `control_nocturna.py` y se le devuelve el archivo.
 
 ## Control RENPRE
 
