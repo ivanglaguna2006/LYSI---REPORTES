@@ -248,9 +248,15 @@ HERRAMIENTA_RENPRE = r"""<div class="puerta herr"><div class="pc"><span class="i
 <div class="fm"><button type="button" class="entrar" id="abrir-renpre">Abrir la herramienta <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12h15M13.5 6l6 6-6 6"/></svg></button></div>
 <p class="msj" role="status"></p></div>"""
 
+# Herramienta: circulación nocturna (en preparación: todavía no abre nada).
+HERRAMIENTA_NOCTURNA = r"""<div class="puerta herr"><div class="pc"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/><path d="M3 20.5h9M5 17.5h5"/></svg></span><div><h3>Circulación nocturna</h3><p>Permisos y controles de circulación nocturna de las unidades.</p>
+<span class="per"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>Gestión de la circulación de noche</span></span></div></div>
+<span class="pronto" id="pronto-nocturna">En preparación</span>
+<p class="msj" role="status"></p></div>"""
+
 AREAS = [
     {"id": "admin-control", "nombre": "Administración y control", "estado": True,
-     "reportes": [PUERTA_COMBUSTIBLE, PUERTA_GASTOS], "herramientas": [HERRAMIENTA_RENPRE]},
+     "reportes": [PUERTA_COMBUSTIBLE, PUERTA_GASTOS], "herramientas": [HERRAMIENTA_RENPRE, HERRAMIENTA_NOCTURNA]},
 ]
 
 
