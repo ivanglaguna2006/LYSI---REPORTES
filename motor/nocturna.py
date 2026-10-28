@@ -22,6 +22,7 @@ import unicodedata
 from datetime import datetime, time
 
 import openpyxl
+from openpyxl.descriptors.serialisable import Serialisable
 
 LIMITE_MINUTOS = 29          # estricto: 29 va a MINUTOS OPERATIVOS
 CORTE_JORNADA = time(3, 30)  # 03:30:00 inclusive -> INICIO DE JORNADA
@@ -165,6 +166,25 @@ def procesar(entrada, salida):
             "autorizados": suma_k, "operativos": suma_m, "duracion": suma_dur, "borde": borde}
 
 
+def _firma(obj):
+    """Representación comparable de un objeto de estilo de openpyxl (font, fill, border…), por sus propiedades."""
+    if isinstance(obj, Serialisable):
+        claves = sorted(set(getattr(obj, "__attrs__", ())) | set(getattr(obj, "__elements__", ())))
+        return tuple((k, _firma(getattr(obj, k, None))) for k in claves)
+    if isinstance(obj, (list, tuple)):
+        return tuple(_firma(x) for x in obj)
+    try:
+        hash(obj)
+        return obj
+    except TypeError:
+        return str(obj)
+
+
+def _firma_estilo(c):
+    """Estilo resuelto de la celda: lo que se ve, no el índice interno (que openpyxl reordena al guardar)."""
+    return (c.number_format, _firma(c.font), _firma(c.fill), _firma(c.border), _firma(c.alignment), _firma(c.protection))
+
+
 def verificar(original, salida, resumen):
     """Las nueve verificaciones de la especificación, sobre los archivos en disco. Devuelve la lista de fallas."""
     fallas = []
@@ -229,10 +249,14 @@ def verificar(original, salida, resumen):
             if c in cols_salida and f > 1:
                 continue
             a, b = ho.cell(f, c), hs.cell(f, c)
-            if a.value != b.value or list(a._style or []) != list(b._style or []):
+            if a.value != b.value:
                 difs += 1
                 if difs <= 5:
-                    fallas.append("celda %s cambió fuera de las columnas de control" % a.coordinate)
+                    fallas.append("celda %s cambió de valor fuera de las columnas de control" % a.coordinate)
+            elif _firma_estilo(a) != _firma_estilo(b):
+                difs += 1
+                if difs <= 5:
+                    fallas.append("celda %s cambió de formato fuera de las columnas de control" % a.coordinate)
     if difs > 5:
         fallas.append("… y %d celdas más" % (difs - 5))
     for cd in set(ho.column_dimensions) | set(hs.column_dimensions):
