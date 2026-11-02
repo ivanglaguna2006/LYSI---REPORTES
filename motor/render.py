@@ -2,6 +2,7 @@
 """Arma el HTML de cada apartado. Todo el contenido queda como HTML estático (Regla 6):
 ningún dato se calcula ni se inserta en el navegador."""
 import html
+import re
 import pandas as pd
 from . import config as C
 
@@ -39,8 +40,33 @@ def badge(estado):
     return f'<span class="est" style="background:{COL.get(estado, "#777")}">{ETIQ.get(estado, estado)}</span>'
 
 
+# Patente → número de interno, sale de Filarus (armado.internos). Vacío: las tablas quedan sin la columna.
+INTERNOS = {}
+
+
+def interno_de(u):
+    return e(INTERNOS.get(u) or "—")
+
+
+def sumar_interno(cols, filas):
+    """Agrega la columna Interno al lado de Unidad en las tablas cuya primera columna es la patente."""
+    if not INTERNOS or not cols or cols[0][0] != "Unidad":
+        return cols, filas
+
+    def celda(c):
+        m = re.match(r"<b>(.*?)</b>", str(c))
+        return interno_de(html.unescape(m.group(1))) if m else ""
+    out = []
+    for fila in filas:
+        c = fila["c"] if isinstance(fila, dict) else fila
+        c = [c[0], celda(c[0])] + list(c[1:])
+        out.append({**fila, "c": c} if isinstance(fila, dict) else c)
+    return [cols[0], ("Interno", "l")] + list(cols[1:]), out
+
+
 def tabla(cols, filas, clase=""):
     """cols: lista de (titulo, alineacion 'l'|'r'). filas: lista de listas de HTML ya formateado."""
+    cols, filas = sumar_interno(cols, filas)
     th = "".join(f'<th class="{a}">{t}</th>' for t, a in cols)
     trs = []
     for fila in filas:
@@ -220,7 +246,7 @@ solo marca desde dónde se miden los km. Coeficiente = litros × 100 / km de la 
                           e(x.chofer), e(x.localidad) + (f' <span class="obs">{e(x.nota)}</span>' if x.nota else "")])
         cierre = "cierra exacto" if r.tramos_cierra else f"diferencia de {n(r.km - r.tramos_suma)} km contra la ventana"
         filas.append({"cls": "tot", "c": ["Total de la ventana", "", n(r.gasoil, 2), n(r.tramos_suma), "", n(r.coef, 2), "", f"km de la ventana: {n(r.km)}, {cierre}"]})
-        bloques.append(f'<details class="hist"><summary><b>{e(r.unidad)}</b> {e(r.modelo)} <span class="sm">coef {n(r.coef, 2)} contra ideal {n(r.ideal, 1)} ({n(r.dif, 2, True)}), {len(t)} tramos</span></summary>'
+        bloques.append(f'<details class="hist"><summary><b>{e(r.unidad)}</b> {(interno_de(r.unidad) + " · ") if INTERNOS.get(r.unidad) else ""}{e(r.modelo)} <span class="sm">coef {n(r.coef, 2)} contra ideal {n(r.ideal, 1)} ({n(r.dif, 2, True)}), {len(t)} tramos</span></summary>'
                        + tabla([("Desde", "l"), ("Hasta", "l"), ("Litros", "r"), ("km tramo", "r"), ("Fuente", "l"), ("Coef tramo", "r"), ("Chofer", "l"), ("Localidad", "l")], filas) + "</details>")
     ncierra = int(crit.tramos_cierra.sum()) if len(crit) else 0
     S.append(("historial", "Historial de cargas de las críticas", f"""
@@ -560,12 +586,12 @@ coeficiente acumulado <strong>{n(gas * 100 / km, 2)} L/100 km</strong>.</p>{falt
         sobre = (gu - d["ideal"] * kmu / 100) if kmu and d["ideal"] else None
         filas_u.append({"u": u, "d": d, "km": kmu, "gas": gu, "coef": coef, "dif": dif, "ncrit": ncrit, "est": est, "sobre": sobre, "nmed": len(med)})
     filas_u.sort(key=lambda x: (x["dif"] is None, -(x["dif"] or 0)))
-    cols = [("Unidad", "l"), ("Modelo", "l")] + [(t, "r") for t in etq] + [("Meses crítica", "r"), ("km acum.", "r"), ("Gasoil acum. L", "r"), ("Coef acum.", "r"), ("Ideal", "r"), ("Dif", "r"), ("", "l"), ("Evaluación", "l"), ("L sobre ideal", "r")]
+    cols = [("Unidad", "l")] + ([("Interno", "l")] if INTERNOS else []) + [("Modelo", "l")] + [(t, "r") for t in etq] + [("Meses crítica", "r"), ("km acum.", "r"), ("Gasoil acum. L", "r"), ("Coef acum.", "r"), ("Ideal", "r"), ("Dif", "r"), ("", "l"), ("Evaluación", "l"), ("L sobre ideal", "r")]
     th = "".join(f'<th class="{a}">{t}</th>' for t, a in cols)
     trs = []
     for x in filas_u:
         d = x["d"]
-        trs.append(f'<tr><td class="l"><b>{e(x["u"])}</b></td><td class="l">{e(d["modelo"])}</td>' + "".join(celda_estado(c) for c in d["m"])
+        trs.append(f'<tr><td class="l"><b>{e(x["u"])}</b></td>' + (f'<td class="l">{interno_de(x["u"])}</td>' if INTERNOS else "") + f'<td class="l">{e(d["modelo"])}</td>' + "".join(celda_estado(c) for c in d["m"])
                    + f'<td class="r">{x["ncrit"] or ""}</td><td class="r">{n(x["km"]) if x["km"] else "—"}</td><td class="r">{n(x["gas"], 2) if x["km"] else "—"}</td>'
                    f'<td class="r">{n(x["coef"], 2)}</td><td class="r">{n(d["ideal"], 1)}</td><td class="r">{n(x["dif"], 2, True) if x["dif"] is not None else "—"}</td>'
                    f'<td class="l">{barra_dif(x["dif"])}</td><td class="l">{badge(x["est"]) if x["est"] else badge("A INVESTIGAR")}</td>'

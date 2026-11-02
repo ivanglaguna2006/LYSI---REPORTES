@@ -77,6 +77,10 @@ el reporte mensual (una hoja por mes, `REPORTE_MENSUAL_LYSI_...xlsx`) y el de re
 6. Si el control avisa que hay hojas sin contenido, el Excel se guardó sin valores calculados: pedirle a Ivo
    que lo abra y lo guarde en Excel, y volver a cargarlo. No se publica así.
 
+## Interno de cada unidad (Informe de combustible)
+
+Las tablas de Combustible cuya primera columna es «Unidad» llevan al lado la columna «Interno». Sale del prefijo entre paréntesis de `Movil` en Filarus (`fuentes.interno`), de todos los meses cargados; si cambió, queda el más reciente (`armado.internos` → `render.INTERNOS`, `render.sumar_interno`). Sin interno se ve «—»; si ningún Filarus lo trae, la columna no aparece. Está en el HTML cifrado, así que un cambio acá recién se ve al volver a armar lo publicado (Administración → Procesar todo y Publicar, o `regenerar.py`). No toca ningún cálculo.
+
 ## Acciones por unidad (Informe de combustible)
 
 En «Consumo por unidad vs ideal» de cada mes hay una columna Acciones y en la ficha de cada unidad un bloque con sus pendientes y sus hechas por mes. Todo el que entra al informe puede escribir, editar, borrar y marcar pendiente o hecha; queda firmado con su mail. Al final de las pestañas hay una hoja «Acciones» que junta todas por mes y unidad, con filtro por estado y por mes (`acnHoja`).

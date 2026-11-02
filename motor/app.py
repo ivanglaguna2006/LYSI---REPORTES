@@ -906,8 +906,8 @@ function acnHoja(forzar){var a=ACN,el=$("acn-lista");if(!a||!el||(!forzar&&el.qu
  else if(!vis.length)h='<p class="nota">No hay acciones con ese filtro.</p>';
  meses.forEach(function(m){var g=vis.filter(function(x){return x.mes===m;}).sort(function(p,q){return (p.estado===q.estado?0:p.estado==="pendiente"?-1:1)||p.unidad.localeCompare(q.unidad,"es");});if(!g.length)return;
   var gp=g.filter(function(x){return x.estado==="pendiente";}).length;
-  h+="<section><h2>"+esc(acnCap(acnMes(m)))+"</h2><p class=\"nota\">"+gp+(gp===1?" pendiente":" pendientes")+" · "+(g.length-gp)+(g.length-gp===1?" hecha":" hechas")+'</p><div class="tw"><table><thead><tr><th class="l">Unidad</th><th class="l">Acción</th></tr></thead><tbody>'
-   +g.map(function(x){return '<tr><td class="l un"><b>'+esc(x.unidad)+'</b></td><td class="l acn-txt">'+acnItem(x,false)+"</td></tr>";}).join("")+"</tbody></table></div></section>";});
+  h+="<section><h2>"+esc(acnCap(acnMes(m)))+"</h2><p class=\"nota\">"+gp+(gp===1?" pendiente":" pendientes")+" · "+(g.length-gp)+(g.length-gp===1?" hecha":" hechas")+'</p><div class="tw"><table><thead><tr><th class="l">Unidad</th><th class="l">Interno</th><th class="l">Acción</th></tr></thead><tbody>'
+   +g.map(function(x){return '<tr><td class="l un"><b>'+esc(x.unidad)+'</b></td><td class="l">'+esc(a.mapa[x.unidad]||"—")+'</td><td class="l acn-txt">'+acnItem(x,false)+"</td></tr>";}).join("")+"</tbody></table></div></section>";});
  el.innerHTML=h;}
 function acnCap(t){return t.charAt(0).toUpperCase()+t.slice(1);}
 function acnFicha(){var el=$("ficha-acn");if(!el||!ACN_F||el.querySelector(".acn-ed"))return;var a=ACN,xs=a.items.filter(function(x){return ACN_F[x.unidad];}),pen=[],por={},ms=[],h;

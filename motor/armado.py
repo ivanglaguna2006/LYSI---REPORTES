@@ -54,6 +54,18 @@ def cargar_seguro(a, m, p, errores):
     return d
 
 
+def internos(cache):
+    """Patente → interno según Filarus, de todos los meses cargados. Si cambió, queda el más reciente."""
+    M = {}
+    for k in sorted(cache):
+        f = cache[k].get("filarus")
+        if f is None:
+            continue
+        for _, r in f[f.interno.notna() & (f.interno != "")].sort_values("dia").iterrows():
+            M[r.unidad] = r.interno
+    return M
+
+
 def importado_a_R(d, a, m):
     """Mes importado de un reporte ya hecho: arma un resultado con la misma forma que el del motor."""
     import pandas as pd
@@ -110,6 +122,8 @@ def calcular_todo(base):
     errores, pendientes = [], []
     disp = meses_disponibles(base)
     cache = {(a, m): cargar_seguro(a, m, p, errores) for a, m, p in disp}
+    V.INTERNOS.clear()
+    V.INTERNOS.update(internos(cache))
     res = []
     for a, m, p in disp:
         pa, pm = (a, m - 1) if m > 1 else (a - 1, 12)
