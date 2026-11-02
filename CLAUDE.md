@@ -77,6 +77,16 @@ el reporte mensual (una hoja por mes, `REPORTE_MENSUAL_LYSI_...xlsx`) y el de re
 6. Si el control avisa que hay hojas sin contenido, el Excel se guardó sin valores calculados: pedirle a Ivo
    que lo abra y lo guarde en Excel, y volver a cargarlo. No se publica así.
 
+## Acciones por unidad (Informe de combustible)
+
+En «Consumo por unidad vs ideal» de cada mes hay una columna Acciones y en la ficha de cada unidad un bloque con sus pendientes y sus hechas por mes. Todo el que entra al informe puede escribir, editar, borrar y marcar pendiente o hecha; queda firmado con su mail.
+
+- La app es estática, así que las acciones **no** están en `datos.json`: viven en `acciones.json`, en un repositorio **privado aparte** (lo elige Ivo), cifradas con una clave propia (`k`, 64 bytes, nunca rota). La columna se agrega por JavaScript en pantalla (`acnColumna`): no cambia el HTML cifrado del informe ni hace falta regenerar nada.
+- La conexión es `adm["acciones"] = {o, r, t, k}` y se configura en Administración → «Dónde se guardan las acciones». Viaja en `datos["cajas"]["acciones"]`, sellada con la llave vigente de Combustible, y **hay que re-sellarla cada vez que esa llave cambia**: lo hacen `P.sellar` (scripts) y `publicar()` (app). Sin esa caja la columna no aparece.
+- El token lo reciben todos los que abren el informe, por eso tiene que servir **solo** para ese repositorio privado (fine-grained, Contents lectura y escritura). La app rechaza el repositorio de la app y los repositorios públicos.
+- Cada escritura relee el archivo antes de guardar: si no abre no lo pisa, y si dos personas guardan a la vez reintenta sobre lo nuevo. La versión anterior queda en el historial del repositorio privado.
+- Dar de baja a alguien de Combustible también implica **cambiar este token**, porque pudo quedárselo. Si el token vence, la app avisa y se carga uno nuevo en Administración.
+
 ## Seguridad
 
 - GitHub Pages sirve solo texto cifrado: `datos.json` y `originales.json` van con AES-256-CTR + HMAC-SHA256 (`motor/portal.py`). Cada caja guarda sus iteraciones en `n`; `n = 0` significa que la caja está cifrada con una **clave maestra** (64 bytes al azar), no con una contraseña.
