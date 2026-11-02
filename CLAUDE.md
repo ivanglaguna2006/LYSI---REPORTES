@@ -79,7 +79,7 @@ el reporte mensual (una hoja por mes, `REPORTE_MENSUAL_LYSI_...xlsx`) y el de re
 
 ## Acciones por unidad (Informe de combustible)
 
-En «Consumo por unidad vs ideal» de cada mes hay una columna Acciones y en la ficha de cada unidad un bloque con sus pendientes y sus hechas por mes. Todo el que entra al informe puede escribir, editar, borrar y marcar pendiente o hecha; queda firmado con su mail.
+En «Consumo por unidad vs ideal» de cada mes hay una columna Acciones y en la ficha de cada unidad un bloque con sus pendientes y sus hechas por mes. Todo el que entra al informe puede escribir, editar, borrar y marcar pendiente o hecha; queda firmado con su mail. Al final de las pestañas hay una hoja «Acciones» que junta todas por mes y unidad, con filtro por estado y por mes (`acnHoja`).
 
 - La app es estática, así que las acciones **no** están en `datos.json`: viven en `acciones.json`, en un repositorio **privado aparte** (lo elige Ivo), cifradas con una clave propia (`k`, 64 bytes, nunca rota). La columna se agrega por JavaScript en pantalla (`acnColumna`): no cambia el HTML cifrado del informe ni hace falta regenerar nada.
 - La conexión es `adm["acciones"] = {o, r, t, k}` y se configura en Administración → «Dónde se guardan las acciones». Viaja en `datos["cajas"]["acciones"]`, sellada con la llave vigente de Combustible, y **hay que re-sellarla cada vez que esa llave cambia**: lo hacen `P.sellar` (scripts) y `publicar()` (app). Sin esa caja la columna no aparece.
