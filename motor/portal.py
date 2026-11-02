@@ -6,6 +6,7 @@ Sin la contraseña el archivo no contiene ningún dato legible."""
 import os
 import re
 import gzip
+import json
 import base64
 import hmac
 import hashlib
@@ -167,6 +168,15 @@ def accesos(adm, reporte):
     return out
 
 
+def sellar_acciones(nuevo, adm, llave):
+    """Conexión al repositorio privado de acciones: viaja cifrada con la llave vigente de Combustible, así la
+    abre quien entra a ese informe. Hay que re-sellarla cada vez que esa llave cambia."""
+    if adm.get("acciones"):
+        nuevo["cajas"]["acciones"] = cifrar(json.dumps(adm["acciones"]), llave)
+    else:
+        nuevo["cajas"].pop("acciones", None)
+
+
 def sellar(nuevo, adm, reporte, texto, z=False):
     """Cifra el contenido de un reporte y arma sus accesos. Devuelve la clave maestra usada (bytes) o None en modo antiguo."""
     nuevo.setdefault("cajas", {})
@@ -174,11 +184,15 @@ def sellar(nuevo, adm, reporte, texto, z=False):
         adm.pop("usuarios", None)
         adm.pop("maestras", None)
         nuevo["cajas"][reporte] = cifrar(texto, adm["claves"][reporte], z)
+        if reporte == "combustible":
+            sellar_acciones(nuevo, adm, adm["claves"][reporte])
         nuevo.pop("accesos", None)
         nuevo["v"] = 2
         return None
     k = maestra(adm, reporte)
     nuevo["cajas"][reporte] = cifrar(texto, k, z)
+    if reporte == "combustible":
+        sellar_acciones(nuevo, adm, k)
     acc = accesos(adm, reporte)
     if not acc:
         raise ValueError("no hay ningún mail habilitado para %s: nadie podría entrar. Habilitalos desde Administración en la app." % reporte)
