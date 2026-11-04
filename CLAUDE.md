@@ -87,6 +87,13 @@ En «Consumo por unidad vs ideal» de cada mes hay una columna Acciones y en la 
 - Cada escritura relee el archivo antes de guardar: si no abre no lo pisa, y si dos personas guardan a la vez reintenta sobre lo nuevo. La versión anterior queda en el historial del repositorio privado.
 - Dar de baja a alguien de Combustible también implica **cambiar este token**, porque pudo quedárselo. Si el token vence, la app avisa y se carga uno nuevo en Administración.
 
+## Ficha por unidad
+
+Al tocar una patente o un interno se abre la ficha. En Combustible (`fiCombustible`, `motor/app.py`) todo se arma en pantalla leyendo las tablas por el nombre de sus columnas: indicadores, gráfico y una sola tabla «Consumo mes a mes» con las mismas columnas para todos los meses, sin distinguir cómo se hizo cada informe. Debajo, Urea, Tarjeta vs malla, Subas sin carga, Consumo real del motor, Filarus vs My Scania y Carga por carga, siempre en orden de mes. Las tablas de la Evaluación anual no entran porque repiten lo mismo.
+
+- Si una fila no trae Ideal, se usa el de los otros meses de la unidad o, si no hay, el de su modelo; Dif y Estado se calculan con los cortes de `config.py`, que `construir()` pasa al JavaScript. Es solo de la ficha: el informe de cada mes no cambia.
+- Si cambian los títulos de las columnas en `render.py`, hay que revisar `fiCombustible` y `FI_B`. Lo que no reconoce sale como tabla común al final. Mantenimiento sigue ese camino común.
+
 ## Seguridad
 
 - GitHub Pages sirve solo texto cifrado: `datos.json` y `originales.json` van con AES-256-CTR + HMAC-SHA256 (`motor/portal.py`). Cada caja guarda sus iteraciones en `n`; `n = 0` significa que la caja está cifrada con una **clave maestra** (64 bytes al azar), no con una contraseña.

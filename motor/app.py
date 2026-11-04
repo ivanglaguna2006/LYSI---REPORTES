@@ -7,6 +7,7 @@ import os
 import json
 import base64
 from . import portal as P
+from . import config as C
 
 PYODIDE = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/"
 
@@ -94,6 +95,20 @@ th[aria-sort=descending]:after{content:" ▼";font-size:.72em}
 #ficha h3 small{font:400 13.5px var(--cu);color:var(--tx2);margin-left:10px}
 #ficha .rep{font:600 13px var(--ti);letter-spacing:.1em;text-transform:uppercase;color:var(--lima2);margin:26px 0 -8px}
 #ficha th{position:static;white-space:normal}
+#ficha .fi-sub{margin:10px 0 0;color:var(--tx2);font-size:14.5px}
+#ficha .fi-k{margin:20px 0 4px}#ficha .fi-k .kv{font-size:23px}#ficha .fi-k .kl{font-size:13px;font-weight:500;color:var(--tx2)}
+#ficha h3{scroll-margin-top:70px}
+#ficha .nota{margin:2px 0 10px;font-size:13.5px}
+#ficha .fi-d{margin-top:20px}#ficha .fi-d .nota{margin:10px 14px}
+.fi-g{margin:4px 0 14px}
+.fi-gp{position:relative;display:flex;align-items:flex-end;gap:2px;height:170px;padding-right:66px;border-bottom:1px solid #8A8F84}
+.fi-c{position:relative;flex:1 1 0;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+.fi-c i{display:block;width:min(64%,46px);min-height:2px;border-radius:4px 4px 0 0}
+.fi-c b{font:600 12.5px var(--cu);color:var(--tx);margin-bottom:3px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fi-id{position:absolute;left:0;right:0;border-top:1.5px dashed var(--ink);z-index:1;pointer-events:none}
+.fi-id span{position:absolute;right:0;top:0;transform:translateY(-50%);width:62px;text-align:right;font:600 12px/1.15 var(--cu);color:var(--ink);background:#fff}
+.fi-gx{display:flex;gap:2px;margin-top:5px;padding-right:66px}.fi-gx span{flex:1 1 0;min-width:0;text-align:center;font-size:12.5px;line-height:1.15;color:var(--tx2)}
+@media (max-width:640px){.fi-c b{font-size:10.5px}.fi-gx span{font-size:11px}.fi-gp{height:140px;padding-right:44px}.fi-gx{padding-right:44px}.fi-id span{width:40px;font-size:11px}}
 @media (max-width:640px){.busb span{display:none}.busb{padding:7px 10px}#bus-barra{padding:6px 16px 8px}#bus-res{left:16px;right:16px}#ficha .fi{padding:0 14px 30px}#ficha h2{font-size:20px}.filt input{width:100%}}
 @media print{.filt,#bus-barra,#ficha,.busb{display:none!important}td.un{text-decoration:none}th[aria-sort]:after{content:""}}
 #imp-menu hr{border:0;border-top:1px solid var(--ln);margin:5px 4px;width:auto}
@@ -819,20 +834,93 @@ function recolectar(root,claves,rep,G,ord){var aps=root.querySelectorAll(".apart
    for(r=0;r<tb.rows.length;r++){var cs=tb.rows[r].cells,ok=false;for(k=0;k<cs.length&&!ok;k++){var u=unidadDe(limpio(cs[k]));if(u&&claves[u])ok=true;}
     if(!ok)continue;var sec=t.closest("section"),h2=sec&&sec.querySelector("h2"),tit=h2?limpio(h2):nm,sig=rep+"|"+tit+"|"+(hd?limpio(hd):"")+"|"+(sm?1:0);
     if(!G[sig]){G[sig]={rep:rep,tit:tit,hd:hd,sm:!!sm,rows:[]};ord.push(sig);}
-    if(G[sig].rows.length<400)G[sig].rows.push({n:nm,r:tb.rows[r],s:sm?limpio(sm).split(" · ")[0]:""});}}}}
+    if(G[sig].rows.length<400)G[sig].rows.push({n:nm,r:tb.rows[r],s:sm?limpio(sm).split(" · ")[0]:"",ap:aps[i],hd:hd});}}}}
+// Combustible en la ficha: un solo historial, mes por mes y con las mismas columnas, venga de donde venga cada informe.
+// Lee las tablas de la pantalla por el nombre de sus columnas. Lo que no reconoce sigue el camino común, tabla por tabla.
+var FI=__FI_CONF__,FI_M=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+var FI_COL={"Crítico":"#C62828","Atención":"#E65100","Normal":"#2E7D32","Coef. bajo":"#1565C0","A investigar":"#455A64","Sin km":"#9aa39f"};
+var FI_B=[{k:"urea",t:"Urea",n:"Litros de urea cada 100 litros de gasoil. Solo figuran los meses con exceso o con ratio bajo.",p:/^ratio$/},
+ {k:"malla",t:"Tarjeta vs malla",n:"Litros cargados con la tarjeta contra lo que subió el tanque según la malla, por mes.",p:/^malla l$/,x:/^¿?equivalen/},
+ {k:"subas",t:"Subas de tanque sin carga de tarjeta",n:"El tanque subió y no hay una carga de tarjeta cerca. Al lado, la carga más cercana.",p:/^niveles$/},
+ {k:"motor",t:"Consumo real del motor",n:"Mes calendario: lo que informa haber quemado el motor contra lo que se compró.",p:/^motor l$/},
+ {k:"comp",t:"Filarus vs My Scania",n:"Coeficiente que daría la unidad con los km de cada fuente.",p:/^km odometro$/},
+ {k:"cargas",t:"Carga por carga",n:"Cada carga de la tarjeta contra la suba de tanque que le corresponde.",p:/equivalen/,cerrado:1}];
+function fiNum(t){var v=parseFloat(String(t==null?"":t).replace(/[\s\u00a0*%]/g,"").replace(/[−–]/g,"-").replace(",","."));return isFinite(v)?v:null;}
+function fiFmt(v,d,sg){if(v==null)return "—";var s=Math.abs(v).toFixed(d).split("."),e=s[0].replace(/\B(?=(\d{3})+$)/g,"\u00a0");return (v<0?"−":sg?"+":"")+e+(d?","+s[1]:"");}
+function fiCols(hd){var m={};Array.prototype.forEach.call(hd.cells,function(c,i){m[norm(c.textContent)]=i;});return m;}
+function fiCel(r,m,ks){for(var i=0;i<ks.length;i++){var p=m[ks[i]];if(p!=null&&r.cells[p])return r.cells[p];}return null;}
+function fiTxt(r,m,ks){var c=fiCel(r,m,ks);return c?limpio(c):"";}
+function fiClave(nom){var m=/([a-záéíóú]+)\s+(\d{4})/.exec(norm(nom));if(!m)return 0;return Number(m[2])*100+FI_M.indexOf(m[1])+1;}
+function fiCorto(nom){var c=fiClave(nom);return c?FI_M[c%100-1].charAt(0).toUpperCase()+FI_M[c%100-1].slice(1,3):nom;}
+function fiIdeal(mod){var t=String(mod||"").toUpperCase(),k;if(/\b(MB|MERCEDES|BENZ|ACTROS|AXOR)\b/.test(t))return FI.mb;if(/ATEGO/.test(t))return null;for(k in FI.scania)if(t.indexOf(k)>=0)return FI.scania[k];return null;}
+function fiEstado(d){if(d==null)return "";d=Math.round(d*100)/100;return d>FI.critico?"Crítico":d>FI.atencion?"Atención":d<FI.bajo?"Coef. bajo":"Normal";}
+function fiBadge(t){return t?'<span class="est" style="background:'+(FI_COL[t]||"#777")+'">'+esc(t)+"</span>":"";}
+// Choferes de la unidad en un mes, leídos de la sección Choferes de esa pestaña (el informe calculado no los trae en la fila de consumo).
+function fiChoferes(ap,claves){var o={solo:[],mc:[]};
+ Array.prototype.forEach.call(ap.querySelectorAll("table"),function(t){var hd=t.tHead&&t.tHead.rows[t.tHead.rows.length-1],tb=t.tBodies[0];if(!hd||!tb)return;var m=fiCols(hd);
+  Array.prototype.forEach.call(tb.rows,function(r){if(r.classList.contains("tot"))return;
+   if(m["unidad(es)"]!=null&&m.chofer!=null){if(r.cells[m["unidad(es)"]]&&limpio(r.cells[m["unidad(es)"]]).split(/,\s*/).some(function(x){return claves[unidadDe(x)];}))o.solo.push(limpio(r.cells[m.chofer]));}
+   else if(m["litros del chofer"]!=null&&m.unidad!=null){var b=r.cells[m.unidad]&&r.cells[m.unidad].querySelector("b");if(b&&claves[unidadDe(limpio(b))])o.mc.push({ch:fiTxt(r,m,["chofer"]),l:fiTxt(r,m,["litros del chofer"]),p:fiTxt(r,m,["participacion"]),km:fiTxt(r,m,["km prorrateados"])});}});});
+ return o;}
+function fiTabla(tit,nota,cab,filas,cerrado){var t='<div class="tw"><table><thead><tr>'+cab+"</tr></thead><tbody>"+filas.join("")+"</tbody></table></div>",n=nota?'<p class="nota">'+esc(nota)+"</p>":"";
+ if(cerrado)return '<details class="hist fi-d"><summary><b>'+esc(tit)+'</b> <span class="sm">'+filas.length+(filas.length===1?" fila":" filas")+"</span></summary>"+n+t+"</details>";
+ return "<h3>"+esc(tit)+"</h3>"+n+t;}
+function fiGrafico(fs,ideal){var con=fs.filter(function(x){return x.coef!=null;});if(con.length<2)return "";
+ var tope=Math.max.apply(null,con.map(function(x){return x.coef;}).concat(ideal||0))*1.14,mx=Math.max.apply(null,con.map(function(x){return x.coef;})),ult=con[con.length-1],h="",x="",anios={};
+ fs.forEach(function(f){anios[Math.floor(f.clave/100)]=1;});var varios=Object.keys(anios).length>1;
+ fs.forEach(function(f){var c=f.coef,et=f.est,lab=c!=null&&(c===mx||f===ult),t=f.nom+": "+(c!=null?fiFmt(c,2)+" L/100 km":"sin coeficiente")+(et?" · "+et:"");
+  h+='<div class="fi-c" title="'+esc(t)+'">'+(lab?"<b>"+fiFmt(c,2)+"</b>":"")+(c!=null?'<i style="height:'+(c/tope*100).toFixed(1)+"%;background:"+(FI_COL[et]||"#6b7773")+'"></i>':"")+"</div>";
+  x+="<span>"+esc(fiCorto(f.nom))+(varios?"<br>"+String(Math.floor(f.clave/100)).slice(2):"")+"</span>";});
+ var alt=con.map(function(f){return fiCorto(f.nom)+" "+fiFmt(f.coef,1);}).join(", ");
+ return '<figure class="fi-g" role="img" aria-label="'+esc("Litros cada 100 km por mes: "+alt+(ideal?". Ideal "+fiFmt(ideal,1):""))+'"><div class="fi-gp">'+(ideal?'<div class="fi-id" style="bottom:'+(ideal/tope*100).toFixed(1)+'%"><span>Ideal '+fiFmt(ideal,1)+"</span></div>":"")+h+'</div><div class="fi-gx">'+x+"</div></figure>";}
+function fiCombustible(gs,claves){var res={h:"",n:0,resto:[],modelo:""},cons=[],bl={};
+ gs.forEach(function(g){if(g.rows[0]&&/^a\d{4}$/.test(g.rows[0].ap.id))return;
+  var hs=g.hd?Array.prototype.map.call(g.hd.cells,function(c){return norm(c.textContent);}):[],has=function(rx){return hs.some(function(t){return rx.test(t);});};
+  if(has(/^coef$/)&&has(/^gasoil l$/)&&/^consumo por unidad/.test(norm(g.tit))){cons=cons.concat(g.rows);return;}
+  if(has(/^unidad\(es\)$/)||has(/^litros del chofer$/))return;
+  for(var i=0;i<FI_B.length;i++){var b=FI_B[i];if(has(b.p)&&!(b.x&&has(b.x))){bl[b.k]=(bl[b.k]||[]).concat(g.rows);return;}}
+  res.resto.push(g);});
+ if(!cons.length&&!Object.keys(bl).length)return res;
+ var fs=cons.map(function(x){var m=fiCols(x.hd),r=x.r,cf=fiTxt(r,m,["coef"]),kmt=fiTxt(r,m,["km filarus","km"]),f={nom:x.n,clave:fiClave(x.n),km:fiNum(kmt),kmt:kmt||"—",l:fiNum(fiTxt(r,m,["gasoil l"])),coef:fiNum(cf),ideal:fiNum(fiTxt(r,m,["ideal"])),dif:fiNum(fiTxt(r,m,["dif"])),
+   est:fiTxt(r,m,["estado"]),modelo:fiTxt(r,m,["modelo"]),chof:fiTxt(r,m,["chofer principal","responsable"]),ven:fiTxt(r,m,["ventana"]),fte:fiTxt(r,m,["fuente km"]),obs:fiTxt(r,m,["observacion"]),mc:[]};
+  if(!f.chof){var c=fiChoferes(x.ap,claves),n=c.mc.length||c.solo.length;f.mc=c.mc.length>1?c.mc:[];f.chof=n>1?"Compartida — "+n+" choferes":(c.solo[0]||(c.mc[0]&&c.mc[0].ch)||"");}
+  return f;}).sort(function(a,b){return a.clave-b.clave;});
+ var ideal=null,i;for(i=fs.length-1;i>=0&&ideal==null;i--)ideal=fs[i].ideal;for(i=fs.length-1;i>=0&&ideal==null;i--)ideal=fiIdeal(fs[i].modelo);
+ for(i=fs.length-1;i>=0&&!res.modelo;i--)res.modelo=fs[i].modelo;
+ fs.forEach(function(f){if(f.ideal==null)f.ideal=ideal;if(f.coef!=null&&f.ideal!=null)f.dif=f.coef-f.ideal;else if(f.coef==null&&!f.est)f.est="Sin km";
+  if(!f.est)f.est=fiEstado(f.dif);});
+ if(fs.length){var kmT=0,lT=0,mes=0;fs.forEach(function(f){if(f.coef!=null&&f.km){kmT+=f.km;lT+=f.l||0;mes++;}});
+  var cA=kmT?lT*100/kmT:null,dA=cA!=null&&ideal?cA-ideal:null,kp=function(v,t,d){return '<div class="kpi"'+(d||"")+'><div class="kv">'+v+'</div><div class="kl">'+t+"</div></div>";},eA=fiEstado(dA);
+  res.h+='<div class="kpis fi-k">'+kp(fiFmt(cA,2),"L/100 km en el período",eA?' data-e="'+({"Crítico":"c","Atención":"a","Normal":"n","Coef. bajo":"b"})[eA]+'"':"")+kp(fiFmt(ideal,1),"ideal de la unidad")+kp(fiFmt(dA,2,true),"diferencia contra el ideal")+kp(fiFmt(kmT,0),"km en "+mes+(mes===1?" mes":" meses"))+kp(fiFmt(lT,0),"litros de gasoil")+"</div>";
+  res.h+="<h3>Consumo mes a mes</h3>"+'<p class="nota">Litros cada 100 km de cada mes. La línea marca el ideal de esta unidad.</p>'+fiGrafico(fs,ideal);
+  var cab='<th class="l">Mes</th><th class="l">Chofer</th><th class="r">km</th><th class="r">Gasoil L</th><th class="r">Coef</th><th class="r">Ideal</th><th class="r">Dif</th><th class="l">Estado</th><th class="l">Observación</th>';
+  res.h+=fiTabla("","",cab,fs.map(function(f){var tv=[f.ven,f.fte?"km "+f.fte:""].filter(Boolean).join(" · ");
+   return '<tr><td class="l"'+(tv?' title="'+esc(tv)+'"':"")+">"+esc(f.nom)+'</td><td class="l">'+esc(f.chof||"—")+'</td><td class="r">'+esc(f.kmt)+'</td><td class="r">'+fiFmt(f.l,2)+'</td><td class="r"><b>'+fiFmt(f.coef,2)+'</b></td><td class="r">'+fiFmt(f.ideal,1)+'</td><td class="r">'+fiFmt(f.dif,2,true)+'</td><td class="l">'+fiBadge(f.est)+'</td><td class="l">'+(f.obs?'<span class="obs">'+esc(f.obs)+"</span>":"")+"</td></tr>";})).replace("<h3></h3>","");
+  res.h+='<p class="nota">Dif = Coef − Ideal. Crítico: más de '+fiFmt(FI.critico,0)+". Atención: de "+fiFmt(FI.atencion,0)+" a "+fiFmt(FI.critico,0)+". Normal: hasta "+fiFmt(FI.atencion,0)+". Coef. bajo: menos de "+fiFmt(FI.bajo,0)+".</p>";res.n+=fs.length;}
+ var mcs=[];fs.forEach(function(f){f.mc.forEach(function(c){mcs.push('<tr><td class="l">'+esc(f.nom)+'</td><td class="l">'+esc(c.ch)+'</td><td class="r">'+esc(c.l)+'</td><td class="r">'+esc(c.p)+'</td><td class="r">'+esc(c.km)+"</td></tr>");});});
+ if(mcs.length)res.h+=fiTabla("Meses con más de un chofer","Cómo se repartieron los litros y los km entre quienes manejaron la unidad.",'<th class="l">Mes</th><th class="l">Chofer</th><th class="r">Litros</th><th class="r">Participación</th><th class="r">km</th>',mcs);
+ FI_B.forEach(function(b){var xs=bl[b.k];if(!xs)return;res.n+=xs.length;
+  var or=xs.map(function(x,i){return {x:x,i:i};}).sort(function(p,q){return (fiClave(p.x.n)-fiClave(q.x.n))||(p.i-q.i);}).map(function(o){return o.x;}),hd=or[0].hd,fuera={};
+  Array.prototype.forEach.call(hd.cells,function(c,i){if(/^(unidad|modelo|acciones)$/.test(norm(c.textContent)))fuera[i]=1;});
+  var cab='<th class="l">Mes</th>'+Array.prototype.filter.call(hd.cells,function(c,i){return !fuera[i];}).map(function(c){return '<th class="'+esc(c.className.replace(/\bord\b/,""))+'">'+esc(limpio(c))+"</th>";}).join("");
+  res.h+=fiTabla(b.t,b.n,cab,or.map(function(x){return '<tr><td class="l">'+esc(x.n)+"</td>"+Array.prototype.filter.call(x.r.cells,function(c,i){return !fuera[i];}).map(function(c){return c.outerHTML;}).join("")+"</tr>";}),b.cerrado);});
+ return res;}
 function abrirFicha(u){var M={},claves={},G={},ord=[],otros=[],faltan=[],k,act=CLAVE&&CLAVE.id;
  mapaUnidades(cont,M);for(k in VISTOS)if(k!==act)mapaUnidades(docDe(VISTOS[k]),M);
  claves[u]=1;if(M[u])claves[M[u]]=1;
  recolectar(cont,claves,$("donde").textContent,G,ord);
  for(k in VISTOS)if(k!==act){recolectar(docDe(VISTOS[k]),claves,VISTOS[k].n,G,ord);otros.push(VISTOS[k].n);}
  Array.prototype.forEach.call(document.querySelectorAll("[data-caja]"),function(f){var id=f.getAttribute("data-caja");if(id!==act&&!VISTOS[id]&&LYSI.cajas&&LYSI.cajas[id])faltan.push(f.getAttribute("data-nombre"));});
- var h="",rep="",tot=0;
- ord.forEach(function(sig){var g=G[sig];if(g.rep!==rep){rep=g.rep;h+='<p class="rep">'+esc(rep)+"</p>";}tot+=g.rows.length;
-  h+="<h3>"+esc(g.tit||"Detalle")+"<small>"+g.rows.length+(g.rows.length===1?" fila":" filas")+'</small></h3><div class="tw"><table><thead><tr><th>Pestaña</th>'+(g.sm?"<th>Detalle</th>":"")+(g.hd?g.hd.innerHTML:"")+"</tr></thead><tbody>";
-  g.rows.forEach(function(x){h+='<tr><td class="l">'+esc(x.n)+"</td>"+(g.sm?'<td class="l">'+esc(x.s)+"</td>":"")+x.r.innerHTML+"</tr>";});h+="</tbody></table></div>";});
+ var h="",rep="",tot=0,reps=[],sub="";
+ ord.forEach(function(sig){if(reps.indexOf(G[sig].rep)<0)reps.push(G[sig].rep);});
+ reps.forEach(function(nr){var gs=ord.filter(function(sig){return G[sig].rep===nr;}).map(function(sig){return G[sig];}),o=fiCombustible(gs,claves);
+  if(o.modelo&&!sub)sub=o.modelo;h+='<p class="rep">'+esc(nr)+"</p>"+o.h;tot+=o.n;
+  o.resto.forEach(function(g){tot+=g.rows.length;
+   h+="<h3>"+esc(g.tit||"Detalle")+"<small>"+g.rows.length+(g.rows.length===1?" fila":" filas")+'</small></h3><div class="tw"><table><thead><tr><th>Pestaña</th>'+(g.sm?"<th>Detalle</th>":"")+(g.hd?g.hd.innerHTML:"")+"</tr></thead><tbody>";
+   g.rows.forEach(function(x){h+='<tr><td class="l">'+esc(x.n)+"</td>"+(g.sm?'<td class="l">'+esc(x.s)+"</td>":"")+x.r.innerHTML+"</tr>";});h+="</tbody></table></div>";});});
  if(!tot)h+='<p class="nota">No hay filas de esta unidad en lo que está cargado.</p>';
  if(faltan.length)h+='<p class="nota">Para ver acá también lo de «'+esc(faltan.join("» y «"))+'» sobre esta unidad, entrá una vez a ese reporte con su contraseña y volvé: queda disponible hasta que cierres o recargues la página.</p>';
- $("ficha-t").textContent="Unidad "+u+(M[u]?" · "+M[u]:"");$("ficha-c").innerHTML=(ACN?'<div id="ficha-acn"></div>':"")+h;
+ $("ficha-t").textContent="Unidad "+u+(M[u]?" · "+M[u]:"");$("ficha-c").innerHTML=(sub?'<p class="fi-sub">'+esc(sub)+"</p>":"")+(ACN?'<div id="ficha-acn"></div>':"")+h;
  Array.prototype.forEach.call($("ficha-c").querySelectorAll(".acn-col"),function(x){x.remove();});if(ACN){ACN_F=claves;acnFicha();acnRefrescar();}var f=$("ficha");f.hidden=false;f.querySelector(".fi").scrollTop=0;document.body.style.overflow="hidden";enfocar($("ficha-x"));}
 function cerrarFicha(){ACN_F=null;var f=$("ficha");if(f.hidden)return;f.hidden=true;$("ficha-c").innerHTML="";document.body.style.overflow="";}
 $("ficha").addEventListener("click",function(ev){if(ev.target===ev.currentTarget||ev.target.id==="ficha-x")cerrarFicha();});
@@ -1261,6 +1349,8 @@ def construir(datos):
     cripto = cripto.replace('function b64(s){var bin=atob(s),o=new Uint8Array(bin.length),i;for(i=0;i<bin.length;i++)o[i]=bin.charCodeAt(i);return o;}', "")
     py = json.dumps(fuentes_py(), ensure_ascii=False).replace("</", "<\\/")
     d = json.dumps(datos, ensure_ascii=False).replace("</", "<\\/")
+    conf = {"mb": C.IDEAL_MB, "scania": C.IDEALES_SCANIA, "critico": C.UMBRAL_CRITICO, "atencion": C.UMBRAL_ATENCION, "bajo": C.UMBRAL_COEF_BAJO}
+    js_ui = JS_UI.replace("__FI_CONF__", json.dumps(conf))
     return f'''<!doctype html>
 <html lang="es-AR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow"><title>LYSI Reportes</title>
@@ -1272,7 +1362,7 @@ def construir(datos):
 <script id="py" type="application/json">{py}</script>
 <script id="datos">window.LYSI=/*D0*/{d}/*D1*/;</script>
 <script>var PLANTILLA=document.documentElement.outerHTML;var LYSI=window.LYSI;
-{cripto}{JS_UI}</script></body></html>'''
+{cripto}{js_ui}</script></body></html>'''
 
 
 def semilla(base_datos, claves):
